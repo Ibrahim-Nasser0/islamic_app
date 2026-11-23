@@ -7,6 +7,7 @@ import 'core/routes/routes.dart';
 import 'core/theme/app_theme.dart';
 import 'core/di/injection_container.dart' as di;
 import 'core/localization/localization_manager.dart';
+import 'core/widgets/app_unfocus.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -61,9 +62,15 @@ class MyApp extends StatelessWidget {
           themeMode: ThemeMode.system,
           initialRoute: Routes.splash,
           onGenerateRoute: AppRouter.generateRoute,
-          localizationsDelegates: context.localizationDelegates,
+          localizationsDelegates: [
+            EasyLocalization.of(context)!.delegate,
+            ...GlobalMaterialLocalizations.delegates,
+          ],
           supportedLocales: context.supportedLocales,
           locale: context.locale,
+          builder: (context, child) {
+            return AppUnfocus(child: child ?? const SizedBox.shrink());
+          },
         );
       },
     );

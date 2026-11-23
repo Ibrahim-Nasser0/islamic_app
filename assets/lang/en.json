@@ -134,5 +134,17 @@
   "theme_mode": "Theme",
   "light_mode": "Light",
   "dark_mode": "Dark",
-  "system_mode": "System Default"
+  "system_mode": "System Default",
+  "surahs": "Surahs",
+  "ajzaa": "Juz",
+  "bookmarks": "Bookmarks",
+  "no_search_results": "No matching search results",
+  "no_bookmarks_yet": "No saved bookmarks yet",
+  "resume_reading": "Resume",
+  "search_surah_hint": "Search by surah name or number...",
+  "juz": "Juz",
+  "ayah": "Ayah",
+  "starts_from": "Starts from",
+  "previous_surah": "Previous Surah",
+  "next_surah": "Next Surah"
 }

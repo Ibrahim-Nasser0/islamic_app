@@ -11,4 +11,5 @@ class Routes {
   static const String settings = '/settings';
   static const String qibla = '/qibla';
   static const String tasbeeh = '/tasbeeh';
+  static const String quranReader = '/quran-reader';
 }

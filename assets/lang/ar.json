@@ -134,5 +134,17 @@
   "theme_mode": "المظهر",
   "light_mode": "فاتح",
   "dark_mode": "داكن",
-  "system_mode": "تلقائي (حسب النظام)"
+  "system_mode": "تلقائي (حسب النظام)",
+  "surahs": "السور",
+  "ajzaa": "الأجزاء",
+  "bookmarks": "المحفوظات",
+  "no_search_results": "لا توجد نتائج بحث مطابقة",
+  "no_bookmarks_yet": "لا توجد علامات مرجعية محفوظة بعد",
+  "resume_reading": "متابعة",
+  "search_surah_hint": "ابحث باسم السورة أو رقمها...",
+  "juz": "الجزء",
+  "ayah": "آية",
+  "starts_from": "يبدأ من",
+  "previous_surah": "السورة السابقة",
+  "next_surah": "السورة التالية"
 }

@@ -4,6 +4,7 @@ import '../../features/splash/splash_screen.dart';
 import '../../features/home/views/home_screen.dart';
 import '../../features/onboarding/presentation/views/on_boarding_view.dart';
 import '../../features/qibla/views/qibla_screen.dart';
+import '../../features/quran/views/quran_reader_screen.dart';
 import '../../features/settings/views/settings_screen.dart';
 import '../../features/tasbeeh/views/tasbeeh_screen.dart';
 
@@ -28,6 +29,17 @@ class AppRouter {
         return _buildRoute(const QiblaScreen(), settings);
       case Routes.tasbeeh:
         return _buildRoute(const TasbeehScreen(), settings);
+      case Routes.quranReader:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        final surahNum = args['surahNumber'] as int? ?? 1;
+        final initialAyah = args['initialAyah'] as int? ?? 1;
+        return _buildRoute(
+          QuranReaderScreen(
+            initialSurahNumber: surahNum,
+            initialAyah: initialAyah,
+          ),
+          settings,
+        );
       default:
         return _buildRoute(
           Scaffold(
