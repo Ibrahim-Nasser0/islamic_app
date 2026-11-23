@@ -21,26 +21,37 @@ class AzkarTabView extends StatelessWidget {
 
     final azkarCategories = [
       {
+        'id': 'morning',
         'title': 'azkar_morning'.tr(),
-        'count': 'items_count'.tr(namedArgs: {'count': '28'}),
+        'count': 'items_count'.tr(namedArgs: {'count': '8'}),
         'icon': Icons.wb_sunny_rounded,
       },
       {
+        'id': 'evening',
         'title': 'azkar_evening'.tr(),
-        'count': 'items_count'.tr(namedArgs: {'count': '25'}),
+        'count': 'items_count'.tr(namedArgs: {'count': '7'}),
         'icon': FlutterIslamicIcons.solidCrescentMoon,
       },
       {
+        'id': 'after_prayer',
         'title': 'azkar_after_prayer'.tr(),
-        'count': 'items_count'.tr(namedArgs: {'count': '18'}),
+        'count': 'items_count'.tr(namedArgs: {'count': '5'}),
         'icon': FlutterIslamicIcons.solidPrayer,
       },
       {
+        'id': 'sleep',
         'title': 'azkar_sleep'.tr(),
-        'count': 'items_count'.tr(namedArgs: {'count': '15'}),
+        'count': 'items_count'.tr(namedArgs: {'count': '4'}),
         'icon': FlutterIslamicIcons.crescentMoon,
       },
       {
+        'id': 'quranic_duas',
+        'title': 'azkar_quranic_duas'.tr(),
+        'count': 'items_count'.tr(namedArgs: {'count': '4'}),
+        'icon': FlutterIslamicIcons.quran2,
+      },
+      {
+        'id': 'tasbeeh',
         'title': 'smart_tasbeeh'.tr(),
         'count': 'tasbeeh_counter_desc'.tr(),
         'icon': FlutterIslamicIcons.solidTasbih,
@@ -60,7 +71,7 @@ class AzkarTabView extends StatelessWidget {
           Gap(12.h),
 
           ...azkarCategories.map((cat) {
-            final isTasbeeh = cat['title'] == 'smart_tasbeeh'.tr();
+            final isTasbeeh = cat['id'] == 'tasbeeh';
 
             return Container(
               margin: EdgeInsets.only(bottom: 12.h),
@@ -71,6 +82,12 @@ class AzkarTabView extends StatelessWidget {
                     AppHaptics.light();
                     if (isTasbeeh) {
                       AppRouter.navigateTo(context, Routes.tasbeeh);
+                    } else {
+                      AppRouter.navigateTo(
+                        context,
+                        Routes.azkarCategory,
+                        arguments: {'categoryId': cat['id']},
+                      );
                     }
                   },
                   borderRadius: BorderRadius.circular(16.r),

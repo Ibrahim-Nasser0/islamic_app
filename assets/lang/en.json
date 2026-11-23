@@ -146,5 +146,21 @@
   "ayah": "Ayah",
   "starts_from": "Starts from",
   "previous_surah": "Previous Surah",
-  "next_surah": "Next Surah"
+  "next_surah": "Next Surah",
+  "azkar_morning_desc": "Fortress of the Muslim from Fajr until sunrise",
+  "azkar_evening_desc": "Protection of the Muslim from Asr until sunset",
+  "azkar_after_prayer_desc": "Remembrances and Istighfar after obligatory prayers",
+  "azkar_sleep_desc": "Sunnah and supplications for sleep and peace",
+  "azkar_quranic_duas": "Quranic Supplications",
+  "azkar_quranic_duas_desc": "Comprehensive prayers from the Holy Quran",
+  "dhikr_virtue": "Virtue",
+  "dhikr_reference": "Source",
+  "category_completed_celebration": "Blessed! You completed this chapter of Dhikr",
+  "category_completed_message": "May Allah accept your devotion and bless your deeds",
+  "repeat_target": "Target: {count}",
+  "remaining_repetition": "{count} remaining",
+  "reset_azkar_confirm": "Do you want to reset the counters for this chapter?",
+  "hadith_narrator": "Narrator",
+  "share_dhikr": "Share Dhikr",
+  "share_hadith": "Share Hadith"
 }

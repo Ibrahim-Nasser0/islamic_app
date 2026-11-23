@@ -5,6 +5,10 @@ import '../../features/home/views/home_screen.dart';
 import '../../features/onboarding/presentation/views/on_boarding_view.dart';
 import '../../features/qibla/views/qibla_screen.dart';
 import '../../features/quran/views/quran_reader_screen.dart';
+import '../../features/azkar/views/azkar_category_screen.dart';
+import '../../features/hadith/domain/entities/hadith_item.dart';
+import '../../features/hadith/views/hadith_detail_screen.dart';
+import '../../features/hadith/views/hadith_list_screen.dart';
 import '../../features/settings/views/settings_screen.dart';
 import '../../features/tasbeeh/views/tasbeeh_screen.dart';
 
@@ -38,6 +42,28 @@ class AppRouter {
             initialSurahNumber: surahNum,
             initialAyah: initialAyah,
           ),
+          settings,
+        );
+      case Routes.azkarCategory:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        final categoryId = args['categoryId'] as String? ?? 'morning';
+        return _buildRoute(
+          AzkarCategoryScreen(categoryId: categoryId),
+          settings,
+        );
+      case Routes.hadithReader:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        final bookId = args['bookId'] as String? ?? 'nawawi';
+        final bookTitle = args['bookTitle'] as String? ?? 'الأربعون النووية';
+        return _buildRoute(
+          HadithListScreen(bookId: bookId, bookTitle: bookTitle),
+          settings,
+        );
+      case Routes.hadithDetail:
+        final args = settings.arguments as Map<String, dynamic>? ?? {};
+        final hadith = args['hadith'] as HadithItem;
+        return _buildRoute(
+          HadithDetailScreen(hadith: hadith),
           settings,
         );
       default:

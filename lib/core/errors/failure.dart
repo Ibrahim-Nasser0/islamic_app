@@ -21,7 +21,7 @@ class ServerFailure extends Failure {
 /// Cache Failure
 /// Represents errors with local storage
 class CacheFailure extends Failure {
-  const CacheFailure({super.message = 'Failed to load cached data.'});
+  const CacheFailure(String s, {super.message = 'Failed to load cached data.'});
 }
 
 /// Network Failure

@@ -12,4 +12,7 @@ class Routes {
   static const String qibla = '/qibla';
   static const String tasbeeh = '/tasbeeh';
   static const String quranReader = '/quran-reader';
+  static const String azkarCategory = '/azkar-category';
+  static const String hadithReader = '/hadith-reader';
+  static const String hadithDetail = '/hadith-detail';
 }

@@ -146,5 +146,21 @@
   "ayah": "آية",
   "starts_from": "يبدأ من",
   "previous_surah": "السورة السابقة",
-  "next_surah": "السورة التالية"
+  "next_surah": "السورة التالية",
+  "azkar_morning_desc": "حصن المسلم من الفجر حتى شروق الشمس",
+  "azkar_evening_desc": "تحصين المسلم من العصر حتى غروب الشمس",
+  "azkar_after_prayer_desc": "الأذكار والاستغفار عقب الصلوات المفروضة",
+  "azkar_sleep_desc": "سنن وأدعية النوم لحفظ العبد وسكينته",
+  "azkar_quranic_duas": "أدعية من القرآن الكريم",
+  "azkar_quranic_duas_desc": "جوامع الدعاء من آيات التنزيل الحكيم",
+  "dhikr_virtue": "فضل الذكر",
+  "dhikr_reference": "المصدر",
+  "category_completed_celebration": "هنيئاً لك! أتممت هذا الباب من الذكر",
+  "category_completed_message": "تقبّل الله طاعتكم وجعلها في موازين حسناتكم",
+  "repeat_target": "التكرار: {count}",
+  "remaining_repetition": "متبقي {count}",
+  "reset_azkar_confirm": "هل تود إعادة ضبط عدادات هذا الباب؟",
+  "hadith_narrator": "الراوي",
+  "share_dhikr": "مشاركة الذكر",
+  "share_hadith": "مشاركة الحديث"
 }

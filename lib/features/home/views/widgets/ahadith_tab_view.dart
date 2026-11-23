@@ -4,8 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../core/routes/app_router.dart';
+import '../../../../core/routes/routes.dart';
 import '../../../../core/theme/typography.dart';
 import '../../../../core/utils/extensions.dart';
+import '../../../../core/utils/haptics.dart';
 
 /// Tab 3: Prophetic Ahadith Collection
 class AhadithTabView extends StatelessWidget {
@@ -18,13 +21,29 @@ class AhadithTabView extends StatelessWidget {
 
     final books = [
       {
+        'id': 'nawawi_forty',
         'title': 'nawawi_forty'.tr(),
         'subtitle': 'nawawi_forty_subtitle'.tr(),
-        'count': 'hadiths_count'.tr(namedArgs: {'count': '42'}),
+        'count': 'hadiths_count'.tr(namedArgs: {'count': '24'}),
       },
-      {'title': 'sahih_bukhari'.tr(), 'subtitle': 'sahih_bukhari_subtitle'.tr(), 'count': 'selected_chapters'.tr()},
-      {'title': 'sahih_muslim'.tr(), 'subtitle': 'sahih_muslim_subtitle'.tr(), 'count': 'selected_chapters'.tr()},
-      {'title': 'riyad_assalihin'.tr(), 'subtitle': 'riyad_assalihin_subtitle'.tr(), 'count': 'selected_chapters'.tr()},
+      {
+        'id': 'sahih_bukhari',
+        'title': 'sahih_bukhari'.tr(),
+        'subtitle': 'sahih_bukhari_subtitle'.tr(),
+        'count': 'hadiths_count'.tr(namedArgs: {'count': '8'}),
+      },
+      {
+        'id': 'sahih_muslim',
+        'title': 'sahih_muslim'.tr(),
+        'subtitle': 'sahih_muslim_subtitle'.tr(),
+        'count': 'hadiths_count'.tr(namedArgs: {'count': '6'}),
+      },
+      {
+        'id': 'riyad_assalihin',
+        'title': 'riyad_assalihin'.tr(),
+        'subtitle': 'riyad_assalihin_subtitle'.tr(),
+        'count': 'hadiths_count'.tr(namedArgs: {'count': '6'}),
+      },
     ];
 
     return SingleChildScrollView(
@@ -97,50 +116,69 @@ class AhadithTabView extends StatelessWidget {
           ...books.map((book) {
             return Container(
               margin: EdgeInsets.only(bottom: 12.h),
-              padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
                 borderRadius: BorderRadius.circular(16.r),
                 border: Border.all(color: appColors.cardBorder, width: 0.8),
                 boxShadow: appColors.cardShadow,
               ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44.w,
-                    height: 44.w,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: Icon(
-                      FlutterIslamicIcons.solidMohammad,
-                      color: theme.colorScheme.primary,
-                      size: 20.sp,
-                    ),
-                  ),
-                  Gap(14.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    AppHaptics.light();
+                    AppRouter.navigateTo(
+                      context,
+                      Routes.hadithReader,
+                      arguments: {
+                        'bookId': book['id'],
+                        'bookTitle': book['title'],
+                      },
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16.r),
+                  child: Padding(
+                    padding: EdgeInsets.all(16.r),
+                    child: Row(
                       children: [
-                        Text(
-                          book['title'] as String,
-                          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
+                        Container(
+                          width: 44.w,
+                          height: 44.w,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Icon(
+                            FlutterIslamicIcons.solidMohammad,
+                            color: theme.colorScheme.primary,
+                            size: 20.sp,
+                          ),
                         ),
-                        Gap(2.h),
+                        Gap(14.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                book['title'] as String,
+                                style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
+                              ),
+                              Gap(2.h),
+                              Text(
+                                book['subtitle'] as String,
+                                style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
+                              ),
+                            ],
+                          ),
+                        ),
                         Text(
-                          book['subtitle'] as String,
-                          style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
+                          book['count'] as String,
+                          style: TextStyle(fontSize: 11.sp, color: appColors.accentGold),
                         ),
                       ],
                     ),
                   ),
-                  Text(
-                    book['count'] as String,
-                    style: TextStyle(fontSize: 11.sp, color: appColors.accentGold),
-                  ),
-                ],
+                ),
               ),
             );
           }),
