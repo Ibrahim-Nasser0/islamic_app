@@ -14,6 +14,7 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
   final String nextPrayerName;
   final String nextPrayerTime;
   final String remainingTime;
+  final VoidCallback? onLocationTap;
 
   const KaabaAtmosphericHeroCard({
     super.key,
@@ -23,6 +24,7 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
     this.nextPrayerName = 'الظهر',
     this.nextPrayerTime = '11:45 ص',
     this.remainingTime = 'متبقي 01 س و 15 د',
+    this.onLocationTap,
   });
 
   @override
@@ -83,22 +85,26 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.25),
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.8),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.location_on_rounded, size: 14.sp, color: atmosphere.accentColor),
-              SizedBox(width: 4.w),
-              Text(
-                location,
-                style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.white),
-              ),
-            ],
+        InkWell(
+          onTap: onLocationTap,
+          borderRadius: BorderRadius.circular(16.r),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.25),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.8),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.location_on_rounded, size: 14.sp, color: atmosphere.accentColor),
+                SizedBox(width: 4.w),
+                Text(
+                  location,
+                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.white),
+                ),
+              ],
+            ),
           ),
         ),
         Text(

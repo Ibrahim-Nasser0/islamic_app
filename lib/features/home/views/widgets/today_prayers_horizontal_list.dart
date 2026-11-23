@@ -6,11 +6,11 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/typography.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/haptics.dart';
-import '../../presentation/models/prayer_item_model.dart';
+import '../../domain/entities/prayer_time_entry.dart';
 
 /// Horizontal Row List displaying all prayers of the day with accurate status
 class TodayPrayersHorizontalList extends StatelessWidget {
-  final List<PrayerItemModel> prayers;
+  final List<PrayerTimeEntry> prayers;
   final ValueChanged<int>? onPrayerTap;
 
   const TodayPrayersHorizontalList({
@@ -58,8 +58,9 @@ class TodayPrayersHorizontalList extends StatelessWidget {
             separatorBuilder: (context, index) => SizedBox(width: 10.w),
             itemBuilder: (context, index) {
               final item = prayers[index];
-              final isNext = item.isNextOrCurrent;
-              final isPast = item.status == PrayerStatus.past;
+              final isNext = item.isNext;
+              final isPast = item.isPast;
+              final formattedTime = DateFormat('hh:mm a', context.locale.languageCode).format(item.time);
 
               return InkWell(
                 onTap: () {
@@ -124,7 +125,7 @@ class TodayPrayersHorizontalList extends StatelessWidget {
 
                       // Time Text
                       Text(
-                        item.time,
+                        formattedTime,
                         style: TextStyle(
                           fontSize: 13.sp,
                           fontWeight: FontWeight.bold,

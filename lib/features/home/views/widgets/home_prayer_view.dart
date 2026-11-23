@@ -1,74 +1,34 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../core/di/injection_container.dart';
 import '../../../../core/theme/typography.dart';
 import '../../../../core/utils/extensions.dart';
-import '../../presentation/models/prayer_item_model.dart';
+import '../../../../core/widgets/custom_skeleton.dart';
+import '../../presentation/cubit/prayer_times_cubit.dart';
+import '../../presentation/cubit/prayer_times_state.dart';
 import 'home_quick_actions_bar.dart';
 import 'kaaba_atmospheric_hero_card.dart';
 import 'today_prayers_horizontal_list.dart';
 
-/// Tab 0: Home & Prayer Times with Atmospheric Hero Card & Horizontal Prayers Row
-class HomePrayerView extends StatefulWidget {
+/// Tab 0: Home & Prayer Times connected to PrayerTimesCubit with live countdown
+class HomePrayerView extends StatelessWidget {
   const HomePrayerView({super.key});
 
   @override
-  State<HomePrayerView> createState() => _HomePrayerViewState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<PrayerTimesCubit>()..loadPrayerTimes(),
+      child: const _HomePrayerContent(),
+    );
+  }
 }
 
-class _HomePrayerViewState extends State<HomePrayerView> {
-  final List<PrayerItemModel> _prayers = const [
-    PrayerItemModel(
-      nameAr: 'الفجر',
-      nameEn: 'Fajr',
-      time: '04:52 ص',
-      icon: Icons.wb_twilight_rounded,
-      status: PrayerStatus.past,
-      remainingTime: 'أُقيمت',
-    ),
-    PrayerItemModel(
-      nameAr: 'الشروق',
-      nameEn: 'Sunrise',
-      time: '06:21 ص',
-      icon: Icons.wb_sunny_outlined,
-      status: PrayerStatus.past,
-      remainingTime: 'انتهى',
-    ),
-    PrayerItemModel(
-      nameAr: 'الظهر',
-      nameEn: 'Dhuhr',
-      time: '11:45 ص',
-      icon: Icons.wb_sunny_rounded,
-      status: PrayerStatus.next,
-      remainingTime: 'باقي 01:15 س',
-    ),
-    PrayerItemModel(
-      nameAr: 'العصر',
-      nameEn: 'Asr',
-      time: '02:48 م',
-      icon: Icons.filter_drama_rounded,
-      status: PrayerStatus.upcoming,
-      remainingTime: 'باقي 04:18 س',
-    ),
-    PrayerItemModel(
-      nameAr: 'المغرب',
-      nameEn: 'Maghrib',
-      time: '05:08 م',
-      icon: Icons.nights_stay_outlined,
-      status: PrayerStatus.upcoming,
-      remainingTime: 'باقي 06:38 س',
-    ),
-    PrayerItemModel(
-      nameAr: 'العشاء',
-      nameEn: 'Isha',
-      time: '06:32 م',
-      icon: Icons.bedtime_rounded,
-      status: PrayerStatus.upcoming,
-      remainingTime: 'باقي 08:02 س',
-    ),
-  ];
+class _HomePrayerContent extends StatelessWidget {
+  const _HomePrayerContent();
 
   @override
   Widget build(BuildContext context) {
@@ -80,22 +40,62 @@ class _HomePrayerViewState extends State<HomePrayerView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 1. Dynamic Atmospheric Kaaba Hero Card
-          const KaabaAtmosphericHeroCard(
-            location: 'القاهرة، مصر',
-            hijriDate: '15 شعبان 1448 هـ',
-            gregorianDate: '23 نوفمبر',
-            nextPrayerName: 'الظهر',
-            nextPrayerTime: '11:45 ص',
-            remainingTime: 'متبقي 01 س و 15 د',
+          // 1. Dynamic Hero Card with Live Countdown
+          BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
+            builder: (context, state) {
+              if (state is PrayerTimesLoaded) {
+                final schedule = state.schedule;
+                final next = schedule.nextPrayer;
+                final nextName = context.locale.languageCode == 'ar'
+                    ? next.nameAr
+                    : next.nameEn;
+                final nextTimeStr = DateFormat(
+                  'hh:mm a',
+                  context.locale.languageCode,
+                ).format(next.time);
+
+                return KaabaAtmosphericHeroCard(
+                  location: schedule.locationName,
+                  hijriDate: schedule.hijriDate,
+                  gregorianDate: schedule.gregorianDate,
+                  nextPrayerName: nextName,
+                  nextPrayerTime: nextTimeStr,
+                  remainingTime: 'متبقي ${state.formattedRemainingTime}',
+                  onLocationTap: () =>
+                      context.read<PrayerTimesCubit>().refreshLocation(),
+                );
+              }
+
+              // Loading Shimmer Skeleton
+              return CustomSkeleton(
+                height: 220.h,
+                borderRadius: 24,
+              );
+            },
           ),
           Gap(20.h),
 
           // 2. Horizontal Prayers List Row
-          TodayPrayersHorizontalList(
-            prayers: _prayers,
-            onPrayerTap: (index) {
-              // Tap feedback or details
+          BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
+            buildWhen: (prev, curr) {
+              if (prev is PrayerTimesLoaded && curr is PrayerTimesLoaded) {
+                // Only rebuild list if prayers change or once a minute
+                return prev.schedule != curr.schedule;
+              }
+              return true;
+            },
+            builder: (context, state) {
+              if (state is PrayerTimesLoaded) {
+                return TodayPrayersHorizontalList(
+                  prayers: state.schedule.prayers,
+                );
+              }
+
+              // Loading Shimmer Skeleton for prayers row
+              return CustomSkeleton(
+                height: 120.h,
+                borderRadius: 16,
+              );
             },
           ),
           Gap(24.h),
@@ -126,7 +126,11 @@ class _HomePrayerViewState extends State<HomePrayerView> {
         children: [
           Row(
             children: [
-              Icon(Icons.auto_stories_rounded, size: 18.sp, color: appColors.accentGold),
+              Icon(
+                Icons.auto_stories_rounded,
+                size: 18.sp,
+                color: appColors.accentGold,
+              ),
               SizedBox(width: 8.w),
               Text(
                 'daily_ayah'.tr(),

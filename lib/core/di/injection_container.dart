@@ -6,6 +6,11 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../network/network_info.dart';
 import '../api/api_interceptors.dart';
 import '../config/app_config.dart';
+import '../../features/home/data/datasources/location_service.dart';
+import '../../features/home/data/datasources/prayer_calculation_service.dart';
+import '../../features/home/data/repositories/prayer_repository_impl.dart';
+import '../../features/home/domain/repositories/prayer_repository.dart';
+import '../../features/home/presentation/cubit/prayer_times_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -46,8 +51,12 @@ Future<void> init() async {
     return dio;
   });
 
-  // Register your dependencies here
-  // Example:
-  // sl.registerFactory(() => LoginUseCase(sl()));
-  // sl.registerFactory(() => AuthRepository(sl()));
+  // Prayer Times Feature
+  sl.registerLazySingleton<PrayerCalculationService>(() => PrayerCalculationService());
+  sl.registerLazySingleton<LocationService>(() => LocationService());
+  sl.registerLazySingleton<PrayerRepository>(() => PrayerRepositoryImpl(
+        calculationService: sl(),
+        locationService: sl(),
+      ));
+  sl.registerFactory(() => PrayerTimesCubit(sl()));
 }
