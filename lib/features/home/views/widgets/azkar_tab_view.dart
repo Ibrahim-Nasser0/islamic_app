@@ -4,8 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../core/routes/app_router.dart';
+import '../../../../core/routes/routes.dart';
 import '../../../../core/theme/typography.dart';
 import '../../../../core/utils/extensions.dart';
+import '../../../../core/utils/haptics.dart';
 
 /// Tab 2: Azkar & Tasbeeh
 class AzkarTabView extends StatelessWidget {
@@ -57,52 +60,68 @@ class AzkarTabView extends StatelessWidget {
           Gap(12.h),
 
           ...azkarCategories.map((cat) {
+            final isTasbeeh = cat['title'] == 'smart_tasbeeh'.tr();
+
             return Container(
               margin: EdgeInsets.only(bottom: 12.h),
-              padding: EdgeInsets.all(16.r),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: appColors.cardBorder, width: 0.8),
-                boxShadow: appColors.cardShadow,
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44.w,
-                    height: 44.w,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    AppHaptics.light();
+                    if (isTasbeeh) {
+                      AppRouter.navigateTo(context, Routes.tasbeeh);
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(16.r),
+                  child: Container(
+                    padding: EdgeInsets.all(16.r),
                     decoration: BoxDecoration(
-                      color: appColors.badgeBackground,
-                      borderRadius: BorderRadius.circular(12.r),
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(16.r),
+                      border: Border.all(color: appColors.cardBorder, width: 0.8),
+                      boxShadow: appColors.cardShadow,
                     ),
-                    child: Icon(
-                      cat['icon'] as IconData,
-                      color: appColors.accentGold,
-                      size: 22.sp,
-                    ),
-                  ),
-                  Gap(14.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        Text(
-                          cat['title'] as String,
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
+                        Container(
+                          width: 44.w,
+                          height: 44.w,
+                          decoration: BoxDecoration(
+                            color: appColors.badgeBackground,
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          child: Icon(
+                            cat['icon'] as IconData,
+                            color: appColors.accentGold,
+                            size: 22.sp,
                           ),
                         ),
-                        Gap(4.h),
-                        Text(
-                          cat['count'] as String,
-                          style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
+                        Gap(14.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                cat['title'] as String,
+                                style: TextStyle(
+                                  fontSize: 15.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Gap(4.h),
+                              Text(
+                                cat['count'] as String,
+                                style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
+                              ),
+                            ],
+                          ),
                         ),
+                        Icon(Icons.arrow_forward_ios_rounded, size: 16.sp, color: appColors.textMuted),
                       ],
                     ),
                   ),
-                  Icon(Icons.arrow_forward_ios_rounded, size: 16.sp, color: appColors.textMuted),
-                ],
+                ),
               ),
             );
           }),

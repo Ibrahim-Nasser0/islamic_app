@@ -37,7 +37,7 @@ class HomeQuickActionsBar extends StatelessWidget {
       {
         'title': 'tasbeeh'.tr(),
         'icon': FlutterIslamicIcons.solidTasbih,
-        'route': null,
+        'route': Routes.tasbeeh,
       },
     ];
 

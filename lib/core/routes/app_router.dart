@@ -5,6 +5,7 @@ import '../../features/home/views/home_screen.dart';
 import '../../features/onboarding/presentation/views/on_boarding_view.dart';
 import '../../features/qibla/views/qibla_screen.dart';
 import '../../features/settings/views/settings_screen.dart';
+import '../../features/tasbeeh/views/tasbeeh_screen.dart';
 
 /// Application Router
 class AppRouter {
@@ -25,6 +26,8 @@ class AppRouter {
         return _buildRoute(const SettingsScreen(), settings);
       case Routes.qibla:
         return _buildRoute(const QiblaScreen(), settings);
+      case Routes.tasbeeh:
+        return _buildRoute(const TasbeehScreen(), settings);
       default:
         return _buildRoute(
           Scaffold(
