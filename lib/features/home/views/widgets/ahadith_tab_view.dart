@@ -24,25 +24,25 @@ class AhadithTabView extends StatelessWidget {
         'id': 'nawawi_forty',
         'title': 'nawawi_forty'.tr(),
         'subtitle': 'nawawi_forty_subtitle'.tr(),
-        'count': 'hadiths_count'.tr(namedArgs: {'count': '24'}),
+        'count': 'hadiths_count'.tr(namedArgs: {'count': '42'}),
       },
       {
         'id': 'sahih_bukhari',
         'title': 'sahih_bukhari'.tr(),
         'subtitle': 'sahih_bukhari_subtitle'.tr(),
-        'count': 'hadiths_count'.tr(namedArgs: {'count': '8'}),
+        'count': 'hadiths_count'.tr(namedArgs: {'count': '100'}),
       },
       {
         'id': 'sahih_muslim',
         'title': 'sahih_muslim'.tr(),
         'subtitle': 'sahih_muslim_subtitle'.tr(),
-        'count': 'hadiths_count'.tr(namedArgs: {'count': '6'}),
+        'count': 'hadiths_count'.tr(namedArgs: {'count': '100'}),
       },
       {
         'id': 'riyad_assalihin',
         'title': 'riyad_assalihin'.tr(),
         'subtitle': 'riyad_assalihin_subtitle'.tr(),
-        'count': 'hadiths_count'.tr(namedArgs: {'count': '6'}),
+        'count': 'hadiths_count'.tr(namedArgs: {'count': '100'}),
       },
     ];
 

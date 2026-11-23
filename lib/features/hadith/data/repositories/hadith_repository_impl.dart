@@ -14,7 +14,7 @@ class HadithRepositoryImpl implements HadithRepository {
   @override
   Future<Either<Failure, List<HadithItem>>> getHadithsByBook(String bookId) async {
     try {
-      final list = localDataSource.getHadithsByBook(bookId);
+      final list = await localDataSource.getHadithsByBook(bookId);
       return Right(list);
     } catch (e) {
       return Left(CacheFailure(e.toString()));
@@ -24,7 +24,7 @@ class HadithRepositoryImpl implements HadithRepository {
   @override
   Future<Either<Failure, HadithItem>> getHadithByNumber(String bookId, int number) async {
     try {
-      final item = localDataSource.getHadithByNumber(bookId, number);
+      final item = await localDataSource.getHadithByNumber(bookId, number);
       if (item != null) {
         return Right(item);
       }
