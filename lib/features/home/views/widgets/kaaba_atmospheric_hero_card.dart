@@ -3,10 +3,11 @@ import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/theme/typography.dart';
+import '../../../../core/utils/haptics.dart';
 import '../../presentation/models/time_of_day_atmosphere.dart';
 import 'kaaba_silhouette_art.dart';
 
-/// Cinematic Atmospheric Hero Card with Dynamic Sky & Kaaba Silhouette
+/// Cinematic Atmospheric Hero Card with Dynamic Sky, Dates & Kaaba Silhouette
 class KaabaAtmosphericHeroCard extends StatelessWidget {
   final String location;
   final String hijriDate;
@@ -23,7 +24,7 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
     this.gregorianDate = '23 نوفمبر',
     this.nextPrayerName = 'الظهر',
     this.nextPrayerTime = '11:45 ص',
-    this.remainingTime = 'متبقي 01 س و 15 د',
+    this.remainingTime = '01:15:00',
     this.onLocationTap,
   });
 
@@ -69,7 +70,7 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildTopMetaBar(atmosphere),
-                Gap(20.h),
+                Gap(18.h),
                 _buildNextPrayerHeader(atmosphere),
                 Gap(16.h),
                 _buildTimeAndCountdown(atmosphere),
@@ -84,32 +85,77 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
   Widget _buildTopMetaBar(DayAtmosphere atmosphere) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          onTap: onLocationTap,
-          borderRadius: BorderRadius.circular(16.r),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.25),
-              borderRadius: BorderRadius.circular(16.r),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.12), width: 0.8),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.location_on_rounded, size: 14.sp, color: atmosphere.accentColor),
-                SizedBox(width: 4.w),
-                Text(
-                  location,
-                  style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w600, color: Colors.white),
+        // Location Pill (Flexible to prevent any overflow)
+        Flexible(
+          child: InkWell(
+            onTap: () {
+              AppHaptics.light();
+              onLocationTap?.call();
+            },
+            borderRadius: BorderRadius.circular(20.r),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(
+                  color: atmosphere.accentColor.withValues(alpha: 0.25),
+                  width: 0.8,
                 ),
-              ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.location_on_rounded,
+                    size: 14.sp,
+                    color: atmosphere.accentColor,
+                  ),
+                  SizedBox(width: 4.w),
+                  Flexible(
+                    child: Text(
+                      location,
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-        Text(
-          '$hijriDate • $gregorianDate',
-          style: TextStyle(fontSize: 12.sp, color: Colors.white.withValues(alpha: 0.85)),
+        Gap(12.w),
+
+        // Date Column: Hijri on top, Gregorian underneath
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              hijriDate,
+              style: TextStyle(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.bold,
+                color: atmosphere.accentColor,
+                letterSpacing: 0.2,
+              ),
+            ),
+            Gap(2.h),
+            Text(
+              gregorianDate,
+              style: TextStyle(
+                fontSize: 11.sp,
+                fontWeight: FontWeight.w500,
+                color: Colors.white.withValues(alpha: 0.75),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -122,24 +168,59 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'الصلاة القادمة',
-              style: TextStyle(fontSize: 13.sp, color: atmosphere.accentColor, fontWeight: FontWeight.w600),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+              decoration: BoxDecoration(
+                color: atmosphere.accentColor.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.access_time_filled_rounded,
+                    size: 11.sp,
+                    color: atmosphere.accentColor,
+                  ),
+                  SizedBox(width: 4.w),
+                  Text(
+                    'الصلاة القادمة',
+                    style: TextStyle(
+                      fontSize: 11.5.sp,
+                      color: atmosphere.accentColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Gap(4.h),
+            Gap(6.h),
             Text(
               'صلاة $nextPrayerName',
-              style: AppTypography.h2.copyWith(fontSize: 24.sp, fontWeight: FontWeight.bold, color: Colors.white),
+              style: AppTypography.h2.copyWith(
+                fontSize: 23.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
           ],
         ),
         Container(
-          padding: EdgeInsets.all(10.r),
+          width: 46.w,
+          height: 46.w,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: 0.12),
+            color: Colors.black.withValues(alpha: 0.2),
+            border: Border.all(
+              color: atmosphere.accentColor.withValues(alpha: 0.35),
+              width: 1.0,
+            ),
           ),
-          child: Icon(atmosphere.skyIcon, size: 26.sp, color: atmosphere.accentColor),
+          child: Icon(
+            atmosphere.skyIcon,
+            size: 24.sp,
+            color: atmosphere.accentColor,
+          ),
         ),
       ],
     );
@@ -153,28 +234,44 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
         Text(
           nextPrayerTime,
           style: AppTypography.h1.copyWith(
-            fontSize: 36.sp,
+            fontSize: 34.sp,
             fontWeight: FontWeight.bold,
             color: Colors.white,
             letterSpacing: 0.5,
           ),
         ),
         Container(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
+          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(
             color: atmosphere.accentColor,
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(24.r),
             boxShadow: [
               BoxShadow(
-                color: atmosphere.accentColor.withValues(alpha: 0.35),
+                color: atmosphere.accentColor.withValues(alpha: 0.3),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
             ],
           ),
-          child: Text(
-            remainingTime,
-            style: TextStyle(fontSize: 12.5.sp, fontWeight: FontWeight.bold, color: const Color(0xFF141A16)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.hourglass_top_rounded,
+                size: 13.sp,
+                color: const Color(0xFF141A16),
+              ),
+              SizedBox(width: 5.w),
+              Text(
+                remainingTime,
+                style: TextStyle(
+                  fontSize: 12.5.sp,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF141A16),
+                  letterSpacing: 0.3,
+                ),
+              ),
+            ],
           ),
         ),
       ],
