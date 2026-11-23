@@ -5,11 +5,13 @@ class PageViewItemModel {
   final String title;
   final String subtitle;
   final String badgeText;
+  final List<String> featureTags;
 
   const PageViewItemModel({
     required this.icon,
     required this.title,
     required this.subtitle,
     required this.badgeText,
+    this.featureTags = const [],
   });
 }

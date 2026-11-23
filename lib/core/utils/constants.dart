@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:material_ui/material_ui.dart';
 import '../../features/onboarding/presentation/models/page_view_item_model.dart';
 
@@ -101,28 +102,32 @@ class AppConstants {
   static List<PageViewItemModel> onBoardingPages(BuildContext context) {
     return [
       PageViewItemModel(
-        icon: Icons.access_time_filled_rounded,
+        icon: FlutterIslamicIcons.solidPrayer,
         badgeText: 'onboarding_badge_1'.tr(),
         title: 'onboarding_title_1'.tr(),
         subtitle: 'onboarding_subtitle_1'.tr(),
+        featureTags: const ['دقة جغرافية', 'تنبيهات الأذان', 'اتجاه القبلة'],
       ),
       PageViewItemModel(
-        icon: Icons.menu_book_rounded,
+        icon: FlutterIslamicIcons.solidQuran2,
         badgeText: 'onboarding_badge_2'.tr(),
         title: 'onboarding_title_2'.tr(),
         subtitle: 'onboarding_subtitle_2'.tr(),
+        featureTags: const ['رسم عثماني', 'فهرس الأجزاء والسور', 'علامات مرجعية'],
       ),
       PageViewItemModel(
-        icon: Icons.favorite_rounded,
+        icon: FlutterIslamicIcons.solidTasbih,
         badgeText: 'onboarding_badge_3'.tr(),
         title: 'onboarding_title_3'.tr(),
         subtitle: 'onboarding_subtitle_3'.tr(),
+        featureTags: const ['حصن المسلم', 'مسبحة ذكية', 'أوراد يومية'],
       ),
       PageViewItemModel(
-        icon: Icons.auto_stories_rounded,
+        icon: FlutterIslamicIcons.solidMohammad,
         badgeText: 'onboarding_badge_4'.tr(),
         title: 'onboarding_title_4'.tr(),
         subtitle: 'onboarding_subtitle_4'.tr(),
+        featureTags: const ['الأربعون النووية', 'صحيح البخاري ومسلم', 'رياض الصالحين'],
       ),
     ];
   }

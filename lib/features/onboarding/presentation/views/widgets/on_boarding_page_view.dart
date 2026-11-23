@@ -1,10 +1,12 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:islamic_app/core/utils/constants.dart';
-import 'package:islamic_app/features/onboarding/presentation/models/page_view_item_model.dart';
-import 'package:islamic_app/features/onboarding/presentation/views/widgets/on_boarding_circular_next_button.dart';
-import 'package:islamic_app/features/onboarding/presentation/views/widgets/page_view_item.dart';
+import 'package:material_ui/material_ui.dart';
+
+
+import '../../models/page_view_item_model.dart';
+import 'onboarding_nav_bar.dart';
+import 'page_view_item.dart';
 
 class OnBoardingPageView extends StatefulWidget {
   const OnBoardingPageView({super.key});
@@ -14,50 +16,57 @@ class OnBoardingPageView extends StatefulWidget {
 }
 
 class _OnBoardingPageViewState extends State<OnBoardingPageView> {
-  late final PageController pageController;
+  late final PageController _pageController;
+  int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
-    pageController = PageController();
+    _pageController = PageController();
+    _pageController.addListener(() {
+      final page = _pageController.page?.round() ?? 0;
+      if (page != _currentPage) {
+        setState(() {
+          _currentPage = page;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
-    pageController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<PageViewItemModel> onBoardingPages =
-        AppConstants.onBoardingPages(context);
-    return Column(
-      children: [
-        Expanded(
-          child: PageView.builder(
-            controller: pageController,
-            itemCount: onBoardingPages.length,
-            itemBuilder: (context, index) {
-              return PageViewItem(
-                pageController: pageController,
-                pageViewItemModel: onBoardingPages[index],
-              );
-            },
+    final List<PageViewItemModel> pages = AppConstants.onBoardingPages(context);
+
+    return SafeArea(
+      child: Column(
+        children: [
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: pages.length,
+              physics: const BouncingScrollPhysics(),
+              itemBuilder: (context, index) {
+                return PageViewItem(
+                  pageViewItemModel: pages[index],
+                );
+              },
+            ),
           ),
-        ),
-        Gap(16.h),
-        AnimatedBuilder(
-          animation: pageController,
-          builder: (context, child) {
-            return OnBoardingCircularNextButton(
-              pageController: pageController,
-              totalPages: onBoardingPages.length,
-            );
-          },
-        ),
-        Gap(48.h),
-      ],
+          Gap(12.h),
+          OnboardingNavBar(
+            pageController: _pageController,
+            totalPages: pages.length,
+            currentPage: _currentPage,
+          ),
+          Gap(24.h),
+        ],
+      ),
     );
   }
 }
