@@ -3,6 +3,7 @@ import 'routes.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/home/views/home_screen.dart';
 import '../../features/onboarding/presentation/views/on_boarding_view.dart';
+import '../../features/qibla/views/qibla_screen.dart';
 import '../../features/settings/views/settings_screen.dart';
 
 /// Application Router
@@ -22,6 +23,8 @@ class AppRouter {
         return _buildRoute(const HomeScreen(), settings);
       case Routes.settings:
         return _buildRoute(const SettingsScreen(), settings);
+      case Routes.qibla:
+        return _buildRoute(const QiblaScreen(), settings);
       default:
         return _buildRoute(
           Scaffold(
@@ -57,7 +60,11 @@ class AppRouter {
     String routeName, {
     Object? arguments,
   }) {
-    Navigator.pushNamed(context, routeName, arguments: arguments);
+    if (navigatorKey.currentState != null) {
+      navigatorKey.currentState!.pushNamed(routeName, arguments: arguments);
+    } else {
+      Navigator.pushNamed(context, routeName, arguments: arguments);
+    }
   }
 
   static void navigateAndReplace(

@@ -11,6 +11,7 @@ import '../../features/home/data/datasources/prayer_calculation_service.dart';
 import '../../features/home/data/repositories/prayer_repository_impl.dart';
 import '../../features/home/domain/repositories/prayer_repository.dart';
 import '../../features/home/presentation/cubit/prayer_times_cubit.dart';
+import '../../features/qibla/presentation/cubit/qibla_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -59,4 +60,5 @@ Future<void> init() async {
         locationService: sl(),
       ));
   sl.registerFactory(() => PrayerTimesCubit(sl()));
+  sl.registerFactory(() => QiblaCubit(sl()));
 }

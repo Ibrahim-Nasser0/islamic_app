@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../core/routes/app_router.dart';
+import '../../../../core/routes/routes.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/haptics.dart';
 
@@ -17,44 +19,70 @@ class HomeQuickActionsBar extends StatelessWidget {
     final appColors = context.appColors;
 
     final actions = [
-      {'title': 'qibla'.tr(), 'icon': FlutterIslamicIcons.solidQibla},
-      {'title': 'mosques'.tr(), 'icon': FlutterIslamicIcons.locationMosque},
-      {'title': 'azkar'.tr(), 'icon': FlutterIslamicIcons.prayer},
-      {'title': 'tasbeeh'.tr(), 'icon': FlutterIslamicIcons.solidTasbih},
+      {
+        'title': 'qibla'.tr(),
+        'icon': FlutterIslamicIcons.solidQibla,
+        'route': Routes.qibla,
+      },
+      {
+        'title': 'mosques'.tr(),
+        'icon': FlutterIslamicIcons.locationMosque,
+        'route': null,
+      },
+      {
+        'title': 'azkar'.tr(),
+        'icon': FlutterIslamicIcons.prayer,
+        'route': null,
+      },
+      {
+        'title': 'tasbeeh'.tr(),
+        'icon': FlutterIslamicIcons.solidTasbih,
+        'route': null,
+      },
     ];
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: actions.map((act) {
-        return InkWell(
-          onTap: () => AppHaptics.light(),
-          borderRadius: BorderRadius.circular(14.r),
-          child: Container(
-            width: 76.w,
-            padding: EdgeInsets.symmetric(vertical: 12.h),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.surface,
-              borderRadius: BorderRadius.circular(14.r),
-              border: Border.all(color: appColors.cardBorder, width: 0.8),
-              boxShadow: appColors.cardShadow,
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  act['icon'] as IconData,
-                  size: 24.sp,
-                  color: theme.colorScheme.primary,
-                ),
-                Gap(6.h),
-                Text(
-                  act['title'] as String,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
+        final route = act['route'] as String?;
+
+        return Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              AppHaptics.light();
+              if (route != null) {
+                AppRouter.navigateTo(context, route);
+              }
+            },
+            borderRadius: BorderRadius.circular(14.r),
+            child: Container(
+              width: 76.w,
+              padding: EdgeInsets.symmetric(vertical: 12.h),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(14.r),
+                border: Border.all(color: appColors.cardBorder, width: 0.8),
+                boxShadow: appColors.cardShadow,
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    act['icon'] as IconData,
+                    size: 24.sp,
+                    color: theme.colorScheme.primary,
                   ),
-                ),
-              ],
+                  Gap(6.h),
+                  Text(
+                    act['title'] as String,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
