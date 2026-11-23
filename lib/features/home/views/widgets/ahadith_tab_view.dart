@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
@@ -53,7 +54,11 @@ class AhadithTabView extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.auto_awesome_rounded, size: 18.sp, color: appColors.accentGold),
+                    Icon(
+                      FlutterIslamicIcons.mohammad,
+                      size: 20.sp,
+                      color: appColors.accentGold,
+                    ),
                     SizedBox(width: 8.w),
                     Text(
                       'hadith_of_the_day'.tr(),
@@ -109,9 +114,9 @@ class AhadithTabView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12.r),
                     ),
                     child: Icon(
-                      Icons.menu_book_rounded,
+                      FlutterIslamicIcons.solidMohammad,
                       color: theme.colorScheme.primary,
-                      size: 22.sp,
+                      size: 20.sp,
                     ),
                   ),
                   Gap(14.w),

@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
@@ -100,7 +101,7 @@ class _HomePrayerContent extends StatelessWidget {
 
               // Loading Shimmer Skeleton for prayers row
               return CustomSkeleton(
-                height: 120.h,
+                height: 130.h,
                 borderRadius: 16,
               );
             },
@@ -134,8 +135,8 @@ class _HomePrayerContent extends StatelessWidget {
           Row(
             children: [
               Icon(
-                Icons.auto_stories_rounded,
-                size: 18.sp,
+                FlutterIslamicIcons.quran2,
+                size: 20.sp,
                 color: appColors.accentGold,
               ),
               SizedBox(width: 8.w),

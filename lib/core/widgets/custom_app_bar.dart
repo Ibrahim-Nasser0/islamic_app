@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -74,8 +75,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                         ),
                       ),
                       child: Icon(
-                        Icons.mosque_rounded,
-                        size: 18.sp,
+                        FlutterIslamicIcons.solidMosque,
+                        size: 19.sp,
                         color: theme.colorScheme.primary,
                       ),
                     ),

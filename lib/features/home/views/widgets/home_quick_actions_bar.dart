@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
@@ -16,10 +17,10 @@ class HomeQuickActionsBar extends StatelessWidget {
     final appColors = context.appColors;
 
     final actions = [
-      {'title': 'qibla'.tr(), 'icon': Icons.explore_rounded},
-      {'title': 'mosques'.tr(), 'icon': Icons.location_city_rounded},
-      {'title': 'azkar'.tr(), 'icon': Icons.favorite_rounded},
-      {'title': 'tasbeeh'.tr(), 'icon': Icons.fingerprint_rounded},
+      {'title': 'qibla'.tr(), 'icon': FlutterIslamicIcons.solidQibla},
+      {'title': 'mosques'.tr(), 'icon': FlutterIslamicIcons.locationMosque},
+      {'title': 'azkar'.tr(), 'icon': FlutterIslamicIcons.prayer},
+      {'title': 'tasbeeh'.tr(), 'icon': FlutterIslamicIcons.solidTasbih},
     ];
 
     return Row(

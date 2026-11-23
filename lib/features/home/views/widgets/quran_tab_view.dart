@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
@@ -39,7 +40,11 @@ class QuranTabView extends StatelessWidget {
                     color: theme.colorScheme.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12.r),
                   ),
-                  child: Icon(Icons.menu_book_rounded, color: theme.colorScheme.primary, size: 24.sp),
+                  child: Icon(
+                    FlutterIslamicIcons.solidQuran2,
+                    color: theme.colorScheme.primary,
+                    size: 24.sp,
+                  ),
                 ),
                 Gap(14.w),
                 Expanded(

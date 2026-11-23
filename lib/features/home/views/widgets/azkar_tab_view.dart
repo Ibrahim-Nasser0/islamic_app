@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
@@ -24,22 +25,22 @@ class AzkarTabView extends StatelessWidget {
       {
         'title': 'azkar_evening'.tr(),
         'count': 'items_count'.tr(namedArgs: {'count': '25'}),
-        'icon': Icons.nights_stay_rounded,
+        'icon': FlutterIslamicIcons.solidCrescentMoon,
       },
       {
         'title': 'azkar_after_prayer'.tr(),
         'count': 'items_count'.tr(namedArgs: {'count': '18'}),
-        'icon': Icons.mosque_rounded,
+        'icon': FlutterIslamicIcons.solidPrayer,
       },
       {
         'title': 'azkar_sleep'.tr(),
         'count': 'items_count'.tr(namedArgs: {'count': '15'}),
-        'icon': Icons.bedtime_rounded,
+        'icon': FlutterIslamicIcons.crescentMoon,
       },
       {
         'title': 'smart_tasbeeh'.tr(),
         'count': 'tasbeeh_counter_desc'.tr(),
-        'icon': Icons.fingerprint_rounded,
+        'icon': FlutterIslamicIcons.solidTasbih,
       },
     ];
 

@@ -63,6 +63,7 @@ dependencies:
   adhan: ^2.0.0+1
   geolocator: ^14.0.1
   geocoding: ^5.0.1
+  flutter_islamic_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:

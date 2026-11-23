@@ -1,4 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/widgets/custom_app_bar.dart';
@@ -44,23 +45,23 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         items: [
           NavItem(
-            icon: Icons.mosque_outlined,
-            activeIcon: Icons.mosque_rounded,
+            icon: FlutterIslamicIcons.mosque,
+            activeIcon: FlutterIslamicIcons.solidMosque,
             label: 'home'.tr(),
           ),
           NavItem(
-            icon: Icons.menu_book_outlined,
-            activeIcon: Icons.menu_book_rounded,
+            icon: FlutterIslamicIcons.quran2,
+            activeIcon: FlutterIslamicIcons.solidQuran2,
             label: 'quran'.tr(),
           ),
           NavItem(
-            icon: Icons.favorite_outline_rounded,
-            activeIcon: Icons.favorite_rounded,
+            icon: FlutterIslamicIcons.prayer,
+            activeIcon: FlutterIslamicIcons.solidPrayer,
             label: 'azkar'.tr(),
           ),
           NavItem(
-            icon: Icons.auto_stories_outlined,
-            activeIcon: Icons.auto_stories_rounded,
+            icon: FlutterIslamicIcons.mohammad,
+            activeIcon: FlutterIslamicIcons.solidMohammad,
             label: 'ahadeth'.tr(),
           ),
         ],
