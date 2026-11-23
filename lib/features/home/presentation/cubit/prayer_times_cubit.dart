@@ -9,7 +9,8 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
   Timer? _timer;
   double? _currentLat;
   double? _currentLng;
-  String? _currentLocationName;
+  String? _currentNameAr;
+  String? _currentNameEn;
 
   PrayerTimesCubit(this._repository) : super(PrayerTimesInitial());
 
@@ -19,12 +20,14 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
       final schedule = await _repository.getDailyPrayerSchedule(
         latitude: _currentLat,
         longitude: _currentLng,
-        locationName: _currentLocationName,
+        nameAr: _currentNameAr,
+        nameEn: _currentNameEn,
       );
 
       _currentLat = schedule.latitude;
       _currentLng = schedule.longitude;
-      _currentLocationName = schedule.locationName;
+      _currentNameAr = schedule.locationNameAr;
+      _currentNameEn = schedule.locationNameEn;
 
       final remaining = schedule.timeToNextPrayer;
       emit(PrayerTimesLoaded(
@@ -48,7 +51,8 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
       final loc = await _repository.detectCurrentLocation();
       _currentLat = loc.latitude;
       _currentLng = loc.longitude;
-      _currentLocationName = loc.locationName;
+      _currentNameAr = loc.nameAr;
+      _currentNameEn = loc.nameEn;
       await loadPrayerTimes();
     } catch (_) {
       // Fallback stays
@@ -58,10 +62,13 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
   void _fetchRealLocationInBackground() {
     _repository.detectCurrentLocation().then((loc) {
       if (isClosed) return;
-      if (loc.latitude != _currentLat || loc.longitude != _currentLng) {
+      if (loc.latitude != _currentLat ||
+          loc.longitude != _currentLng ||
+          loc.nameAr != _currentNameAr) {
         _currentLat = loc.latitude;
         _currentLng = loc.longitude;
-        _currentLocationName = loc.locationName;
+        _currentNameAr = loc.nameAr;
+        _currentNameEn = loc.nameEn;
         loadPrayerTimes();
       }
     }).catchError((_) {});

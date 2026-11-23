@@ -46,21 +46,28 @@ class _HomePrayerContent extends StatelessWidget {
               if (state is PrayerTimesLoaded) {
                 final schedule = state.schedule;
                 final next = schedule.nextPrayer;
-                final nextName = context.locale.languageCode == 'ar'
-                    ? next.nameAr
-                    : next.nameEn;
+                final isAr = context.locale.languageCode == 'ar';
+                final nextName = isAr ? next.nameAr : next.nameEn;
                 final nextTimeStr = DateFormat(
                   'hh:mm a',
                   context.locale.languageCode,
                 ).format(next.time);
 
+                final hijri =
+                    schedule.getHijriDate(context.locale.languageCode);
+                final gregorian = DateFormat(
+                  'd MMMM yyyy',
+                  context.locale.languageCode,
+                ).format(schedule.date);
+                final loc = schedule.getLocalizedLocation(context.locale.languageCode);
+
                 return KaabaAtmosphericHeroCard(
-                  location: schedule.locationName,
-                  hijriDate: schedule.hijriDate,
-                  gregorianDate: schedule.gregorianDate,
+                  location: loc,
+                  hijriDate: hijri,
+                  gregorianDate: gregorian,
                   nextPrayerName: nextName,
                   nextPrayerTime: nextTimeStr,
-                  remainingTime: 'متبقي ${state.formattedRemainingTime}',
+                  remainingTime: state.formattedRemainingTime,
                   onLocationTap: () =>
                       context.read<PrayerTimesCubit>().refreshLocation(),
                 );
@@ -144,7 +151,7 @@ class _HomePrayerContent extends StatelessWidget {
           ),
           Gap(12.h),
           Text(
-            '﴿ أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ ﴾',
+            'daily_ayah_text'.tr(),
             textAlign: TextAlign.center,
             style: AppTypography.quranAyah.copyWith(
               fontSize: 20.sp,
@@ -153,7 +160,7 @@ class _HomePrayerContent extends StatelessWidget {
           ),
           Gap(6.h),
           Text(
-            '[ الرعد: 28 ]',
+            'daily_ayah_surah'.tr(),
             style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
           ),
         ],

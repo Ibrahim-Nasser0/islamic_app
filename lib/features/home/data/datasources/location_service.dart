@@ -1,12 +1,14 @@
 import 'package:geolocator/geolocator.dart';
+import 'city_resolver_helper.dart';
 
 /// Service responsible for acquiring device GPS coordinates with offline fallbacks
 class LocationService {
   static const double defaultCairoLat = 30.0444;
   static const double defaultCairoLng = 31.2357;
-  static const String defaultCairoName = 'القاهرة، مصر';
+  static const String defaultCairoAr = 'القاهرة، مصر';
+  static const String defaultCairoEn = 'Cairo, Egypt';
 
-  Future<({double latitude, double longitude, String locationName})>
+  Future<({double latitude, double longitude, String nameAr, String nameEn})>
       getCurrentLocation() async {
     try {
       final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -14,7 +16,8 @@ class LocationService {
         return (
           latitude: defaultCairoLat,
           longitude: defaultCairoLng,
-          locationName: defaultCairoName,
+          nameAr: defaultCairoAr,
+          nameEn: defaultCairoEn,
         );
       }
 
@@ -26,7 +29,8 @@ class LocationService {
           return (
             latitude: defaultCairoLat,
             longitude: defaultCairoLng,
-            locationName: defaultCairoName,
+            nameAr: defaultCairoAr,
+            nameEn: defaultCairoEn,
           );
         }
       }
@@ -38,16 +42,23 @@ class LocationService {
         ),
       );
 
+      final city = await CityResolverHelper.resolveCity(
+        latitude: position.latitude,
+        longitude: position.longitude,
+      );
+
       return (
         latitude: position.latitude,
         longitude: position.longitude,
-        locationName: 'موقعك الحالي',
+        nameAr: city.nameAr,
+        nameEn: city.nameEn,
       );
     } catch (_) {
       return (
         latitude: defaultCairoLat,
         longitude: defaultCairoLng,
-        locationName: defaultCairoName,
+        nameAr: defaultCairoAr,
+        nameEn: defaultCairoEn,
       );
     }
   }

@@ -52,7 +52,7 @@ class QuranTabView extends StatelessWidget {
                       ),
                       Gap(4.h),
                       Text(
-                        'سورة الكهف • الآية 10',
+                        'surah_al_kahf_last_read'.tr(),
                         style: AppTypography.h4.copyWith(
                           fontSize: 15.sp,
                           fontWeight: FontWeight.bold,
@@ -75,8 +75,18 @@ class QuranTabView extends StatelessWidget {
           Gap(12.h),
 
           ...List.generate(4, (index) {
-            final names = ['الفاتحة', 'البقرة', 'آل عمران', 'النساء'];
-            final ayahs = ['7 آيات', '286 آية', '200 آية', '176 آية'];
+            final names = [
+              'surah_al_fatiha'.tr(),
+              'surah_al_baqarah'.tr(),
+              'surah_ali_imran'.tr(),
+              'surah_an_nisa'.tr(),
+            ];
+            final ayahs = [
+              'ayahs_count'.tr(namedArgs: {'count': '7'}),
+              'ayahs_count'.tr(namedArgs: {'count': '286'}),
+              'ayahs_count'.tr(namedArgs: {'count': '200'}),
+              'ayahs_count'.tr(namedArgs: {'count': '176'}),
+            ];
             final places = ['makki'.tr(), 'madani'.tr(), 'madani'.tr(), 'madani'.tr()];
 
             return Container(
@@ -128,7 +138,7 @@ class QuranTabView extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'سورة',
+                    'surah'.tr(),
                     style: TextStyle(fontSize: 12.sp, color: appColors.accentGold),
                   ),
                 ],

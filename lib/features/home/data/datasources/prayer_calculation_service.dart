@@ -1,5 +1,4 @@
 import 'package:adhan/adhan.dart' as adhan;
-import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../domain/entities/daily_prayer_schedule.dart';
@@ -11,7 +10,8 @@ class PrayerCalculationService {
   DailyPrayerSchedule calculateSchedule({
     required double latitude,
     required double longitude,
-    required String locationName,
+    required String locationNameAr,
+    required String locationNameEn,
     DateTime? targetDate,
   }) {
     final now = DateTime.now();
@@ -103,16 +103,18 @@ class PrayerCalculationService {
     }
 
     final hijri = HijriDateHelper.getHijriDate(date);
-    final gregorianStr = DateFormat('d MMMM yyyy').format(date);
 
     return DailyPrayerSchedule(
       prayers: entries,
       currentPrayer: nextIndex > 0 ? entries[nextIndex - 1] : null,
       nextPrayer: nextPrayerEntry,
-      timeToNextPrayer: timeToNextPrayer.isNegative ? Duration.zero : timeToNextPrayer,
-      locationName: locationName,
-      hijriDate: hijri.formattedAr,
-      gregorianDate: gregorianStr,
+      timeToNextPrayer:
+          timeToNextPrayer.isNegative ? Duration.zero : timeToNextPrayer,
+      locationNameAr: locationNameAr,
+      locationNameEn: locationNameEn,
+      hijriDateAr: hijri.formattedAr,
+      hijriDateEn: hijri.formattedEn,
+      date: date,
       latitude: latitude,
       longitude: longitude,
     );

@@ -16,7 +16,11 @@ class AhadithTabView extends StatelessWidget {
     final appColors = context.appColors;
 
     final books = [
-      {'title': 'nawawi_forty'.tr(), 'subtitle': 'nawawi_forty_subtitle'.tr(), 'count': '42 حديثاً'},
+      {
+        'title': 'nawawi_forty'.tr(),
+        'subtitle': 'nawawi_forty_subtitle'.tr(),
+        'count': 'hadiths_count'.tr(namedArgs: {'count': '42'}),
+      },
       {'title': 'sahih_bukhari'.tr(), 'subtitle': 'sahih_bukhari_subtitle'.tr(), 'count': 'selected_chapters'.tr()},
       {'title': 'sahih_muslim'.tr(), 'subtitle': 'sahih_muslim_subtitle'.tr(), 'count': 'selected_chapters'.tr()},
       {'title': 'riyad_assalihin'.tr(), 'subtitle': 'riyad_assalihin_subtitle'.tr(), 'count': 'selected_chapters'.tr()},
@@ -63,7 +67,7 @@ class AhadithTabView extends StatelessWidget {
                 ),
                 Gap(10.h),
                 Text(
-                  '« إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى »',
+                  'daily_hadith_text'.tr(),
                   style: AppTypography.quranAyah.copyWith(
                     fontSize: 18.sp,
                     color: theme.colorScheme.onSurface,
@@ -71,7 +75,7 @@ class AhadithTabView extends StatelessWidget {
                 ),
                 Gap(6.h),
                 Text(
-                  'رواه البخاري ومسلم',
+                  'narrated_by_bukhari_muslim'.tr(),
                   style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
                 ),
               ],

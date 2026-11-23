@@ -7,9 +7,11 @@ class DailyPrayerSchedule extends Equatable {
   final PrayerTimeEntry? currentPrayer;
   final PrayerTimeEntry nextPrayer;
   final Duration timeToNextPrayer;
-  final String locationName;
-  final String hijriDate;
-  final String gregorianDate;
+  final String locationNameAr;
+  final String locationNameEn;
+  final String hijriDateAr;
+  final String hijriDateEn;
+  final DateTime date;
   final double latitude;
   final double longitude;
 
@@ -18,21 +20,31 @@ class DailyPrayerSchedule extends Equatable {
     this.currentPrayer,
     required this.nextPrayer,
     required this.timeToNextPrayer,
-    required this.locationName,
-    required this.hijriDate,
-    required this.gregorianDate,
+    required this.locationNameAr,
+    required this.locationNameEn,
+    required this.hijriDateAr,
+    required this.hijriDateEn,
+    required this.date,
     required this.latitude,
     required this.longitude,
   });
+
+  String getLocalizedLocation(String langCode) =>
+      langCode == 'ar' ? locationNameAr : locationNameEn;
+
+  String getHijriDate(String langCode) =>
+      langCode == 'ar' ? hijriDateAr : hijriDateEn;
 
   DailyPrayerSchedule copyWith({
     List<PrayerTimeEntry>? prayers,
     PrayerTimeEntry? currentPrayer,
     PrayerTimeEntry? nextPrayer,
     Duration? timeToNextPrayer,
-    String? locationName,
-    String? hijriDate,
-    String? gregorianDate,
+    String? locationNameAr,
+    String? locationNameEn,
+    String? hijriDateAr,
+    String? hijriDateEn,
+    DateTime? date,
     double? latitude,
     double? longitude,
   }) {
@@ -41,9 +53,11 @@ class DailyPrayerSchedule extends Equatable {
       currentPrayer: currentPrayer ?? this.currentPrayer,
       nextPrayer: nextPrayer ?? this.nextPrayer,
       timeToNextPrayer: timeToNextPrayer ?? this.timeToNextPrayer,
-      locationName: locationName ?? this.locationName,
-      hijriDate: hijriDate ?? this.hijriDate,
-      gregorianDate: gregorianDate ?? this.gregorianDate,
+      locationNameAr: locationNameAr ?? this.locationNameAr,
+      locationNameEn: locationNameEn ?? this.locationNameEn,
+      hijriDateAr: hijriDateAr ?? this.hijriDateAr,
+      hijriDateEn: hijriDateEn ?? this.hijriDateEn,
+      date: date ?? this.date,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
     );
@@ -55,9 +69,11 @@ class DailyPrayerSchedule extends Equatable {
         currentPrayer,
         nextPrayer,
         timeToNextPrayer,
-        locationName,
-        hijriDate,
-        gregorianDate,
+        locationNameAr,
+        locationNameEn,
+        hijriDateAr,
+        hijriDateEn,
+        date,
         latitude,
         longitude,
       ];

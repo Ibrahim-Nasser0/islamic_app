@@ -149,10 +149,10 @@ class TodayPrayersHorizontalList extends StatelessWidget {
                         ),
                         child: Text(
                           isNext
-                              ? (item.remainingTime.isNotEmpty
-                                  ? item.remainingTime
-                                  : 'prayer_next'.tr())
-                              : (isPast ? 'prayer_done'.tr() : 'prayer_upcoming'.tr()),
+                              ? 'prayer_next'.tr()
+                              : (isPast
+                                  ? 'prayer_done'.tr()
+                                  : 'prayer_upcoming'.tr()),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 10.sp,

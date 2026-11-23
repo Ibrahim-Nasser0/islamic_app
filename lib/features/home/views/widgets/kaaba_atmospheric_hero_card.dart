@@ -1,10 +1,12 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/theme/typography.dart';
-import '../../../../core/utils/haptics.dart';
 import '../../presentation/models/time_of_day_atmosphere.dart';
+import 'hero_card_countdown_badge.dart';
+import 'hero_card_meta_bar.dart';
 import 'kaaba_silhouette_art.dart';
 
 /// Cinematic Atmospheric Hero Card with Dynamic Sky, Dates & Kaaba Silhouette
@@ -69,95 +71,26 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildTopMetaBar(atmosphere),
+                HeroCardMetaBar(
+                  location: location,
+                  hijriDate: hijriDate,
+                  gregorianDate: gregorianDate,
+                  atmosphere: atmosphere,
+                  onLocationTap: onLocationTap,
+                ),
                 Gap(18.h),
                 _buildNextPrayerHeader(atmosphere),
                 Gap(16.h),
-                _buildTimeAndCountdown(atmosphere),
+                HeroCardCountdownBadge(
+                  nextPrayerTime: nextPrayerTime,
+                  remainingTime: remainingTime,
+                  atmosphere: atmosphere,
+                ),
               ],
             ),
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildTopMetaBar(DayAtmosphere atmosphere) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Location Pill (Flexible to prevent any overflow)
-        Flexible(
-          child: InkWell(
-            onTap: () {
-              AppHaptics.light();
-              onLocationTap?.call();
-            },
-            borderRadius: BorderRadius.circular(20.r),
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.25),
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(
-                  color: atmosphere.accentColor.withValues(alpha: 0.25),
-                  width: 0.8,
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.location_on_rounded,
-                    size: 14.sp,
-                    color: atmosphere.accentColor,
-                  ),
-                  SizedBox(width: 4.w),
-                  Flexible(
-                    child: Text(
-                      location,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        Gap(12.w),
-
-        // Date Column: Hijri on top, Gregorian underneath
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              hijriDate,
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.bold,
-                color: atmosphere.accentColor,
-                letterSpacing: 0.2,
-              ),
-            ),
-            Gap(2.h),
-            Text(
-              gregorianDate,
-              style: TextStyle(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w500,
-                color: Colors.white.withValues(alpha: 0.75),
-              ),
-            ),
-          ],
-        ),
-      ],
     );
   }
 
@@ -184,7 +117,7 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
                   ),
                   SizedBox(width: 4.w),
                   Text(
-                    'الصلاة القادمة',
+                    'next_prayer'.tr(),
                     style: TextStyle(
                       fontSize: 11.5.sp,
                       color: atmosphere.accentColor,
@@ -196,7 +129,7 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
             ),
             Gap(6.h),
             Text(
-              'صلاة $nextPrayerName',
+              'prayer_name_format'.tr(namedArgs: {'name': nextPrayerName}),
               style: AppTypography.h2.copyWith(
                 fontSize: 23.sp,
                 fontWeight: FontWeight.bold,
@@ -220,58 +153,6 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
             atmosphere.skyIcon,
             size: 24.sp,
             color: atmosphere.accentColor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTimeAndCountdown(DayAtmosphere atmosphere) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(
-          nextPrayerTime,
-          style: AppTypography.h1.copyWith(
-            fontSize: 34.sp,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            letterSpacing: 0.5,
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
-          decoration: BoxDecoration(
-            color: atmosphere.accentColor,
-            borderRadius: BorderRadius.circular(24.r),
-            boxShadow: [
-              BoxShadow(
-                color: atmosphere.accentColor.withValues(alpha: 0.3),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.hourglass_top_rounded,
-                size: 13.sp,
-                color: const Color(0xFF141A16),
-              ),
-              SizedBox(width: 5.w),
-              Text(
-                remainingTime,
-                style: TextStyle(
-                  fontSize: 12.5.sp,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF141A16),
-                  letterSpacing: 0.3,
-                ),
-              ),
-            ],
           ),
         ),
       ],

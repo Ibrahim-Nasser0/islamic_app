@@ -100,6 +100,9 @@ To maintain 100% UI consistency across the app, **NEVER** build ad-hoc dialogs, 
 - **NO Hardcoded Strings**: ALL user-facing text strings MUST be localized. Never hardcode Arabic or English strings directly in presentation widgets.
 - **Symmetric Keys**: Any key added to `assets/lang/ar.json` MUST be symmetrically added with proper translation to `assets/lang/en.json`.
 - **Extension Syntax**: Always use the `.tr()` string extension (e.g. `'business_profile'.tr()`).
+- **Sacred Texts Exception (Holy Quran & Prophetic Azkar)**:
+  - ALL UI labels, screen titles, navigation bars, buttons, settings, dates, locations, and surrounding metadata MUST be fully localized (Arabic & English via EasyLocalization).
+  - **STRICT EXCEPTION**: The sacred text of the **Holy Quran (آيات القرآن الكريم برسم المصحف العثماني)** and **Azkar / Adhkar (نصوص الأذكار والأدعية النبوية الشريفة)** MUST ALWAYS remain in their authentic, revealed Arabic text in BOTH Arabic and English app modes. They MUST NEVER be translated or substituted with Latin text within the recitation, mushaf, or dhikr screens.
 
 ---
 

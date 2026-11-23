@@ -16,11 +16,31 @@ class AzkarTabView extends StatelessWidget {
     final appColors = context.appColors;
 
     final azkarCategories = [
-      {'title': 'azkar_morning'.tr(), 'count': '28 ذكراً', 'icon': Icons.wb_sunny_rounded},
-      {'title': 'azkar_evening'.tr(), 'count': '25 ذكراً', 'icon': Icons.nights_stay_rounded},
-      {'title': 'azkar_after_prayer'.tr(), 'count': '18 ذكراً', 'icon': Icons.mosque_rounded},
-      {'title': 'azkar_sleep'.tr(), 'count': '15 ذكراً', 'icon': Icons.bedtime_rounded},
-      {'title': 'smart_tasbeeh'.tr(), 'count': 'tasbeeh_counter_desc'.tr(), 'icon': Icons.fingerprint_rounded},
+      {
+        'title': 'azkar_morning'.tr(),
+        'count': 'items_count'.tr(namedArgs: {'count': '28'}),
+        'icon': Icons.wb_sunny_rounded,
+      },
+      {
+        'title': 'azkar_evening'.tr(),
+        'count': 'items_count'.tr(namedArgs: {'count': '25'}),
+        'icon': Icons.nights_stay_rounded,
+      },
+      {
+        'title': 'azkar_after_prayer'.tr(),
+        'count': 'items_count'.tr(namedArgs: {'count': '18'}),
+        'icon': Icons.mosque_rounded,
+      },
+      {
+        'title': 'azkar_sleep'.tr(),
+        'count': 'items_count'.tr(namedArgs: {'count': '15'}),
+        'icon': Icons.bedtime_rounded,
+      },
+      {
+        'title': 'smart_tasbeeh'.tr(),
+        'count': 'tasbeeh_counter_desc'.tr(),
+        'icon': Icons.fingerprint_rounded,
+      },
     ];
 
     return SingleChildScrollView(

@@ -6,11 +6,12 @@ abstract class PrayerRepository {
   Future<DailyPrayerSchedule> getDailyPrayerSchedule({
     double? latitude,
     double? longitude,
-    String? locationName,
+    String? nameAr,
+    String? nameEn,
     DateTime? date,
   });
 
   /// Detects user's real GPS coordinates with graceful fallback to default city
-  Future<({double latitude, double longitude, String locationName})>
+  Future<({double latitude, double longitude, String nameAr, String nameEn})>
       detectCurrentLocation();
 }

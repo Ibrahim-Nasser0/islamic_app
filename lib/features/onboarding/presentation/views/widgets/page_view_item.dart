@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -43,7 +44,7 @@ class PageViewItem extends StatelessWidget {
                         Routes.home,
                       ),
                       child: Text(
-                        'تخطي',
+                        'skip'.tr(),
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,

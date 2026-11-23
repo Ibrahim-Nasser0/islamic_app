@@ -14,7 +14,7 @@ class PrayerRepositoryImpl implements PrayerRepository {
   });
 
   @override
-  Future<({double latitude, double longitude, String locationName})>
+  Future<({double latitude, double longitude, String nameAr, String nameEn})>
       detectCurrentLocation() {
     return locationService.getCurrentLocation();
   }
@@ -23,24 +23,28 @@ class PrayerRepositoryImpl implements PrayerRepository {
   Future<DailyPrayerSchedule> getDailyPrayerSchedule({
     double? latitude,
     double? longitude,
-    String? locationName,
+    String? nameAr,
+    String? nameEn,
     DateTime? date,
   }) async {
     double lat = latitude ?? LocationService.defaultCairoLat;
     double lng = longitude ?? LocationService.defaultCairoLng;
-    String locName = locationName ?? LocationService.defaultCairoName;
+    String locAr = nameAr ?? LocationService.defaultCairoAr;
+    String locEn = nameEn ?? LocationService.defaultCairoEn;
 
     if (latitude == null || longitude == null) {
       final loc = await locationService.getCurrentLocation();
       lat = loc.latitude;
       lng = loc.longitude;
-      locName = loc.locationName;
+      locAr = loc.nameAr;
+      locEn = loc.nameEn;
     }
 
     return calculationService.calculateSchedule(
       latitude: lat,
       longitude: lng,
-      locationName: locName,
+      locationNameAr: locAr,
+      locationNameEn: locEn,
       targetDate: date,
     );
   }
