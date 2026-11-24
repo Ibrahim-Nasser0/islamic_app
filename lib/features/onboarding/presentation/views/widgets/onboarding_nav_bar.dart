@@ -8,7 +8,7 @@ import 'package:islamic_app/core/utils/haptics.dart';
 import 'package:islamic_app/core/widgets/animations/button_animation.dart';
 import 'package:material_ui/material_ui.dart';
 
-
+import 'segmented_circular_progress_painter.dart';
 
 class OnboardingNavBar extends StatelessWidget {
   final PageController pageController;
@@ -27,131 +27,106 @@ class OnboardingNavBar extends StatelessWidget {
     final theme = Theme.of(context);
     final appColors = context.appColors;
     final isLastPage = currentPage == totalPages - 1;
+    final isRtl = context.locale.languageCode == 'ar';
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Indicator Dots
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(totalPages, (index) {
-              final isActive = index == currentPage;
-              return AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
-                margin: EdgeInsets.symmetric(horizontal: 4.w),
-                width: isActive ? 24.w : 8.w,
-                height: 8.h,
-                decoration: BoxDecoration(
-                  color: isActive
-                      ? appColors.accentGold
-                      : theme.colorScheme.primary.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
+    final IconData centerIcon = isLastPage
+        ? Icons.check_rounded
+        : (isRtl ? Icons.arrow_back_rounded : Icons.arrow_forward_rounded);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Centered Next Button Surrounded by Page Progress Arcs
+        GestureDetector(
+          onTap: () {
+            AppHaptics.medium();
+            if (!isLastPage) {
+              pageController.nextPage(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOutCubic,
               );
-            }),
-          ),
-          Gap(24.h),
-          // Action Buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Skip Button
-              if (!isLastPage)
-                TextButton(
-                  onPressed: () {
-                    AppHaptics.light();
-                    AppRouter.navigateAndReplace(context, Routes.home);
-                  },
-                  child: Text(
-                    'skip'.tr(),
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                      color: appColors.textMuted,
-                    ),
+            } else {
+              AppRouter.navigateAndReplace(context, Routes.home);
+            }
+          },
+          child: SizedBox(
+            width: 74.w,
+            height: 74.w,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Surrounding Page Line Segments
+                CustomPaint(
+                  size: Size(74.w, 74.w),
+                  painter: SegmentedCircularProgressPainter(
+                    totalSegments: totalPages,
+                    activeSegments: currentPage + 1,
+                    activeColor: appColors.accentGold,
+                    inactiveColor:
+                        theme.colorScheme.primary.withValues(alpha: 0.18),
+                    strokeWidth: 3.5.w,
                   ),
-                )
-              else
-                const SizedBox(width: 60),
-
-              // Next / Get Started Button
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 350),
-                curve: Curves.easeOutCubic,
-                height: 52.h,
-                width: isLastPage ? 170.w : 60.w,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      theme.colorScheme.primary,
-                      theme.colorScheme.primaryContainer,
+                ),
+                // Center Action Button
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  width: 56.w,
+                  height: 56.w,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        theme.colorScheme.primary,
+                        theme.colorScheme.primaryContainer,
+                      ],
+                    ),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: appColors.accentGold.withValues(alpha: 0.45),
+                      width: 1.2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.colorScheme.primary.withValues(alpha: 0.35),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(28.r),
-                  border: Border.all(
-                    color: appColors.accentGold.withValues(alpha: 0.4),
-                    width: 1.2,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    transitionBuilder: (child, anim) => ScaleTransition(
+                      scale: anim,
+                      child: child,
                     ),
-                  ],
-                ),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      AppHaptics.medium();
-                      if (isLastPage) {
-                        AppRouter.navigateAndReplace(context, Routes.home);
-                      } else {
-                        pageController.nextPage(
-                          duration: const Duration(milliseconds: 400),
-                          curve: Curves.easeInOutCubic,
-                        );
-                      }
-                    },
-                    borderRadius: BorderRadius.circular(28.r),
-                    child: Center(
-                      child: isLastPage
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'get_started'.tr(),
-                                  style: TextStyle(
-                                    fontSize: 15.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Gap(8.w),
-                                Icon(
-                                  Icons.arrow_forward_rounded,
-                                  color: appColors.accentGold,
-                                  size: 18.sp,
-                                ),
-                              ],
-                            )
-                          : Icon(
-                              Icons.arrow_forward_rounded,
-                              color: Colors.white,
-                              size: 22.sp,
-                            ),
+                    child: Icon(
+                      centerIcon,
+                      key: ValueKey<IconData>(centerIcon),
+                      color: isLastPage ? appColors.accentGold : Colors.white,
+                      size: 24.sp,
                     ),
                   ),
-                ),
-              ).buttonAnimation(),
-            ],
+                ).buttonAnimation(),
+              ],
+            ),
           ),
-        ],
-      ),
+        ),
+        Gap(10.h),
+        // Subtle Page Status Indicator
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 250),
+          child: Text(
+            isLastPage ? 'get_started'.tr() : '${currentPage + 1} / $totalPages',
+            key: ValueKey<bool>(isLastPage),
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: isLastPage ? FontWeight.bold : FontWeight.w600,
+              color: isLastPage ? appColors.accentGold : appColors.textMuted,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
