@@ -35,8 +35,14 @@ class CityResolverHelper {
     (nameAr: 'مطروح، مصر', nameEn: 'Matrouh, Egypt', lat: 31.3543, lng: 27.2373),
     (nameAr: 'مكة المكرمة', nameEn: 'Makkah', lat: 21.4225, lng: 39.8262),
     (nameAr: 'المدينة المنورة', nameEn: 'Madinah', lat: 24.5247, lng: 39.5692),
+    (nameAr: 'القدس الشريف', nameEn: 'Jerusalem', lat: 31.7683, lng: 35.2137),
     (nameAr: 'الرياض، السعودية', nameEn: 'Riyadh, Saudi Arabia', lat: 24.7136, lng: 46.6753),
+    (nameAr: 'دبي، الإمارات', nameEn: 'Dubai, UAE', lat: 25.2048, lng: 55.2708),
+    (nameAr: 'عمان، الأردن', nameEn: 'Amman, Jordan', lat: 31.9454, lng: 35.9284),
   ];
+
+  static List<({String nameAr, String nameEn, double lat, double lng})>
+      get knownLocations => _knownLocations;
 
   static Future<({String nameAr, String nameEn})> resolveCity({
     required double latitude,

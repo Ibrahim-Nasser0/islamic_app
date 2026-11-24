@@ -10,6 +10,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../models/muadhin_option.dart';
 import 'muadhin_selector_sheet.dart';
+import 'settings_icon_badge.dart';
 
 class SettingsNotificationCard extends StatelessWidget {
   final bool prayerNotification;
@@ -105,18 +106,8 @@ class SettingsNotificationCard extends StatelessWidget {
                   padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
                   child: Row(
                     children: [
-                      Container(
-                        width: 40.w,
-                        height: 40.w,
-                        decoration: BoxDecoration(
-                          color: appColors.badgeBackground,
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                        child: Icon(
-                          Icons.record_voice_over_rounded,
-                          size: 20.sp,
-                          color: appColors.accentGold,
-                        ),
+                      const SettingsIconBadge(
+                        icon: Icons.record_voice_over_rounded,
                       ),
                       Gap(14.w),
                       Expanded(

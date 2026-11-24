@@ -185,5 +185,16 @@
   "share_message_content": "I recommend Zad Al-Muslim - your daily companion in Dhikr, Prayer, and Quran recitation 🕊️",
   "waqf_note": "Free Islamic app without ads • Ongoing Charity",
   "app_version_label": "Zad Al-Muslim • Version 1.0.0",
-  "verse_provision": "﴿ وَتَزَوَّدُوا فَإِنَّ خَيْرَ الزَّادِ التَّقْوَىٰ ﴾"
+  "verse_provision": "﴿ وَتَزَوَّدُوا فَإِنَّ خَيْرَ الزَّادِ التَّقْوَىٰ ﴾",
+  "select_location": "Select Prayer Location",
+  "change_location": "Change",
+  "location_settings": "Prayer & Qibla Location",
+  "location_sheet_desc": "Choose automatic GPS or select your city for accurate prayer and qibla calculations",
+  "gps_auto_location": "Automatic Detection (GPS)",
+  "gps_auto_desc": "Use device location to update prayer times automatically",
+  "gps_active": "GPS Active",
+  "manual_location": "Manual",
+  "or_select_city": "Or choose from popular cities",
+  "search_city_hint": "Search city or governorate...",
+  "location_updated_success": "Prayer location updated successfully"
 }

@@ -3,18 +3,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:islamic_app/core/theme/theme_cubit.dart';
-import 'package:islamic_app/core/theme/typography.dart';
-import 'package:islamic_app/core/utils/extensions.dart';
 import 'package:material_ui/material_ui.dart';
 
-
-
+import '/../../../core/theme/theme_cubit.dart';
+import '/../../../core/theme/typography.dart';
+import '/../../../core/utils/extensions.dart';
 
 class SettingsHeroHeader extends StatelessWidget {
   final bool athanEnabled;
+  final String locationName;
 
-  const SettingsHeroHeader({super.key, required this.athanEnabled});
+  const SettingsHeroHeader({
+    super.key,
+    required this.athanEnabled,
+    required this.locationName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -102,24 +105,27 @@ class SettingsHeroHeader extends StatelessWidget {
               ),
               Gap(14.h),
               // Status Summary Badges
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8.w,
+                runSpacing: 6.h,
                 children: [
                   _buildPill(
                     icon: _getModeIcon(themeMode),
                     label: _getModeLabel(themeMode),
                     appColors: appColors,
                   ),
-                  Gap(8.w),
                   _buildPill(
-                    icon: athanEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                    icon: athanEnabled
+                        ? Icons.volume_up_rounded
+                        : Icons.volume_off_rounded,
                     label: athanEnabled ? 'athan_audio'.tr() : 'صامت',
                     appColors: appColors,
                   ),
-                  Gap(8.w),
                   _buildPill(
-                    icon: Icons.language_rounded,
-                    label: context.locale.languageCode == 'ar' ? 'العربية' : 'English',
+                    icon: Icons.location_on_rounded,
+                    label: locationName,
                     appColors: appColors,
                   ),
                 ],
@@ -151,7 +157,6 @@ class SettingsHeroHeader extends StatelessWidget {
       case ThemeMode.system:
         return 'system_mode'.tr();
     }
-  }
   }
 
   Widget _buildPill({
@@ -186,4 +191,4 @@ class SettingsHeroHeader extends StatelessWidget {
       ),
     );
   }
-
+}

@@ -1,3 +1,4 @@
+import '../../../../core/services/location_preference_service.dart';
 import '../../domain/entities/daily_prayer_schedule.dart';
 import '../../domain/repositories/prayer_repository.dart';
 import '../datasources/location_service.dart';
@@ -15,8 +16,16 @@ class PrayerRepositoryImpl implements PrayerRepository {
 
   @override
   Future<({double latitude, double longitude, String nameAr, String nameEn})>
-      detectCurrentLocation() {
-    return locationService.getCurrentLocation();
+      detectCurrentLocation() async {
+    final loc = await LocationPreferenceService.getActiveLocation(
+      locationService: locationService,
+    );
+    return (
+      latitude: loc.latitude,
+      longitude: loc.longitude,
+      nameAr: loc.nameAr,
+      nameEn: loc.nameEn,
+    );
   }
 
   @override
@@ -33,7 +42,9 @@ class PrayerRepositoryImpl implements PrayerRepository {
     String locEn = nameEn ?? LocationService.defaultCairoEn;
 
     if (latitude == null || longitude == null) {
-      final loc = await locationService.getCurrentLocation();
+      final loc = await LocationPreferenceService.getActiveLocation(
+        locationService: locationService,
+      );
       lat = loc.latitude;
       lng = loc.longitude;
       locAr = loc.nameAr;

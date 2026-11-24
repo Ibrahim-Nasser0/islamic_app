@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/services/location_preference_service.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/utils/extensions.dart';
 import '../../../core/widgets/custom_app_bar.dart';
@@ -11,6 +12,7 @@ import '../presentation/models/muadhin_option.dart';
 import '../presentation/views/widgets/settings_about_card.dart';
 import '../presentation/views/widgets/settings_hero_header.dart';
 import '../presentation/views/widgets/settings_language_card.dart';
+import '../presentation/views/widgets/settings_location_card.dart';
 import '../presentation/views/widgets/settings_notification_card.dart';
 import '../presentation/views/widgets/settings_share_card.dart';
 import '../presentation/views/widgets/settings_theme_card.dart';
@@ -26,6 +28,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _prayerNotification = true;
   bool _azkarNotification = true;
   bool _athanSound = true;
+  String _currentLocationName = 'cairo_egypt'.tr();
+  bool _isManualLocation = false;
   MuadhinOption _selectedMuadhin = MuadhinOption.defaultList.first;
 
   @override
@@ -36,7 +40,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
+    final activeLoc = await LocationPreferenceService.getActiveLocation();
+    if (!mounted) return;
+    final isAr = context.locale.languageCode == 'ar';
+
     setState(() {
+      _currentLocationName = isAr ? activeLoc.nameAr : activeLoc.nameEn;
+      _isManualLocation = activeLoc.isManual;
       _prayerNotification = prefs.getBool('prayer_notifications') ?? true;
       _azkarNotification = prefs.getBool('azkar_notifications') ?? true;
       _athanSound = prefs.getBool('athan_sound') ?? true;
@@ -76,11 +86,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Top Hero Sanctuary Header
-            SettingsHeroHeader(athanEnabled: _athanSound),
+            SettingsHeroHeader(
+              athanEnabled: _athanSound,
+              locationName: _currentLocationName,
+            ),
             Gap(20.h),
 
             // Section 1: Worship & Adhan
             _buildSectionTitle('worship_and_alerts'.tr(), appColors),
+            Gap(10.h),
+            SettingsLocationCard(
+              currentLocationName: _currentLocationName,
+              isManual: _isManualLocation,
+              onLocationChanged: (nameAr, nameEn, isManual) {
+                final isAr = context.locale.languageCode == 'ar';
+                setState(() {
+                  _currentLocationName = isAr ? nameAr : nameEn;
+                  _isManualLocation = isManual;
+                });
+              },
+            ),
             Gap(10.h),
             SettingsNotificationCard(
               prayerNotification: _prayerNotification,

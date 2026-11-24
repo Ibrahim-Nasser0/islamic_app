@@ -3,6 +3,7 @@ import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:islamic_app/core/utils/extensions.dart';
+import 'package:islamic_app/features/settings/presentation/views/widgets/settings_icon_badge.dart';
 import 'package:material_ui/material_ui.dart';
 
 
@@ -27,23 +28,7 @@ class SettingsAboutCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                width: 44.w,
-                height: 44.w,
-                decoration: BoxDecoration(
-                  color: appColors.badgeBackground,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: appColors.accentGold.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Icon(
-                  FlutterIslamicIcons.crescentMoon,
-                  color: appColors.accentGold,
-                  size: 20.sp,
-                ),
-              ),
+              const SettingsIconBadge(icon: FlutterIslamicIcons.crescentMoon),
               Gap(14.w),
               Expanded(
                 child: Column(

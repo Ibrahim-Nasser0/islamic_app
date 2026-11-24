@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/features/settings/presentation/views/widgets/settings_icon_badge.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../../core/utils/extensions.dart';
@@ -57,19 +58,7 @@ class SettingsShareCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
             child: Row(
               children: [
-                Container(
-                  width: 40.w,
-                  height: 40.w,
-                  decoration: BoxDecoration(
-                    color: appColors.badgeBackground,
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                  child: Icon(
-                    FlutterIslamicIcons.solidPrayer,
-                    size: 20.sp,
-                    color: appColors.accentGold,
-                  ),
-                ),
+                const SettingsIconBadge(icon: FlutterIslamicIcons.solidPrayer),
                 Gap(14.w),
                 Expanded(
                   child: Column(
