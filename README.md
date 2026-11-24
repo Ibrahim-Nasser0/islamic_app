@@ -1,17 +1,204 @@
-# islamic_app
+# 🕊️ زاد المسلم | Zad Al-Muslim
 
-A new Flutter project.
+<div align="center">
 
-## Getting Started
+<img src="assets/images/app_logo.png" alt="Zad Al-Muslim Logo" width="130" />
 
-This project is a starting point for a Flutter application.
+### رفيقك اليومي في الذكر والعبادة والقرآن الكريم
+**Your Daily Companion for Worship, Dhikr, and Quran Recitation**
 
-A few resources to get you started if this is your first Flutter project:
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter&logoColor=white)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart&logoColor=white)](https://dart.dev)
+[![Architecture](https://img.shields.io/badge/Architecture-Clean%20%2B%20MVVM-success)](#-هيكلية-المشروع-architecture)
+[![State Management](https://img.shields.io/badge/State%20Management-BLoC%20%2F%20Cubit-blueviolet)](https://bloclibrary.dev)
+[![License](https://img.shields.io/badge/License-Waqf%20%2F%20Open%20Source-teal)](#-صدقة-جارية-charity-waqf)
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+<br/>
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+> **﴿ وَتَزَوَّدُوا فَإِنَّ خَيْرَ الزَّادِ التَّقْوَىٰ وَاتَّقُونِ يَا أُولِي الْأَلْبَابِ ﴾**  
+> *[ سورة البقرة: 197 ]*
+
+</div>
+
+---
+
+## 📌 نبذة عن التطبيق | Overview
+
+**زاد المسلم (Zad Al-Muslim)** هو تطبيق إسلامي متكامل فائق الدقة، بُني بأحدث تقنيات **Flutter** بالاعتماد على معمارية البرمجيات النظيفة (**Clean Architecture**) ونمط **MVVM** عبر **BLoC / Cubit**. 
+
+يجمع التطبيق بين التصميم الإسلامي العصري الراقي، وتعدد اللغات، والتفاعل الحسي اللمسي (**Haptic Feedback**)، ومنظومة أذان ومنبهات دقيقة تعمل حتى في وضع إغلاق التطبيق وقفل الشاشة، دون أي إعلانات مزعجة تجعله خالصاً كصدقة جارية.
+
+---
+
+## ✨ المميزات الرئيسية | Key Features
+
+### 1. 📖 المصحف الشريف (Holy Quran)
+- تلاوة القرآن الكريم كاملاً بالرسم العثماني الأصيل المعتمد.
+- فهرس كامل للسور، الأجزاء، والأرباع.
+- تصفح سلس مع حفظ موضع القراءة الأخير وتعديل حجم الخطوط.
+- مظهر داكن ونهاري فائق الراحة للعين أثناء التلاوة المطولة.
+
+### 2. ⏱️ مواقيت الصلاة الفلكية (Accurate Prayer Times)
+- حساب فلكي دقيق مبني على إحداثيات GPS أو التحديد اليدوي للمحافظات والمدن.
+- دعم معايير الحساب الرسمية (الهيئة العامة المصرية للمساحة، رابطة العالم الإسلامي، أم القرى، إلخ).
+- عداد تنازلي دقيق للصلاة القادمة مع عرض التاريخ الهجري والميلادي المقترن.
+
+### 3. 📢 منظومة الأذان الذكية والشاشة الكاملة (Smart Adhan & Full-Screen Alarm)
+- **شاشة أذان تفاعلية كاملة (Full-Screen Intent)**: تعمل فوق شاشة القفل وتضيء الهاتف تلقائياً عند حلول وقت الصلاة.
+- **تنبيه استباقي قبل الصلاة بـ 5 دقائق**: إشعار هادئ للاستعداد والوضوء.
+- **أصوات مؤذنين متعددة**:
+  - فضيلة الشيخ **عبد الباسط عبد الصمد** (مصر).
+  - فضيلة الشيخ **مشاري راشد العفاسي** (الكويت).
+  - أذان **الحرم المكي الشريف** بصوت الشيخ **أحمد علي ملا** (مكة المكرمة).
+- **التمييز التلقائي لأذان الفجر**: تشغيل صيغة الفجر الخاصة (*"الصلاة خير من النوم"*) تلقائياً.
+- **موجات وزخارف بصرية نبضية**: تفاعل بصري راقٍ مع صوت التلاوة.
+- **دعاء ما بعد الأذان النبوي**: عرض الدعاء المأثور من صحيح البخاري بنصه العربي المحفوظ مع إمكانية النسخ بلمسة واحدة.
+- **منبهات دقيقة native**: اعتماد `exactAllowWhileIdle` و `AlarmManager` للعمل حتى بعد إغلاق التطبيق تماماً أو إعادة تشغيل الهاتف.
+
+### 4. 🧭 بوصلة القبلة التفاعلية (Interactive Qibla Compass)
+- تحديد اتجاه الكعبة المشرفة مباشرة بالاعتماد على مستشعرات الجهاز المغناطيسية ومستشعر الجاذبية.
+- اهتزاز لمسي هادئ عند محاذاة الهاتف مع اتجاه القبلة الصحيح بدقة.
+
+### 5. 🕌 دليل المساجد القريبة والملاحة (Nearby Mosques & Live Map)
+- البحث الفوري عن أقرب المساجد في محيطك (500م، 1كم، 3كم، 5كم) بسرعة استجابة فائقة.
+- خريطة تفاعلية بتقنية OpenStreetMap مع فلاتر ألوان تكيفية للوضعين الليلي والنهاري.
+- تقدير مسافة المشي بالدقائق ومسافة القيادة بالسيارة.
+- إمكانية فتح المسار والملاحة مباشرة في خرائط Google Maps.
+
+### 6. 📿 حصن المسلم والسبحة الإلكترونية (Azkar & Digital Tasbeeh)
+- تصنيفات شاملة للأذكار: (أذكار الصباح، المساء، ما بعد الصلاة، أذكار النوم، الاستيقاظ، وأدعية مختارة).
+- مسبحة إلكترونية ذكية بعداد تفاعلي يدعم الاستجابة اللمسية واهتزازات عند إتمام الأوراد (33، 100).
+- المحافظة التامة على النصوص العربية الشريفة لكافة الأذكار والأدعية حتى في وضع التطبيق باللغة الإنجليزية.
+
+### 7. 📚 الأحاديث النبوية الشريفة (Prophetic Hadiths)
+- موسوعة الأحاديث النبوية الشريفة (الأربعون النووية، رياض الصالحين، وغيرها).
+- شرح وبيان لمعاني الأحاديث والفوائد المستفادة.
+
+### 8. 🎨 تجربة مستخدم عالمية والوضع الداكن الذكي (UI/UX & Themes)
+- دعم كامل للغتين: **العربية والإنجليزية** مع تبديل لحظي وسلس (`easy_localization`).
+- تصميم متكامل متوافق مع المظهرين **الليلي الهادئ والنهاري المشرق**.
+- هندسة خالية من الشروط الثابتة (`Zero isDark Conditionals`) واعتماد كامل على `ThemeExtension` و `ColorScheme`.
+- اهتزازات حسية لمسية تكتيكية مخصصة لكافة التفاعلات (`AppHaptics`).
+
+---
+
+## 🏗️ هيكلية المشروع | Architecture
+
+يتبع المشروع معمارية **Clean Architecture** الصارمة لضمان سهولة الاختبار وفصل المسؤوليات:
+
+```text
+lib/
+├── core/                           # الطبقة المشتركة والأساسية
+│   ├── api/                        # اعتراض وإعدادات طلبات الشبكة (Interceptors)
+│   ├── config/                     # إعدادات التطبيق العامة
+│   ├── di/                         # حقن الاعتماديات (GetIt Service Locator)
+│   ├── localization/               # إدارة اللغات والترجمة
+│   ├── network/                    # فحص الاتصال بالإنترنت
+│   ├── routes/                     # إدارة المسارات والتنقل (AppRouter & Routes)
+│   ├── services/                   # الخدمات الأساسية (المنبهات، الإشعارات، الحساب الفلكي)
+│   │   └── notification/           # NotificationService & PrayerAlarmScheduler
+│   ├── theme/                      # الرموز اللونية، الخطوط والمظهر (ThemeCubit & Tokens)
+│   ├── utils/                      # الثوابت، المساعدات، والاهتزاز اللمسي (AppHaptics)
+│   └── widgets/                    # المكونات الموحدة (CustomButton, CustomTextField, إلخ)
+│
+├── features/                       # ميزات التطبيق (Features)
+│   ├── splash/                     # شاشة البداية والتحميل المبدئي
+│   ├── onboarding/                 # جولة تعريفية بالمميزات
+│   ├── home/                       # الشاشة الرئيسية ومواقيت الصلاة
+│   ├── quran/                      # تلاوة وفهرس القرآن الكريم
+│   ├── adhan/                      # شاشة الأذان التفاعلية الكاملة ومكوناتها
+│   ├── qibla/                      # بوصلة تحديد القبلة
+│   ├── mosques/                    # خريطة ودليل بيوت الله القريبة
+│   ├── azkar/                      # أذكار المسلم والورد اليومي
+│   ├── tasbeeh/                    # السبحة الإلكترونية التفاعلية
+│   ├── hadith/                     # الأحاديث النبوية وشروحها
+│   └── settings/                   # إعدادات التطبيق، أصوات المؤذنين، والموقع
+│
+└── main.dart                       # نقطة انطلاق التطبيق الرئيسية
+```
+
+### تقسيم كل ميزة (Feature Structure):
+```text
+feature_name/
+├── domain/                         # الكيانات (Entities)، العقود (Repository Contracts)، والـ UseCases
+├── data/                           # النماذج (Models)، ومصادر البيانات (DataSources / Repositories)
+└── presentation/                   # الـ Cubit & States، الشاشات (Views)، والوحدات المقسمة (Widgets)
+```
+
+---
+
+## 🛠️ التقنيات والمكتبات المستخدمة | Tech Stack
+
+| المكتبة | الإصدار | الاستخدام |
+| :--- | :--- | :--- |
+| **Flutter SDK** | `^3.x` | إطار العمل الأساسي لتطوير التطبيق |
+| **flutter_bloc** | `^9.1.1` | إدارة حالة التطبيق بكفاءة (State Management) |
+| **flutter_screenutil** | `^5.9.3` | تكيف الواجهات ومرونة المقاسات لكافة الشاشات |
+| **easy_localization** | `^3.0.8` | دعم اللغات المتعددة (العربية والإنجليزية) |
+| **audioplayers** | `^6.1.0` | تشغيل ملفات صوت الأذان والاستماع المسبق |
+| **flutter_local_notifications** | `^18.0.1` | إدارة الإشعارات ومنبهات الأذان والتنبيهات المسبقة |
+| **adhan** | `^2.0.0` | المحرك الفلكي الرياضي لحساب مواقيت الصلاة بدقة |
+| **flutter_map** | `^7.0.2` | محرك عرض خرائط OpenStreetMap التفاعلية |
+| **dio** | `^5.11.1` | إدارة طلبات واجهات الـ API المتقدمة والبحث |
+| **get_it** | `^8.0.3` | حقن التبعيات وإدارة الكائنات الفردية (Dependency Injection) |
+| **shared_preferences** | `^2.5.6` | التخزين المحلي السريع للإعدادات والموقع المختار |
+
+---
+
+## 🚀 البدء والتشغيل | Getting Started
+
+### المتطلبات الأساسية (Prerequisites):
+- تثبيت [Flutter SDK](https://docs.flutter.dev/get-started/install) (الإصدار 3.22 فما فوق).
+- تثبيت [Android Studio](https://developer.android.com/studio) أو [VS Code](https://code.visualstudio.com/) مع إضافات Flutter & Dart.
+
+### خطوات التثبيت والتشغيل:
+
+1. **استنساخ المستودع (Clone the repo)**:
+   ```bash
+   git clone https://github.com/your-username/zad-al-muslim.git
+   cd zad-al-muslim
+   ```
+
+2. **تثبيت الحزم والمكتبات (Get dependencies)**:
+   ```bash
+   flutter pub get
+   ```
+
+3. **تشغيل فحص الأخطاء (Analyze files)**:
+   ```bash
+   flutter analyze
+   ```
+
+4. **تشغيل التطبيق على الهاتف أو المحاكي (Run Application)**:
+   ```bash
+   flutter run
+   ```
+
+---
+
+## 🔒 صلاحيات النظام ومنبهات الأذان | Android Exact Alarms
+
+لضمان عمل الأذان الفعلي والشاشة التفاعلية حتى عند إغلاق التطبيق وقفل الشاشة، يتضمن ملف `AndroidManifest.xml` الإعدادات التالية:
+- `android.permission.SCHEDULE_EXACT_ALARM`: لجدولة مواقيت الصلاة بدقة الثانية عبر `AlarmManager`.
+- `android.permission.USE_FULL_SCREEN_INTENT`: لفتح شاشة الأذان كمنبه كامل فوق شاشة القفل.
+- `android.permission.RECEIVE_BOOT_COMPLETED`: لإعادة جدولة منبهات الصلوات تلقائياً بمجرد إعادة تشغيل الهاتف.
+- `android.permission.WAKE_LOCK`: لإيقاظ شاشة الهاتف وعرض الأذان مباشرة.
+
+> **💡 تنبيه لمستخدمي هواتف Xiaomi / Samsung / Huawei / Oppo**:  
+> لضمان عمل الأذان 100% في موعده دون تأخير، يُرجى استثناء التطبيق من "توفير شحن البطارية" وضبطه على "بلا قيود" (No Restrictions)، وتفعيل "التشغيل التلقائي" (Autostart).
+
+---
+
+## 📜 صدقة جارية | Charity (Waqf)
+
+هذا التطبيق مجاني بالكامل، خالٍ تماماً من أي إعلانات تجارية أو تتبع، ومتاح كصدقة جارية عن جميع المسلمين والمسلمات، الأحياء منهم والأموات.
+
+> **«إِذَا مَاتَ الإنْسَانُ انْقَطَعَ عنْه عَمَلُهُ إِلَّا مِن ثَلَاثَةٍ: إِلَّا مِن صَدَقَةٍ جَارِيَةٍ، أَوْ عِلْمٍ يُنْتَفَعُ بِهِ، أَوْ وَلَدٍ صَالِحٍ يَدْعُو له»**  
+> *[ صحيح مسلم ]*
+
+---
+
+<div align="center">
+تم التطوير بكل إتقان واحتساب للأجر 🤍<br/>
+Crafted with devotion & modern Flutter excellence.
+</div>
