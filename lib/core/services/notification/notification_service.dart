@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
+import '../../../features/settings/presentation/models/muadhin_option.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -70,15 +71,6 @@ class NotificationService {
             AndroidFlutterLocalNotificationsPlugin>();
 
     if (androidPlugin != null) {
-      const AndroidNotificationChannel adhanChannel = AndroidNotificationChannel(
-        adhanChannelId,
-        adhanChannelName,
-        description: adhanChannelDesc,
-        importance: Importance.max,
-        playSound: true,
-        enableVibration: true,
-      );
-
       const AndroidNotificationChannel preChannel = AndroidNotificationChannel(
         preChannelId,
         preChannelName,
@@ -87,10 +79,33 @@ class NotificationService {
         playSound: true,
         enableVibration: true,
       );
-
-      await androidPlugin.createNotificationChannel(adhanChannel);
       await androidPlugin.createNotificationChannel(preChannel);
+
+      // Create distinct channels for each muezzin and prayer mode
+      for (final muezzin in MuadhinOption.defaultList) {
+        for (final isFajr in [false, true]) {
+          final channelId = muezzin.getChannelId(isFajr: isFajr);
+          final rawSound = muezzin.getRawSound(isFajr: isFajr);
+          final sound = RawResourceAndroidNotificationSound(rawSound);
+
+          final adhanChannel = AndroidNotificationChannel(
+            channelId,
+            'أذان ${muezzin.location} (${isFajr ? 'الفجر' : 'العام'})',
+            description: 'تشغيل أذان ${muezzin.location} تلقائياً',
+            importance: Importance.max,
+            playSound: true,
+            sound: sound,
+            enableVibration: true,
+            audioAttributesUsage: AudioAttributesUsage.alarm,
+          );
+          await androidPlugin.createNotificationChannel(adhanChannel);
+        }
+      }
     }
+  }
+
+  Future<void> cancel(int id) async {
+    await flutterLocalNotificationsPlugin.cancel(id);
   }
 
   Future<bool> requestPermissions() async {

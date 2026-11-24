@@ -39,11 +39,13 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> setPrayerNotification(bool value) async {
     emit(state.copyWith(prayerNotification: value));
     await _localDataSource.setPrayerNotification(value);
+    _rescheduleAlarms();
   }
 
   Future<void> setPrePrayerNotification(bool value) async {
     emit(state.copyWith(prePrayerNotification: value));
     await _localDataSource.setPrePrayerNotification(value);
+    _rescheduleAlarms();
   }
 
   Future<void> setAzkarNotification(bool value) async {
@@ -54,11 +56,13 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> setAthanSound(bool value) async {
     emit(state.copyWith(athanSound: value));
     await _localDataSource.setAthanSound(value);
+    _rescheduleAlarms();
   }
 
   Future<void> setMuadhinVoice(MuadhinOption muadhin) async {
     emit(state.copyWith(selectedMuadhin: muadhin));
     await _localDataSource.setMuadhinVoice(muadhin.id);
+    _rescheduleAlarms();
   }
 
   Future<void> setLanguageCode(String code) async {
@@ -87,6 +91,7 @@ class SettingsCubit extends Cubit<SettingsState> {
       nameAr: nameAr,
       nameEn: nameEn,
     );
+    _rescheduleAlarms();
   }
 
   Future<void> resetToGps({
@@ -105,5 +110,16 @@ class SettingsCubit extends Cubit<SettingsState> {
       ),
     );
     await _localDataSource.resetToGps();
+    _rescheduleAlarms();
+  }
+
+  void _rescheduleAlarms() {
+    _alarmScheduler?.schedulePrayerAlarms(
+      latitude: state.latitude,
+      longitude: state.longitude,
+      adhanEnabled: state.prayerNotification && state.athanSound,
+      preAlertEnabled: state.prayerNotification && state.prePrayerNotification,
+      muadhin: state.selectedMuadhin,
+    );
   }
 }

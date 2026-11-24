@@ -2,6 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/di/injection_container.dart' as di;
+import '../../../../core/services/notification/notification_service.dart';
 import '../../settings/data/datasources/settings_local_data_source.dart';
 import '../../settings/presentation/models/muadhin_option.dart';
 import '../presentation/models/adhan_args.dart';
@@ -54,6 +55,11 @@ class _AdhanScreenState extends State<AdhanScreen> {
   }
 
   Future<void> _initMuezzinAndAudio() async {
+    // Silence any native background notification sound so AdhanScreen manages it
+    try {
+      await di.sl<NotificationService>().cancelAll();
+    } catch (_) {}
+
     final settingsDs = di.sl<SettingsLocalDataSource>();
     final savedId = settingsDs.getMuadhinVoice();
     _muadhin = MuadhinOption.defaultList.firstWhere(

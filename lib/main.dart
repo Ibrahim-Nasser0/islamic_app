@@ -43,6 +43,9 @@ void main() async {
     onNotificationTap: (response) {
       final payload = response.payload;
       if (payload != null && payload.startsWith('adhan:')) {
+        if (response.id != null) {
+          notificationService.cancel(response.id!);
+        }
         AppRouter.navigatorKey.currentState?.pushNamed(
           Routes.adhan,
           arguments: payload,

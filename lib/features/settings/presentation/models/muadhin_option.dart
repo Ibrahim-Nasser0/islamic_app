@@ -4,6 +4,8 @@ class MuadhinOption {
   final String location;
   final String regularAudioPath;
   final String fajrAudioPath;
+  final String rawRegularSound;
+  final String rawFajrSound;
 
   const MuadhinOption({
     required this.id,
@@ -11,7 +13,15 @@ class MuadhinOption {
     required this.location,
     required this.regularAudioPath,
     required this.fajrAudioPath,
+    required this.rawRegularSound,
+    required this.rawFajrSound,
   });
+
+  String getRawSound({required bool isFajr}) =>
+      isFajr ? rawFajrSound : rawRegularSound;
+
+  String getChannelId({required bool isFajr}) =>
+      'adhan_${id}_${isFajr ? 'fajr' : 'reg'}';
 
   static const List<MuadhinOption> defaultList = [
     MuadhinOption(
@@ -20,6 +30,8 @@ class MuadhinOption {
       location: 'مصر',
       regularAudioPath: 'audio/abdulbasit/abd-elbaset-regular.mp3',
       fajrAudioPath: 'audio/abdulbasit/abd-elbaset-fajr.mp3',
+      rawRegularSound: 'abdulbasit_regular',
+      rawFajrSound: 'abdulbasit_fajr',
     ),
     MuadhinOption(
       id: 'makkah',
@@ -27,6 +39,8 @@ class MuadhinOption {
       location: 'مكة المكرمة',
       regularAudioPath: 'audio/harram/al-harram-regular.mp3',
       fajrAudioPath: 'audio/harram/al-harram-fajr.mp3',
+      rawRegularSound: 'al_harram_regular',
+      rawFajrSound: 'al_harram_fajr',
     ),
     MuadhinOption(
       id: 'alafasy',
@@ -34,6 +48,8 @@ class MuadhinOption {
       location: 'الكويت',
       regularAudioPath: 'audio/alafasy/alafasy-regular.mp3',
       fajrAudioPath: 'audio/alafasy/alafasy-fajr.mp3',
+      rawRegularSound: 'alafasy_regular',
+      rawFajrSound: 'alafasy_fajr',
     ),
   ];
 }
