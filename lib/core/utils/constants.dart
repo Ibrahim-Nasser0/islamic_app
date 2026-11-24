@@ -22,6 +22,15 @@ class AppConstants {
   static const String themeKey = 'theme_mode';
   static const String languageKey = 'language_code';
   static const String onboardingKey = 'onboarding_completed';
+  static const String prayerNotificationKey = 'prayer_notifications';
+  static const String azkarNotificationKey = 'azkar_notifications';
+  static const String athanSoundKey = 'athan_sound';
+  static const String muadhinVoiceKey = 'muadhin_voice';
+  static const String isManualLocationKey = 'is_manual_location';
+  static const String customLocationLatKey = 'custom_location_lat';
+  static const String customLocationLngKey = 'custom_location_lng';
+  static const String customLocationNameArKey = 'custom_location_name_ar';
+  static const String customLocationNameEnKey = 'custom_location_name_en';
 
   // Pagination
   static const int defaultPageSize = 20;

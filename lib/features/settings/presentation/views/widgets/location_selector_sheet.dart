@@ -9,14 +9,12 @@ import 'package:islamic_app/features/home/data/datasources/city_resolver_helper.
 import 'package:islamic_app/features/home/data/datasources/location_service.dart';
 import 'package:material_ui/material_ui.dart';
 
-
 import 'location_gps_tile.dart';
 
 class LocationSelectorSheet extends StatefulWidget {
   final String currentLocationName;
   final bool isManual;
-  final void Function(String nameAr, String nameEn, bool isManual)
-      onLocationSelected;
+  final void Function(String nameAr, String nameEn, bool isManual, double lat, double lng) onLocationSelected;
 
   const LocationSelectorSheet({
     super.key,
@@ -47,12 +45,11 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
     final loc = await LocationService().getCurrentLocation();
     if (!mounted) return;
     setState(() => _isLoadingGps = false);
-    widget.onLocationSelected(loc.nameAr, loc.nameEn, false);
+    widget.onLocationSelected(loc.nameAr, loc.nameEn, false, loc.latitude, loc.longitude);
     Navigator.pop(context);
   }
 
-  void _selectCity(
-      ({String nameAr, String nameEn, double lat, double lng}) city) async {
+  void _selectCity(({String nameAr, String nameEn, double lat, double lng}) city) async {
     AppHaptics.selection();
     await LocationPreferenceService.setManualLocation(
       latitude: city.lat,
@@ -61,7 +58,7 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
       nameEn: city.nameEn,
     );
     if (!mounted) return;
-    widget.onLocationSelected(city.nameAr, city.nameEn, true);
+    widget.onLocationSelected(city.nameAr, city.nameEn, true, city.lat, city.lng);
     Navigator.pop(context);
   }
 
@@ -74,8 +71,7 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
     final filteredCities = CityResolverHelper.knownLocations.where((loc) {
       if (_searchQuery.isEmpty) return true;
       final q = _searchQuery.toLowerCase();
-      return loc.nameAr.toLowerCase().contains(q) ||
-          loc.nameEn.toLowerCase().contains(q);
+      return loc.nameAr.toLowerCase().contains(q) || loc.nameEn.toLowerCase().contains(q);
     }).toList();
 
     return Padding(
@@ -116,8 +112,7 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
           CustomTextField(
             controller: _searchController,
             hint: 'search_city_hint'.tr(),
-            prefixIcon: Icon(Icons.search_rounded,
-                size: 18.sp, color: appColors.accentGold),
+            prefixIcon: Icon(Icons.search_rounded, size: 18.sp, color: appColors.accentGold),
             onChanged: (val) => setState(() => _searchQuery = val),
           ),
           Gap(10.h),
@@ -126,12 +121,12 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
             child: ListView.separated(
               physics: const BouncingScrollPhysics(),
               itemCount: filteredCities.length,
-              separatorBuilder: (context, index) =>
-                  Divider(color: appColors.cardBorder, height: 1),
+              separatorBuilder: (context, index) => Divider(color: appColors.cardBorder, height: 1),
               itemBuilder: (context, idx) {
                 final city = filteredCities[idx];
                 final cityName = isArabic ? city.nameAr : city.nameEn;
-                final isSelected = widget.isManual &&
+                final isSelected =
+                    widget.isManual &&
                     (widget.currentLocationName.contains(city.nameAr) ||
                         widget.currentLocationName.contains(city.nameEn));
 
@@ -141,12 +136,10 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
                     onTap: () => _selectCity(city),
                     borderRadius: BorderRadius.circular(10.r),
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 10.w, vertical: 10.h),
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? theme.colorScheme.primary
-                                .withValues(alpha: 0.12)
+                            ? theme.colorScheme.primary.withValues(alpha: 0.12)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(10.r),
                       ),
@@ -155,9 +148,7 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
                           Icon(
                             Icons.location_on_outlined,
                             size: 18.sp,
-                            color: isSelected
-                                ? appColors.accentGold
-                                : appColors.textMuted,
+                            color: isSelected ? appColors.accentGold : appColors.textMuted,
                           ),
                           Gap(10.w),
                           Expanded(
@@ -165,21 +156,13 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
                               cityName,
                               style: TextStyle(
                                 fontSize: 13.sp,
-                                fontWeight: isSelected
-                                    ? FontWeight.bold
-                                    : FontWeight.w500,
-                                color: isSelected
-                                    ? appColors.accentGold
-                                    : theme.colorScheme.onSurface,
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                                color: isSelected ? appColors.accentGold : theme.colorScheme.onSurface,
                               ),
                             ),
                           ),
                           if (isSelected)
-                            Icon(
-                              Icons.check_rounded,
-                              size: 18.sp,
-                              color: appColors.accentGold,
-                            ),
+                            Icon(Icons.check_rounded, size: 18.sp, color: appColors.accentGold),
                         ],
                       ),
                     ),

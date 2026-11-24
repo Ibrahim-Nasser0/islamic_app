@@ -4,18 +4,21 @@ import 'package:gap/gap.dart';
 import 'package:islamic_app/core/utils/extensions.dart';
 import 'package:islamic_app/core/utils/haptics.dart';
 import 'package:islamic_app/core/widgets/custom_bottom_sheet.dart';
-import 'package:islamic_app/features/settings/presentation/views/widgets/settings_icon_badge.dart';
 import 'package:material_ui/material_ui.dart';
 
-
 import 'location_selector_sheet.dart';
-
+import 'settings_icon_badge.dart';
 
 class SettingsLocationCard extends StatelessWidget {
   final String currentLocationName;
   final bool isManual;
-  final void Function(String nameAr, String nameEn, bool isManual)
-      onLocationChanged;
+  final void Function(
+    String nameAr,
+    String nameEn,
+    bool isManual,
+    double lat,
+    double lng,
+  ) onLocationChanged;
 
   const SettingsLocationCard({
     super.key,

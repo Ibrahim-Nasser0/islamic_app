@@ -1,13 +1,13 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/home/data/datasources/location_service.dart';
+import '../utils/constants.dart';
+
+
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/constants.dart';
+import '../../features/home/data/datasources/location_service.dart';
 
 class LocationPreferenceService {
-  static const String keyIsManual = 'is_manual_location';
-  static const String keyLat = 'custom_location_lat';
-  static const String keyLng = 'custom_location_lng';
-  static const String keyNameAr = 'custom_location_name_ar';
-  static const String keyNameEn = 'custom_location_name_en';
-
   static Future<({
     double latitude,
     double longitude,
@@ -16,15 +16,20 @@ class LocationPreferenceService {
     bool isManual,
   })> getActiveLocation({LocationService? locationService}) async {
     final prefs = await SharedPreferences.getInstance();
-    final isManual = prefs.getBool(keyIsManual) ?? false;
+    final isManual =
+        prefs.getBool(AppConstants.isManualLocationKey) ?? false;
 
     if (isManual) {
-      final lat = prefs.getDouble(keyLat) ?? LocationService.defaultCairoLat;
-      final lng = prefs.getDouble(keyLng) ?? LocationService.defaultCairoLng;
+      final lat = prefs.getDouble(AppConstants.customLocationLatKey) ??
+          LocationService.defaultCairoLat;
+      final lng = prefs.getDouble(AppConstants.customLocationLngKey) ??
+          LocationService.defaultCairoLng;
       final nameAr =
-          prefs.getString(keyNameAr) ?? LocationService.defaultCairoAr;
+          prefs.getString(AppConstants.customLocationNameArKey) ??
+              LocationService.defaultCairoAr;
       final nameEn =
-          prefs.getString(keyNameEn) ?? LocationService.defaultCairoEn;
+          prefs.getString(AppConstants.customLocationNameEnKey) ??
+              LocationService.defaultCairoEn;
       return (
         latitude: lat,
         longitude: lng,
@@ -52,24 +57,24 @@ class LocationPreferenceService {
     required String nameEn,
   }) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(keyIsManual, true);
-    await prefs.setDouble(keyLat, latitude);
-    await prefs.setDouble(keyLng, longitude);
-    await prefs.setString(keyNameAr, nameAr);
-    await prefs.setString(keyNameEn, nameEn);
+    await prefs.setBool(AppConstants.isManualLocationKey, true);
+    await prefs.setDouble(AppConstants.customLocationLatKey, latitude);
+    await prefs.setDouble(AppConstants.customLocationLngKey, longitude);
+    await prefs.setString(AppConstants.customLocationNameArKey, nameAr);
+    await prefs.setString(AppConstants.customLocationNameEnKey, nameEn);
   }
 
   static Future<void> resetToGps() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(keyIsManual, false);
-    await prefs.remove(keyLat);
-    await prefs.remove(keyLng);
-    await prefs.remove(keyNameAr);
-    await prefs.remove(keyNameEn);
+    await prefs.setBool(AppConstants.isManualLocationKey, false);
+    await prefs.remove(AppConstants.customLocationLatKey);
+    await prefs.remove(AppConstants.customLocationLngKey);
+    await prefs.remove(AppConstants.customLocationNameArKey);
+    await prefs.remove(AppConstants.customLocationNameEnKey);
   }
 
   static Future<bool> isManual() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(keyIsManual) ?? false;
+    return prefs.getBool(AppConstants.isManualLocationKey) ?? false;
   }
 }

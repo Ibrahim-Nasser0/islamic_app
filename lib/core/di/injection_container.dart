@@ -2,6 +2,7 @@ import 'package:get_it/get_it.dart';
 import 'package:dio/dio.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../network/network_info.dart';
 import '../api/api_interceptors.dart';
@@ -25,17 +26,23 @@ import '../../features/hadith/data/datasources/hadith_local_data_source.dart';
 import '../../features/hadith/data/repositories/hadith_repository_impl.dart';
 import '../../features/hadith/domain/repositories/hadith_repository.dart';
 import '../../features/hadith/presentation/cubit/hadith_cubit.dart';
+import '../../features/settings/data/datasources/settings_local_data_source.dart';
+import '../../features/settings/presentation/cubit/settings_cubit.dart';
 
 final sl = GetIt.instance;
 
 /// Initialize Dependency Injection
 Future<void> init() async {
+  //! External Core
+  final sharedPreferences = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
+
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   //! External
   sl.registerLazySingleton(() => InternetConnectionChecker.createInstance());
-  sl.registerLazySingleton(() => ThemeCubit());
+  sl.registerLazySingleton(() => ThemeCubit(sharedPreferences: sl()));
 
   sl.registerLazySingleton(() {
     final dio = Dio(
@@ -90,4 +97,9 @@ Future<void> init() async {
   sl.registerLazySingleton<HadithLocalDataSource>(() => HadithLocalDataSourceImpl());
   sl.registerLazySingleton<HadithRepository>(() => HadithRepositoryImpl(localDataSource: sl()));
   sl.registerFactory(() => HadithCubit(repository: sl()));
+
+  // Settings Feature
+  sl.registerLazySingleton<SettingsLocalDataSource>(
+      () => SettingsLocalDataSourceImpl(sl()));
+  sl.registerFactory(() => SettingsCubit(sl()));
 }

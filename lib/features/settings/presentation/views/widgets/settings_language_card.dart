@@ -1,13 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:islamic_app/core/utils/extensions.dart';
 import 'package:islamic_app/core/widgets/custom_filter_dropdown.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../cubit/settings_cubit.dart';
+
 import 'settings_icon_badge.dart';
-
-
 
 class SettingsLanguageCard extends StatelessWidget {
   const SettingsLanguageCard({super.key});
@@ -65,6 +66,9 @@ class SettingsLanguageCard extends StatelessWidget {
               ),
             ],
             onSelected: (code) {
+              try {
+                context.read<SettingsCubit>().setLanguageCode(code);
+              } catch (_) {}
               context.setLocale(Locale(code));
             },
           ),
