@@ -10,6 +10,7 @@ import 'core/theme/theme_cubit.dart';
 import 'core/di/injection_container.dart' as di;
 import 'core/localization/localization_manager.dart';
 import 'core/widgets/app_unfocus.dart';
+import 'core/services/native/native_sync_coordinator.dart';
 import 'core/services/notification/notification_service.dart';
 import 'core/services/notification/prayer_alarm_scheduler.dart';
 import 'core/services/notification/azkar_alarm_scheduler.dart';
@@ -38,6 +39,11 @@ void main() async {
   // Initialize dependency injection
   await di.init();
 
+  // Bind native lockscreen deep links & sync any offline Azkar completions
+  final syncCoordinator = di.sl<NativeSyncCoordinator>();
+  syncCoordinator.bindForegroundRouteHandler();
+  await syncCoordinator.syncPendingDhikrUpdates();
+
   // Initialize notification service & permissions
   final notificationService = di.sl<NotificationService>();
   await notificationService.init(
@@ -53,16 +59,17 @@ void main() async {
         if (response.id != null) {
           notificationService.cancel(response.id!);
         }
-        AppRouter.navigatorKey.currentState?.pushNamed(
-          Routes.adhan,
-          arguments: payload,
-        );
-      } else if (payload != null && payload.startsWith('azkar:')) {
-        final categoryId = payload.split(':')[1];
-        AppRouter.navigatorKey.currentState?.pushNamed(
-          Routes.azkarCategory,
-          arguments: {'categoryId': categoryId},
-        );
+        return;
+      }
+      if (notificationService.didNotificationLaunchApp) return;
+      if (payload != null && payload.startsWith('azkar:')) {
+        final parts = payload.split(':');
+        if (parts.length > 1) {
+          AppRouter.navigatorKey.currentState?.pushNamed(
+            Routes.azkarCategory,
+            arguments: {'categoryId': parts[1]},
+          );
+        }
       }
     },
   );

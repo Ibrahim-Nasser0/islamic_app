@@ -15,6 +15,9 @@ abstract class SettingsLocalDataSource {
   bool getAthanSound();
   Future<void> setAthanSound(bool value);
 
+  bool getAdhanLockscreen();
+  Future<void> setAdhanLockscreen(bool value);
+
   String getMuadhinVoice();
   Future<void> setMuadhinVoice(String value);
 
@@ -69,6 +72,14 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   @override
   Future<void> setAthanSound(bool value) =>
       _prefs.setBool(AppConstants.athanSoundKey, value);
+
+  @override
+  bool getAdhanLockscreen() =>
+      _prefs.getBool(AppConstants.adhanLockscreenKey) ?? true;
+
+  @override
+  Future<void> setAdhanLockscreen(bool value) =>
+      _prefs.setBool(AppConstants.adhanLockscreenKey, value);
 
   @override
   String getMuadhinVoice() =>

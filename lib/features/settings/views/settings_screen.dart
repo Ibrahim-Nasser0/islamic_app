@@ -14,6 +14,7 @@ import '../presentation/views/widgets/settings_about_card.dart';
 import '../presentation/views/widgets/settings_hero_header.dart';
 import '../presentation/views/widgets/settings_language_card.dart';
 import '../presentation/views/widgets/settings_location_card.dart';
+import '../presentation/views/widgets/settings_lockscreen_card.dart';
 import '../presentation/views/widgets/settings_notification_card.dart';
 import '../presentation/views/widgets/settings_share_card.dart';
 import '../presentation/views/widgets/settings_theme_card.dart';
@@ -24,7 +25,7 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => di.sl<SettingsCubit>(),
+      create: (_) => di.sl<SettingsCubit>()..refreshReliability(),
       child: const _SettingsView(),
     );
   }
@@ -99,6 +100,15 @@ class _SettingsView extends StatelessWidget {
                   onAzkarChanged: cubit.setAzkarNotification,
                   onAthanChanged: cubit.setAthanSound,
                   onMuadhinChanged: cubit.setMuadhinVoice,
+                ),
+                Gap(10.h),
+                SettingsLockscreenCard(
+                  adhanLockscreen: state.adhanLockscreen,
+                  isReliabilityOptimal: state.isReliabilityOptimal,
+                  onLockscreenChanged: cubit.setAdhanLockscreen,
+                  onPreviewAdhan: cubit.previewNativeAdhan,
+                  onPreviewAzkar: cubit.previewNativeAzkar,
+                  onFixPermissions: cubit.fixMissingPermissions,
                 ),
                 Gap(20.h),
 

@@ -65,11 +65,15 @@ class _AdhanScreenState extends State<AdhanScreen> {
     }
   }
 
-  Future<void> _initAudioPlayback() async {
+  Future<void> _cancelActiveNotification() async {
+    final id = _args.notificationId;
+    if (id == null) return;
     try {
-      await di.sl<NotificationService>().cancelAll();
+      await di.sl<NotificationService>().cancel(id);
     } catch (_) {}
+  }
 
+  Future<void> _initAudioPlayback() async {
     _audioPlayer.onPlayerComplete.listen((_) {
       if (mounted) {
         setState(() {
@@ -83,12 +87,14 @@ class _AdhanScreenState extends State<AdhanScreen> {
       final path = isFajr ? _muadhin.fajrAudioPath : _muadhin.regularAudioPath;
       await _audioPlayer.setReleaseMode(ReleaseMode.stop);
       await _audioPlayer.play(AssetSource(path));
+      await _cancelActiveNotification();
     } catch (_) {
       // Audio fallback
     }
   }
 
   Future<void> _stopAdhan() async {
+    await _cancelActiveNotification();
     await _audioPlayer.stop();
     if (mounted) {
       setState(() {
@@ -98,12 +104,14 @@ class _AdhanScreenState extends State<AdhanScreen> {
   }
 
   void _closeScreen() {
+    _cancelActiveNotification();
     _audioPlayer.stop();
     Navigator.of(context).pop();
   }
 
   @override
   void dispose() {
+    _cancelActiveNotification();
     _audioPlayer.stop();
     _audioPlayer.dispose();
     super.dispose();

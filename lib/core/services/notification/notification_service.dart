@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import '../../../features/settings/presentation/models/muadhin_option.dart';
+import '../native/native_alarm_bridge_service.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -11,11 +12,13 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
+  bool didNotificationLaunchApp = false;
   String? pendingPayload;
 
   String? consumePendingPayload() {
     final payload = pendingPayload;
     pendingPayload = null;
+    didNotificationLaunchApp = false;
     return payload;
   }
 
@@ -52,15 +55,24 @@ class NotificationService {
       iOS: darwinSettings,
     );
 
-    await flutterLocalNotificationsPlugin.initialize(
-      initSettings,
-      onDidReceiveNotificationResponse: onNotificationTap,
-    );
+    if (!Platform.isIOS) {
+      await flutterLocalNotificationsPlugin.initialize(
+        initSettings,
+        onDidReceiveNotificationResponse: onNotificationTap,
+      );
 
-    final launchDetails =
-        await flutterLocalNotificationsPlugin.getNotificationAppLaunchDetails();
-    if (launchDetails?.didNotificationLaunchApp ?? false) {
-      pendingPayload = launchDetails?.notificationResponse?.payload;
+      final launchDetails = await flutterLocalNotificationsPlugin
+          .getNotificationAppLaunchDetails();
+      if (launchDetails?.didNotificationLaunchApp ?? false) {
+        didNotificationLaunchApp = true;
+        pendingPayload = launchDetails?.notificationResponse?.payload;
+        final launchId = launchDetails?.notificationResponse?.id;
+        if (pendingPayload != null &&
+            pendingPayload!.startsWith('adhan:') &&
+            launchId != null) {
+          await cancel(launchId);
+        }
+      }
     }
 
     // 4. Create Android Notification Channels
@@ -119,7 +131,12 @@ class NotificationService {
   }
 
   Future<void> cancel(int id) async {
-    await flutterLocalNotificationsPlugin.cancel(id);
+    if (Platform.isIOS) return;
+    try {
+      await flutterLocalNotificationsPlugin.cancel(id);
+    } catch (_) {
+      // Ignored when plugin platform isn't initialized (e.g. headless unit tests)
+    }
   }
 
   Future<bool> requestPermissions() async {
@@ -133,21 +150,16 @@ class NotificationService {
       await androidPlugin?.requestExactAlarmsPermission();
       return notifGranted;
     } else if (Platform.isIOS) {
-      final iosPlugin = flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>();
-      return await iosPlugin?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          ) ??
-          false;
+      return const NativeAlarmBridgeService().requestIosPermissions();
     }
     return true;
   }
 
   Future<void> cancelAll() async {
-    await flutterLocalNotificationsPlugin.cancelAll();
+    if (Platform.isIOS) return;
+    try {
+      await flutterLocalNotificationsPlugin.cancelAll();
+    } catch (_) {}
   }
 
   Future<bool> canScheduleExactAlarms() async {

@@ -26,6 +26,7 @@ class AppConstants {
   static const String prePrayerNotificationKey = 'pre_prayer_notifications';
   static const String azkarNotificationKey = 'azkar_notifications';
   static const String athanSoundKey = 'athan_sound';
+  static const String adhanLockscreenKey = 'adhan_lockscreen_enabled';
   static const String muadhinVoiceKey = 'muadhin_voice';
   static const String isManualLocationKey = 'is_manual_location';
   static const String customLocationLatKey = 'custom_location_lat';

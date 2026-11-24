@@ -1,136 +1,111 @@
-import 'dart:io';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
+import '../../../features/azkar/data/datasources/azkar_evening_data.dart';
+import '../../../features/azkar/data/datasources/azkar_morning_data.dart';
+import '../../../features/azkar/domain/entities/dhikr_item.dart';
+import '../../../features/settings/data/datasources/settings_local_data_source.dart';
+import '../../di/injection_container.dart' as di;
+import '../native/native_alarm_bridge_service.dart';
 import 'notification_service.dart';
 
 class AzkarAlarmScheduler {
   final NotificationService _notificationService = NotificationService();
+  final NativeAlarmBridgeService _nativeBridge;
+
+  AzkarAlarmScheduler({NativeAlarmBridgeService? nativeBridge})
+      : _nativeBridge = nativeBridge ?? NativeAlarmBridgeService();
 
   static const int morningHour = 7;
   static const int morningMinute = 0;
   static const int eveningHour = 17;
   static const int eveningMinute = 0;
 
-  Future<void> scheduleDailyAzkar({required bool enabled}) async {
-    // 1. Cancel previous azkar alarms (IDs 3000-3030)
+  Future<void> scheduleDailyAzkar({
+    required bool enabled,
+    String? languageCode,
+  }) async {
     for (int id = 3000; id <= 3030; id++) {
       await _notificationService.cancel(id);
     }
 
-    if (!enabled) return;
+    if (!_nativeBridge.isSupportedPlatform) return;
+    if (!enabled) {
+      await _nativeBridge.cancelAllAzkarAlarms();
+      return;
+    }
 
+    final lang = languageCode ?? _resolveLanguageCode();
     final now = DateTime.now();
-    final canExact = await _notificationService.canScheduleExactAlarms();
-    final scheduleMode = canExact
-        ? AndroidScheduleMode.exactAllowWhileIdle
-        : AndroidScheduleMode.inexactAllowWhileIdle;
+    final List<Map<String, dynamic>> triggers = [];
 
-    // 2. Schedule for 7 days ahead
     for (int dayOffset = 0; dayOffset < 7; dayOffset++) {
-      final baseDate = now.add(Duration(days: dayOffset));
-
-      // A. Morning Azkar (07:00 AM)
+      final base = now.add(Duration(days: dayOffset));
       final morningTime = DateTime(
-        baseDate.year,
-        baseDate.month,
-        baseDate.day,
+        base.year,
+        base.month,
+        base.day,
         morningHour,
         morningMinute,
       );
       if (morningTime.isAfter(now)) {
-        final id = 3000 + (dayOffset * 2);
-        await _scheduleAzkarEntry(
-          id: id,
-          title: 'أذكار الصباح ☀️',
-          body: 'أصبحنا وأصبح الملك لله • ابدأ يومك بحفظ الله وذكره',
-          scheduledDate: morningTime,
-          categoryId: 'morning',
-          scheduleMode: scheduleMode,
-        );
+        triggers.add({
+          'id': 3000 + (dayOffset * 2),
+          'categoryId': 'morning',
+          'atMillis': morningTime.millisecondsSinceEpoch,
+        });
       }
 
-      // B. Evening Azkar (05:00 PM)
       final eveningTime = DateTime(
-        baseDate.year,
-        baseDate.month,
-        baseDate.day,
+        base.year,
+        base.month,
+        base.day,
         eveningHour,
         eveningMinute,
       );
       if (eveningTime.isAfter(now)) {
-        final id = 3000 + (dayOffset * 2) + 1;
-        await _scheduleAzkarEntry(
-          id: id,
-          title: 'أذكار المساء 🌙',
-          body: 'أمسينا وأمسى الملك لله • حصن نفسك وأهلك بذكر الله',
-          scheduledDate: eveningTime,
-          categoryId: 'evening',
-          scheduleMode: scheduleMode,
-        );
+        triggers.add({
+          'id': 3000 + (dayOffset * 2) + 1,
+          'categoryId': 'evening',
+          'atMillis': eveningTime.millisecondsSinceEpoch,
+        });
       }
     }
+
+    await _nativeBridge.syncAzkarSchedule({
+      'enabled': enabled,
+      'languageCode': lang,
+      'triggers': triggers,
+      'morningItems': AzkarMorningData.items.map(_serializeDhikr).toList(),
+      'eveningItems': AzkarEveningData.items.map(_serializeDhikr).toList(),
+    });
   }
 
-  Future<void> _scheduleAzkarEntry({
-    required int id,
-    required String title,
-    required String body,
-    required DateTime scheduledDate,
-    required String categoryId,
-    required AndroidScheduleMode scheduleMode,
+  Future<void> triggerPreviewAzkar({
+    String categoryId = 'morning',
+    String? languageCode,
   }) async {
-    final tzDate = tz.TZDateTime.from(scheduledDate, tz.local);
+    final lang = languageCode ?? _resolveLanguageCode();
+    final items = categoryId == 'evening'
+        ? AzkarEveningData.items
+        : AzkarMorningData.items;
+    await _nativeBridge.previewNativeAzkar({
+      'categoryId': categoryId,
+      'languageCode': lang,
+      'items': items.map(_serializeDhikr).toList(),
+    });
+  }
 
-    const androidDetails = AndroidNotificationDetails(
-      NotificationService.azkarChannelId,
-      NotificationService.azkarChannelName,
-      channelDescription: NotificationService.azkarChannelDesc,
-      importance: Importance.high,
-      priority: Priority.high,
-      icon: '@mipmap/ic_launcher',
-      category: AndroidNotificationCategory.reminder,
-      actions: <AndroidNotificationAction>[
-        AndroidNotificationAction(
-          'open_azkar',
-          'قراءة الأذكار',
-          showsUserInterface: true,
-        ),
-      ],
-    );
+  Map<String, dynamic> _serializeDhikr(DhikrItem item) => {
+        'id': item.id,
+        'arabicText': item.arabicText,
+        'targetCount': item.targetCount,
+        'fadl': item.fadl,
+        'reference': item.reference,
+      };
 
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentSound: true,
-      presentBadge: false,
-    );
-
+  String _resolveLanguageCode() {
     try {
-      await _notificationService.flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        tzDate,
-        const NotificationDetails(android: androidDetails, iOS: iosDetails),
-        androidScheduleMode: scheduleMode,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        payload: 'azkar:$categoryId',
-      );
+      return di.sl<SettingsLocalDataSource>().getLanguageCode();
     } catch (_) {
-      // Fallback for devices restricting exact alarms
-      if (Platform.isAndroid) {
-        await _notificationService.flutterLocalNotificationsPlugin.zonedSchedule(
-          id,
-          title,
-          body,
-          tzDate,
-          const NotificationDetails(android: androidDetails, iOS: iosDetails),
-          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
-          payload: 'azkar:$categoryId',
-        );
-      }
+      return 'ar';
     }
   }
 }

@@ -9,6 +9,7 @@ import '../../core/theme/colors.dart';
 import '../../core/theme/typography.dart';
 import '../../core/utils/extensions.dart';
 import '../../core/di/injection_container.dart' as di;
+import '../../core/services/native/native_sync_coordinator.dart';
 import '../../core/services/notification/notification_service.dart';
 
 /// Royal Islamic Splash Screen featuring sacred medallion emblem & verse animation
@@ -26,21 +27,43 @@ class _SplashScreenState extends State<SplashScreen> {
     _navigateToNext();
   }
 
-  void _navigateToNext() {
+  Future<void> _navigateToNext() async {
+    final nativeRoute =
+        await di.sl<NativeSyncCoordinator>().consumeInitialLaunchRoute();
+    if (nativeRoute != null && mounted) {
+      final route = nativeRoute['route'] as String;
+      final args = nativeRoute['args'] as Map<String, dynamic>?;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, Routes.home);
+        if (route != Routes.home) {
+          Navigator.pushNamed(context, route, arguments: args);
+        }
+      });
+      return;
+    }
+
     final pending = di.sl<NotificationService>().consumePendingPayload();
-    if (pending != null && pending.startsWith('adhan:')) {
-      Navigator.pushReplacementNamed(context, Routes.home);
-      Navigator.pushNamed(context, Routes.adhan, arguments: pending);
+    if (pending != null &&
+        (pending.startsWith('adhan:') || pending.startsWith('pre:'))) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, Routes.home);
+      });
       return;
     }
     if (pending != null && pending.startsWith('azkar:')) {
-      final categoryId = pending.split(':')[1];
-      Navigator.pushReplacementNamed(context, Routes.home);
-      Navigator.pushNamed(
-        context,
-        Routes.azkarCategory,
-        arguments: {'categoryId': categoryId},
-      );
+      final parts = pending.split(':');
+      final categoryId = parts.length > 1 ? parts[1] : 'morning';
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, Routes.home);
+        Navigator.pushNamed(
+          context,
+          Routes.azkarCategory,
+          arguments: {'categoryId': categoryId},
+        );
+      });
       return;
     }
 

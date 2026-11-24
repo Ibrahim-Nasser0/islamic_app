@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/native/native_sync_coordinator.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../domain/entities/azkar_category.dart';
 import '../../domain/repositories/azkar_repository.dart';
@@ -7,11 +8,17 @@ import 'azkar_state.dart';
 
 class AzkarCubit extends Cubit<AzkarState> {
   final AzkarRepository repository;
+  final NativeSyncCoordinator? _syncCoordinator;
 
-  AzkarCubit({required this.repository}) : super(const AzkarState());
+  AzkarCubit({
+    required this.repository,
+    NativeSyncCoordinator? syncCoordinator,
+  })  : _syncCoordinator = syncCoordinator,
+        super(const AzkarState());
 
   Future<void> loadCategories() async {
     emit(state.copyWith(isLoading: true));
+    await _syncCoordinator?.syncPendingDhikrUpdates();
     final result = await repository.getCategories();
     result.fold(
       (failure) => emit(state.copyWith(
@@ -27,6 +34,7 @@ class AzkarCubit extends Cubit<AzkarState> {
 
   Future<void> selectCategory(String categoryId) async {
     emit(state.copyWith(isLoading: true, isCategoryCelebrated: false));
+    await _syncCoordinator?.syncPendingDhikrUpdates();
     final result = await repository.getCategoryById(categoryId);
     result.fold(
       (failure) => emit(state.copyWith(

@@ -242,5 +242,12 @@
   "copy_duaa": "نسخ",
   "duaa_copied": "تم نسخ دعاء ما بعد الأذان",
   "qibla_direction": "اتجاه القبلة",
-  "dismiss": "إغلاق"
+  "dismiss": "إغلاق",
+  "adhan_lockscreen_title": "شاشة الأذان على شاشة القفل",
+  "adhan_lockscreen_desc": "عرض الشاشة الأصلية والدعاء فوق القفل عند وقت الصلاة",
+  "preview_native_adhan": "معاينة الأذان",
+  "preview_native_azkar": "معاينة الأذكار",
+  "alarm_reliability_banner": "يرجى السماح بصلاحيات الخلفية والظهور على القفل لضمان دقة الأذان",
+  "fix_permissions": "ضبط الصلاحيات",
+  "reliability_all_good": "صلاحيات المنبه والعمل في الخلفية مكتملة"
 }

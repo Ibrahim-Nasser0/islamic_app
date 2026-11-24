@@ -8,6 +8,8 @@ import '../network/network_info.dart';
 import '../api/api_interceptors.dart';
 import '../config/app_config.dart';
 import '../theme/theme_cubit.dart';
+import '../services/native/native_alarm_bridge_service.dart';
+import '../services/native/native_sync_coordinator.dart';
 import '../services/notification/notification_service.dart';
 import '../services/notification/prayer_alarm_scheduler.dart';
 import '../services/notification/azkar_alarm_scheduler.dart';
@@ -98,24 +100,30 @@ Future<void> init() async {
   // Azkar Feature
   sl.registerLazySingleton<AzkarLocalDataSource>(() => AzkarLocalDataSourceImpl());
   sl.registerLazySingleton<AzkarRepository>(() => AzkarRepositoryImpl(localDataSource: sl()));
-  sl.registerFactory(() => AzkarCubit(repository: sl()));
+  sl.registerFactory(() => AzkarCubit(repository: sl(), syncCoordinator: sl()));
 
   // Hadith Feature
   sl.registerLazySingleton<HadithLocalDataSource>(() => HadithLocalDataSourceImpl());
   sl.registerLazySingleton<HadithRepository>(() => HadithRepositoryImpl(localDataSource: sl()));
   sl.registerFactory(() => HadithCubit(repository: sl()));
 
-  // Settings Feature
+  // Settings & Native Alarms
   sl.registerLazySingleton<SettingsLocalDataSource>(
       () => SettingsLocalDataSourceImpl(sl()));
+  sl.registerLazySingleton<NativeAlarmBridgeService>(
+      () => NativeAlarmBridgeService());
+  sl.registerLazySingleton<NativeSyncCoordinator>(
+      () => NativeSyncCoordinator(bridge: sl(), azkarLocalDataSource: sl()));
   sl.registerLazySingleton<NotificationService>(() => NotificationService());
   sl.registerLazySingleton<PrayerAlarmScheduler>(
-      () => PrayerAlarmScheduler(calculationService: sl()));
-  sl.registerLazySingleton<AzkarAlarmScheduler>(() => AzkarAlarmScheduler());
+      () => PrayerAlarmScheduler(calculationService: sl(), nativeBridge: sl()));
+  sl.registerLazySingleton<AzkarAlarmScheduler>(
+      () => AzkarAlarmScheduler(nativeBridge: sl()));
   sl.registerFactory(() => SettingsCubit(
         sl(),
         alarmScheduler: sl(),
         azkarScheduler: sl(),
+        nativeBridge: sl(),
       ));
 
   // Mosques Feature

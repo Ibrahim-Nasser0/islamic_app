@@ -242,5 +242,12 @@
   "copy_duaa": "Copy",
   "duaa_copied": "Supplication copied to clipboard",
   "qibla_direction": "Qibla Direction",
-  "dismiss": "Dismiss"
+  "dismiss": "Dismiss",
+  "adhan_lockscreen_title": "Lockscreen Adhan Sanctuary",
+  "adhan_lockscreen_desc": "Show native Adhan & Duaa screen over lockscreen at prayer time",
+  "preview_native_adhan": "Preview Adhan",
+  "preview_native_azkar": "Preview Azkar",
+  "alarm_reliability_banner": "Allow unrestricted battery & lockscreen permissions for exact alarms",
+  "fix_permissions": "Fix Settings",
+  "reliability_all_good": "Alarms & background execution permissions ready"
 }
