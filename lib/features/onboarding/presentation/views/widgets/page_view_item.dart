@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../models/page_view_item_model.dart';
 import 'onboarding_content_section.dart';
 import 'onboarding_hero_stage.dart';
+import 'onboarding_permissions_stage.dart';
 
 class PageViewItem extends StatelessWidget {
   final PageViewItemModel pageViewItemModel;
@@ -16,6 +17,10 @@ class PageViewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (pageViewItemModel.isPermissionsStep) {
+      return OnboardingPermissionsStage(model: pageViewItemModel);
+    }
+
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(

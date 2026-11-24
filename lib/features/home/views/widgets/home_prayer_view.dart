@@ -1,16 +1,17 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/di/injection_container.dart';
+import '../../../../core/services/native/permission_readiness_cubit.dart';
 import '../../../../core/theme/typography.dart';
 import '../../../../core/utils/extensions.dart';
-import '../../../../core/widgets/custom_skeleton.dart';
+import '../../../../core/widgets/widgets.dart';
 import '../../presentation/cubit/prayer_times_cubit.dart';
 import '../../presentation/cubit/prayer_times_state.dart';
+import 'home_permission_banner.dart';
 import 'home_quick_actions_bar.dart';
 import 'kaaba_atmospheric_hero_card.dart';
 import 'today_prayers_horizontal_list.dart';
@@ -21,8 +22,11 @@ class HomePrayerView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<PrayerTimesCubit>()..loadPrayerTimes(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<PrayerTimesCubit>()..loadPrayerTimes()),
+        BlocProvider(create: (_) => sl<PermissionReadinessCubit>()..refresh()),
+      ],
       child: const _HomePrayerContent(),
     );
   }
@@ -41,6 +45,10 @@ class _HomePrayerContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          HomePermissionBanner(
+            onPermissionsUpdated: () =>
+                context.read<PrayerTimesCubit>().refreshLocation(),
+          ),
           // 1. Dynamic Hero Card with Live Countdown
           BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
             builder: (context, state) {
@@ -120,52 +128,56 @@ class _HomePrayerContent extends StatelessWidget {
   }
 
   Widget _buildDailyAyahCard(dynamic appColors) {
-    return Container(
-      padding: EdgeInsets.all(18.r),
-      decoration: BoxDecoration(
-        color: appColors.quranPageBackground,
-        borderRadius: BorderRadius.circular(16.r),
-        border: Border.all(
-          color: appColors.accentGold.withValues(alpha: 0.35),
-          width: 1.0,
-        ),
-      ),
-      child: Column(
-        children: [
-          Row(
+    return Stack(
+      children: [
+        Container(
+          padding: EdgeInsets.all(18.r),
+          decoration: BoxDecoration(
+            color: appColors.quranPageBackground,
+            borderRadius: BorderRadius.circular(18.r),
+            border: Border.all(
+              color: appColors.accentGold.withValues(alpha: 0.35),
+              width: 1.0,
+            ),
+          ),
+          child: Column(
             children: [
-              Icon(
-                FlutterIslamicIcons.quran2,
-                size: 20.sp,
-                color: appColors.accentGold,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  RubElHizbMark(size: 13.w, color: appColors.accentGold),
+                  SizedBox(width: 8.w),
+                  Text(
+                    'daily_ayah'.tr(),
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.bold,
+                      color: appColors.accentGold,
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  RubElHizbMark(size: 13.w, color: appColors.accentGold),
+                ],
               ),
-              SizedBox(width: 8.w),
+              Gap(12.h),
               Text(
-                'daily_ayah'.tr(),
-                style: TextStyle(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.bold,
-                  color: appColors.accentGold,
+                'daily_ayah_text'.tr(),
+                textAlign: TextAlign.center,
+                style: AppTypography.quranAyah.copyWith(
+                  fontSize: 20.sp,
+                  color: appColors.quranAyahText,
                 ),
+              ),
+              Gap(6.h),
+              Text(
+                'daily_ayah_surah'.tr(),
+                style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
               ),
             ],
           ),
-          Gap(12.h),
-          Text(
-            'daily_ayah_text'.tr(),
-            textAlign: TextAlign.center,
-            style: AppTypography.quranAyah.copyWith(
-              fontSize: 20.sp,
-              color: appColors.quranAyahText,
-            ),
-          ),
-          Gap(6.h),
-          Text(
-            'daily_ayah_surah'.tr(),
-            style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
-          ),
-        ],
-      ),
+        ),
+        const ManuscriptCorners(),
+      ],
     );
   }
 }

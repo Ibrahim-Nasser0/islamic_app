@@ -128,6 +128,17 @@ class NativeAlarmBridgeService {
   Future<void> openNotificationSettings() =>
       _invokeVoid('openNotificationSettings');
   Future<void> openBatterySettings() => _invokeVoid('openBatterySettings');
+
+  Future<bool> requestNotificationPermission() async {
+    if (!isSupportedPlatform) return true;
+    try {
+      final method =
+          Platform.isIOS ? 'requestPermissions' : 'requestNotificationPermission';
+      return await _channel.invokeMethod<bool>(method) ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
   Future<void> openExactAlarmSettings() => _invokeVoid('openExactAlarmSettings');
   Future<void> openFullScreenIntentSettings() =>
       _invokeVoid('openFullScreenIntentSettings');

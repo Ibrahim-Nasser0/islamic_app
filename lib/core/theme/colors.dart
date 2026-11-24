@@ -23,29 +23,29 @@ class AppColors {
 
   // Quran & Reading Specific Colors
   static const Color quranPage = Color(0xFFFBF7EE);
-  static const Color quranPageDark = Color(0xFF131C18);
+  static const Color quranPageDark = Color(0xFF0B1411);
   static const Color quranAyahText = Color(0xFF19211E);
-  static const Color quranAyahTextDark = Color(0xFFEDEFEA);
+  static const Color quranAyahTextDark = Color(0xFFF4EFE4);
 
   // Prayer & Dhikr Specific Colors
   static const Color prayerActive = Color(0xFFC5A059);
-  static const Color prayerCardDark = Color(0xFF1A2722);
+  static const Color prayerCardDark = Color(0xFF0F1E19);
   static const Color dhikrCounter = Color(0xFF1B5E4F);
 
-  // Background Colors
+  // Background Colors (Celestial Obsidian aligned with Landing Page)
   static const Color background = Color(0xFFF8F9F6);
-  static const Color backgroundDark = Color(0xFF101715);
+  static const Color backgroundDark = Color(0xFF07100D);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceDark = Color(0xFF17231F);
+  static const Color surfaceDark = Color(0xFF0D1915);
   static const Color surfaceSubtle = Color(0xFFF2F5F3);
-  static const Color surfaceSubtleDark = Color(0xFF1E2E28);
+  static const Color surfaceSubtleDark = Color(0xFF12231D);
 
   // Text Colors
   static const Color textPrimary = Color(0xFF19211E);
   static const Color textSecondary = Color(0xFF5F7068);
   static const Color textLight = Color(0xFF9AA8A1);
   static const Color textOnPrimary = Color(0xFFFFFFFF);
-  static const Color textDarkPrimary = Color(0xFFF0F4F2);
+  static const Color textDarkPrimary = Color(0xFFF4EFE4);
   static const Color textDarkSecondary = Color(0xFF92A49B);
 
   // Status Colors
@@ -56,9 +56,9 @@ class AppColors {
 
   // Border & Divider Colors
   static const Color border = Color(0xFFE1E8E4);
-  static const Color borderDark = Color(0xFF24352E);
+  static const Color borderDark = Color(0xFF21362D);
   static const Color divider = Color(0xFFEDF2EE);
-  static const Color dividerDark = Color(0xFF1C2B25);
+  static const Color dividerDark = Color(0xFF15251F);
 
   // Gradients
   static const LinearGradient primaryGradient = LinearGradient(

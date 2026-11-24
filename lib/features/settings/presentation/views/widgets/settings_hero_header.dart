@@ -8,6 +8,7 @@ import 'package:material_ui/material_ui.dart';
 import '/../../../../core/theme/theme_cubit.dart';
 import '/../../../../core/theme/typography.dart';
 import '/../../../../core/utils/extensions.dart';
+import '/../../../../core/widgets/widgets.dart';
 import 'settings_hero_painter.dart';
 import 'settings_hero_status_bar.dart';
 
@@ -54,27 +55,13 @@ class SettingsHeroHeader extends StatelessWidget {
                 // Identity Header
                 Row(
                   children: [
-                    Container(
-                      width: 50.w,
-                      height: 50.w,
-                      padding: EdgeInsets.all(3.r),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: appColors.accentGold.withValues(alpha: 0.5),
-                          width: 1.2,
-                        ),
-                      ),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: appColors.badgeBackground,
-                        ),
-                        child: Icon(
-                          FlutterIslamicIcons.crescentMoon,
-                          color: appColors.accentGold,
-                          size: 24.sp,
-                        ),
+                    OctagonalIconFrame(
+                      size: 50,
+                      active: true,
+                      child: Icon(
+                        FlutterIslamicIcons.crescentMoon,
+                        color: appColors.accentGold,
+                        size: 24.sp,
                       ),
                     ),
                     Gap(14.w),
@@ -86,9 +73,11 @@ class SettingsHeroHeader extends StatelessWidget {
                             children: [
                               Text(
                                 'app_name'.tr(),
-                                style: AppTypography.h3.copyWith(
+                                style: AppTypography.quranAyah.copyWith(
+                                  fontSize: 20.sp,
                                   fontWeight: FontWeight.bold,
                                   color: theme.colorScheme.onSurface,
+                                  height: 1.2,
                                 ),
                               ),
                               Gap(8.w),

@@ -140,6 +140,13 @@ class AppConstants {
         subtitle: 'onboarding_subtitle_4'.tr(),
         featureTags: const ['الأربعون النووية', 'صحيح البخاري ومسلم', 'رياض الصالحين'],
       ),
+      PageViewItemModel(
+        icon: Icons.verified_user_rounded,
+        badgeText: 'onboarding_badge_5'.tr(),
+        title: 'onboarding_title_5'.tr(),
+        subtitle: 'onboarding_subtitle_5'.tr(),
+        isPermissionsStep: true,
+      ),
     ];
   }
 }

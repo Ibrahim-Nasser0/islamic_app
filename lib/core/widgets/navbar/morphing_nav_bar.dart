@@ -41,7 +41,6 @@ class MorphingNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final appColors = context.appColors;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
@@ -82,10 +81,10 @@ class MorphingNavBar extends StatelessWidget {
                             vertical: AppConstants.spacingSM.h,
                           ),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.surface.withValues(alpha: 0.92),
+                            color: appColors.navCapsuleBg.withValues(alpha: 0.94),
                             borderRadius: BorderRadius.circular(40.r),
                             border: Border.all(
-                              color: appColors.cardBorder,
+                              color: appColors.navCapsuleBorder,
                               width: 1.0,
                             ),
                             boxShadow: appColors.cardShadow,

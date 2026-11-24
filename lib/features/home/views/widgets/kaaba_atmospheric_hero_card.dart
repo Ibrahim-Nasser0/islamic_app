@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/theme/typography.dart';
+import '../../../../core/widgets/widgets.dart';
 import '../../presentation/models/time_of_day_atmosphere.dart';
 import 'hero_card_countdown_badge.dart';
 import 'hero_card_meta_bar.dart';
@@ -58,6 +59,9 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
       child: Stack(
         clipBehavior: Clip.antiAlias,
         children: [
+          ManuscriptCorners(
+            color: atmosphere.accentColor.withValues(alpha: 0.45),
+          ),
           Positioned(
             bottom: -10.h,
             left: -15.w,
@@ -110,12 +114,8 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    Icons.access_time_filled_rounded,
-                    size: 11.sp,
-                    color: atmosphere.accentColor,
-                  ),
-                  SizedBox(width: 4.w),
+                  RubElHizbMark(size: 11.w, color: atmosphere.accentColor),
+                  SizedBox(width: 5.w),
                   Text(
                     'next_prayer'.tr(),
                     style: TextStyle(
@@ -130,10 +130,11 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
             Gap(6.h),
             Text(
               'prayer_name_format'.tr(namedArgs: {'name': nextPrayerName}),
-              style: AppTypography.h2.copyWith(
-                fontSize: 23.sp,
+              style: AppTypography.quranAyah.copyWith(
+                fontSize: 25.sp,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
+                height: 1.25,
               ),
             ),
           ],

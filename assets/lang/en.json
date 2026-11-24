@@ -249,5 +249,20 @@
   "preview_native_azkar": "Preview Azkar",
   "alarm_reliability_banner": "Allow unrestricted battery & lockscreen permissions for exact alarms",
   "fix_permissions": "Fix Settings",
-  "reliability_all_good": "Alarms & background execution permissions ready"
+  "reliability_all_good": "Alarms & background execution permissions ready",
+  "basmala_short": "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  "onboarding_badge_5": "Permissions & Readiness",
+  "onboarding_title_5": "Ensure Adhan Rings On Time",
+  "onboarding_subtitle_5": "Enable notifications and local GPS so Adhan & Azkar operate accurately even on the lockscreen.",
+  "perm_notif_title": "Adhan & Azkar Notifications",
+  "perm_notif_desc": "Required by Android 13+ to display prayer and Dhikr alerts",
+  "perm_loc_title": "Local Astronomical Location",
+  "perm_loc_desc": "Computes exact prayer times and Qibla locally on your device",
+  "perm_exact_title": "Exact Timing & Battery",
+  "perm_exact_desc": "Prevents OEM battery savers from delaying Adhan alarms",
+  "perm_grant_now": "Enable",
+  "perm_granted": "Enabled",
+  "perm_grant_all": "Grant Notifications & Location",
+  "perm_home_banner_title": "Enable notifications & location for accurate Adhan & prayer times",
+  "perm_home_banner_cta": "Enable Now"
 }

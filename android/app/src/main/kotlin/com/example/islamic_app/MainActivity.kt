@@ -13,6 +13,7 @@ class MainActivity : FlutterActivity() {
         nativeHandler = NativeMethodChannelHandler(
             context = applicationContext,
             messenger = flutterEngine.dartExecutor.binaryMessenger,
+            activity = this,
         )
     }
 
@@ -24,5 +25,14 @@ class MainActivity : FlutterActivity() {
         if (!route.isNullOrEmpty()) {
             nativeHandler?.dispatchOpenRoute(route, argsJson)
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray,
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        nativeHandler?.onRequestPermissionsResult(requestCode, grantResults)
     }
 }

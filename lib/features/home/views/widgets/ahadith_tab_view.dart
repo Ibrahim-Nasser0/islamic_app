@@ -9,6 +9,7 @@ import '../../../../core/routes/routes.dart';
 import '../../../../core/theme/typography.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/haptics.dart';
+import '../../../../core/widgets/widgets.dart';
 
 /// Tab 3: Prophetic Ahadith Collection
 class AhadithTabView extends StatelessWidget {
@@ -53,64 +54,62 @@ class AhadithTabView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Daily Hadith Highlight
-          Container(
-            padding: EdgeInsets.all(18.r),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  appColors.accentGold.withValues(alpha: 0.15),
-                  theme.colorScheme.primary.withValues(alpha: 0.08),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(16.r),
-              border: Border.all(
-                color: appColors.accentGold.withValues(alpha: 0.4),
-                width: 1.0,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          Stack(
+            children: [
+              Container(
+                padding: EdgeInsets.all(18.r),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      appColors.accentGold.withValues(alpha: 0.14),
+                      appColors.navActivePillBg,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(18.r),
+                  border: Border.all(
+                    color: appColors.accentGold.withValues(alpha: 0.4),
+                    width: 1.0,
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(
-                      FlutterIslamicIcons.mohammad,
-                      size: 20.sp,
-                      color: appColors.accentGold,
+                    Row(
+                      children: [
+                        RubElHizbMark(size: 14.w, color: appColors.accentGold),
+                        SizedBox(width: 8.w),
+                        Text(
+                          'hadith_of_the_day'.tr(),
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.bold,
+                            color: appColors.accentGold,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(width: 8.w),
+                    Gap(10.h),
                     Text(
-                      'hadith_of_the_day'.tr(),
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.bold,
-                        color: appColors.accentGold,
+                      'daily_hadith_text'.tr(),
+                      style: AppTypography.quranAyah.copyWith(
+                        fontSize: 18.sp,
+                        color: theme.colorScheme.onSurface,
                       ),
+                    ),
+                    Gap(6.h),
+                    Text(
+                      'narrated_by_bukhari_muslim'.tr(),
+                      style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
                     ),
                   ],
                 ),
-                Gap(10.h),
-                Text(
-                  'daily_hadith_text'.tr(),
-                  style: AppTypography.quranAyah.copyWith(
-                    fontSize: 18.sp,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-                Gap(6.h),
-                Text(
-                  'narrated_by_bukhari_muslim'.tr(),
-                  style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
-                ),
-              ],
-            ),
+              ),
+              const ManuscriptCorners(inset: 8, length: 11),
+            ],
           ),
           Gap(20.h),
 
-          Text(
-            'hadith_books_title'.tr(),
-            style: AppTypography.h4.copyWith(fontWeight: FontWeight.bold),
-          ),
+          SanctuarySectionHeader(title: 'hadith_books_title'.tr()),
           Gap(12.h),
 
           ...books.map((book) {
@@ -141,17 +140,12 @@ class AhadithTabView extends StatelessWidget {
                     padding: EdgeInsets.all(16.r),
                     child: Row(
                       children: [
-                        Container(
-                          width: 44.w,
-                          height: 44.w,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
+                        OctagonalIconFrame(
+                          size: 44,
                           child: Icon(
                             FlutterIslamicIcons.solidMohammad,
-                            color: theme.colorScheme.primary,
-                            size: 20.sp,
+                            color: appColors.accentGold,
+                            size: 19.sp,
                           ),
                         ),
                         Gap(14.w),

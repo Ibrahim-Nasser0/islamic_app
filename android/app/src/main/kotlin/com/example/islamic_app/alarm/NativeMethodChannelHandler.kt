@@ -1,22 +1,32 @@
 package com.example.islamic_app.alarm
 
+import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import org.json.JSONObject
+import java.lang.ref.WeakReference
 
 class NativeMethodChannelHandler(
     private val context: Context,
     messenger: BinaryMessenger,
+    activity: Activity? = null,
 ) : MethodChannel.MethodCallHandler {
 
     private val channel = MethodChannel(messenger, CHANNEL_NAME)
+    private val activityRef = WeakReference(activity)
+    private var pendingNotifResult: MethodChannel.Result? = null
 
     companion object {
         const val CHANNEL_NAME = "com.example.islamic_app/native_alarms"
+        private const val REQ_POST_NOTIFICATIONS = 9401
     }
 
     init {
@@ -77,6 +87,9 @@ class NativeMethodChannelHandler(
             }
             "checkReliability" -> {
                 result.success(NativeAlarmScheduler.checkReliability(context))
+            }
+            "requestNotificationPermission" -> {
+                handleRequestNotificationPermission(result)
             }
             "openBatterySettings" -> {
                 NativeAlarmScheduler.openBatterySettings(context)
@@ -165,5 +178,39 @@ class NativeMethodChannelHandler(
             putExtra("languageCode", lang)
         }
         context.startActivity(lockIntent)
+    }
+
+    private fun handleRequestNotificationPermission(result: MethodChannel.Result) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            result.success(true)
+            return
+        }
+        val granted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            result.success(true)
+            return
+        }
+        val act = activityRef.get()
+        if (act == null || act.isFinishing || act.isDestroyed) {
+            result.success(false)
+            return
+        }
+        pendingNotifResult?.success(false)
+        pendingNotifResult = result
+        ActivityCompat.requestPermissions(
+            act,
+            arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+            REQ_POST_NOTIFICATIONS,
+        )
+    }
+
+    fun onRequestPermissionsResult(requestCode: Int, grantResults: IntArray) {
+        if (requestCode != REQ_POST_NOTIFICATIONS) return
+        val granted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+        pendingNotifResult?.success(granted)
+        pendingNotifResult = null
     }
 }

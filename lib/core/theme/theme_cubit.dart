@@ -9,7 +9,7 @@ class ThemeCubit extends Cubit<ThemeMode> {
 
   ThemeCubit({SharedPreferences? sharedPreferences})
       : _prefs = sharedPreferences,
-        super(ThemeMode.system) {
+        super(ThemeMode.dark) {
     _loadThemeMode();
   }
 
@@ -22,10 +22,10 @@ class ThemeCubit extends Cubit<ThemeMode> {
     final savedMode = prefs.getString(AppConstants.themeKey);
     if (savedMode == 'light') {
       emit(ThemeMode.light);
-    } else if (savedMode == 'dark') {
-      emit(ThemeMode.dark);
-    } else {
+    } else if (savedMode == 'system') {
       emit(ThemeMode.system);
+    } else {
+      emit(ThemeMode.dark);
     }
   }
 

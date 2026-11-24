@@ -1,9 +1,7 @@
 import 'package:material_ui/material_ui.dart';
+import 'app_theme_color_presets.dart';
 
-import 'colors.dart';
-
-/// AppThemeColors ThemeExtension for Islamic App
-/// Enables zero-conditional theme access via context.appColors
+/// AppThemeColors ThemeExtension enabling zero-conditional theme access via context.appColors.
 @immutable
 class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color quranPageBackground;
@@ -25,6 +23,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color statusInfo;
   final String mapTileUrl;
   final ColorFilter? mapColorFilter;
+  final Color navCapsuleBg;
+  final Color navCapsuleBorder;
+  final Color navActivePillBg;
+  final Color emeraldBevelTop;
+  final Color emeraldBevelBottom;
 
   const AppThemeColors({
     required this.quranPageBackground,
@@ -46,68 +49,15 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.statusInfo,
     required this.mapTileUrl,
     this.mapColorFilter,
+    required this.navCapsuleBg,
+    required this.navCapsuleBorder,
+    required this.navActivePillBg,
+    required this.emeraldBevelTop,
+    required this.emeraldBevelBottom,
   });
 
-  static AppThemeColors get light => AppThemeColors(
-    quranPageBackground: AppColors.quranPage,
-    quranAyahText: AppColors.quranAyahText,
-    activePrayerHighlight: AppColors.prayerActive,
-    prayerCardBg: AppColors.surface,
-    dhikrCounterBg: AppColors.primarySubtle,
-    surfaceSubtle: AppColors.surfaceSubtle,
-    badgeBackground: AppColors.primarySubtle,
-    accentGold: AppColors.secondary,
-    cardBorder: AppColors.border,
-    cardShadow: [
-      BoxShadow(
-        color: AppColors.primary.withValues(alpha: 0.04),
-        blurRadius: 10,
-        offset: const Offset(0, 4),
-      ),
-    ],
-    textPrimary: AppColors.textPrimary,
-    textSecondary: AppColors.textSecondary,
-    textMuted: AppColors.textLight,
-    statusSuccess: AppColors.success,
-    statusWarning: AppColors.warning,
-    statusError: AppColors.error,
-    statusInfo: AppColors.info,
-    mapTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    mapColorFilter: null,
-  );
-
-  static AppThemeColors get dark => AppThemeColors(
-    quranPageBackground: AppColors.quranPageDark,
-    quranAyahText: AppColors.quranAyahTextDark,
-    activePrayerHighlight: AppColors.secondaryLight,
-    prayerCardBg: AppColors.prayerCardDark,
-    dhikrCounterBg: AppColors.surfaceSubtleDark,
-    surfaceSubtle: AppColors.surfaceSubtleDark,
-    badgeBackground: AppColors.primaryDark.withValues(alpha: 0.3),
-    accentGold: AppColors.secondaryLight,
-    cardBorder: AppColors.borderDark,
-    cardShadow: [
-      BoxShadow(
-        color: Colors.black.withValues(alpha: 0.25),
-        blurRadius: 10,
-        offset: const Offset(0, 4),
-      ),
-    ],
-    textPrimary: AppColors.textDarkPrimary,
-    textSecondary: AppColors.textDarkSecondary,
-    textMuted: AppColors.textLight,
-    statusSuccess: AppColors.success,
-    statusWarning: AppColors.warning,
-    statusError: AppColors.error,
-    statusInfo: AppColors.info,
-    mapTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    mapColorFilter: const ColorFilter.matrix(<double>[
-      -0.22, -0.68, -0.10, 0, 225,
-      -0.20, -0.65, -0.10, 0, 225,
-      -0.22, -0.68, -0.10, 0, 230,
-      0,     0,     0,    1, 0,
-    ]),
-  );
+  static AppThemeColors get light => AppThemeColorPresets.light;
+  static AppThemeColors get dark => AppThemeColorPresets.dark;
 
   @override
   ThemeExtension<AppThemeColors> copyWith({
@@ -130,6 +80,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? statusInfo,
     String? mapTileUrl,
     ColorFilter? mapColorFilter,
+    Color? navCapsuleBg,
+    Color? navCapsuleBorder,
+    Color? navActivePillBg,
+    Color? emeraldBevelTop,
+    Color? emeraldBevelBottom,
   }) {
     return AppThemeColors(
       quranPageBackground: quranPageBackground ?? this.quranPageBackground,
@@ -151,6 +106,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       statusInfo: statusInfo ?? this.statusInfo,
       mapTileUrl: mapTileUrl ?? this.mapTileUrl,
       mapColorFilter: mapColorFilter ?? this.mapColorFilter,
+      navCapsuleBg: navCapsuleBg ?? this.navCapsuleBg,
+      navCapsuleBorder: navCapsuleBorder ?? this.navCapsuleBorder,
+      navActivePillBg: navActivePillBg ?? this.navActivePillBg,
+      emeraldBevelTop: emeraldBevelTop ?? this.emeraldBevelTop,
+      emeraldBevelBottom: emeraldBevelBottom ?? this.emeraldBevelBottom,
     );
   }
 
@@ -180,6 +140,11 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       statusInfo: Color.lerp(statusInfo, other.statusInfo, t)!,
       mapTileUrl: t < 0.5 ? mapTileUrl : other.mapTileUrl,
       mapColorFilter: t < 0.5 ? mapColorFilter : other.mapColorFilter,
+      navCapsuleBg: Color.lerp(navCapsuleBg, other.navCapsuleBg, t)!,
+      navCapsuleBorder: Color.lerp(navCapsuleBorder, other.navCapsuleBorder, t)!,
+      navActivePillBg: Color.lerp(navActivePillBg, other.navActivePillBg, t)!,
+      emeraldBevelTop: Color.lerp(emeraldBevelTop, other.emeraldBevelTop, t)!,
+      emeraldBevelBottom: Color.lerp(emeraldBevelBottom, other.emeraldBevelBottom, t)!,
     );
   }
 }

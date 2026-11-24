@@ -8,6 +8,7 @@ import '../../../../core/routes/app_router.dart';
 import '../../../../core/routes/routes.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/haptics.dart';
+import '../../../../core/widgets/widgets.dart';
 
 /// Quick actions bar for Qibla, Mosques, Azkar and Tasbeeh
 class HomeQuickActionsBar extends StatelessWidget {
@@ -55,24 +56,27 @@ class HomeQuickActionsBar extends StatelessWidget {
                 AppRouter.navigateTo(context, route);
               }
             },
-            borderRadius: BorderRadius.circular(14.r),
+            borderRadius: BorderRadius.circular(16.r),
             child: Container(
-              width: 76.w,
-              padding: EdgeInsets.symmetric(vertical: 12.h),
+              width: 78.w,
+              padding: EdgeInsets.symmetric(vertical: 11.h),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(14.r),
-                border: Border.all(color: appColors.cardBorder, width: 0.8),
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: appColors.cardBorder, width: 0.9),
                 boxShadow: appColors.cardShadow,
               ),
               child: Column(
                 children: [
-                  Icon(
-                    act['icon'] as IconData,
-                    size: 24.sp,
-                    color: theme.colorScheme.primary,
+                  OctagonalIconFrame(
+                    size: 38,
+                    child: Icon(
+                      act['icon'] as IconData,
+                      size: 18.sp,
+                      color: appColors.accentGold,
+                    ),
                   ),
-                  Gap(6.h),
+                  Gap(7.h),
                   Text(
                     act['title'] as String,
                     style: TextStyle(

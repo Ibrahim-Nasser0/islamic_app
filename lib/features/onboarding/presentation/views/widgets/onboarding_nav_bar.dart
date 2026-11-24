@@ -1,11 +1,13 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/core/di/injection_container.dart' as di;
 import 'package:islamic_app/core/routes/app_router.dart';
 import 'package:islamic_app/core/routes/routes.dart';
 import 'package:islamic_app/core/utils/extensions.dart';
 import 'package:islamic_app/core/utils/haptics.dart';
 import 'package:islamic_app/core/widgets/animations/button_animation.dart';
+import 'package:islamic_app/features/settings/data/datasources/settings_local_data_source.dart';
 import 'package:material_ui/material_ui.dart';
 
 import 'segmented_circular_progress_painter.dart';
@@ -27,18 +29,17 @@ class OnboardingNavBar extends StatelessWidget {
     final theme = Theme.of(context);
     final appColors = context.appColors;
     final isLastPage = currentPage == totalPages - 1;
-    final isRtl = context.locale.languageCode == 'ar';
 
-    final IconData centerIcon = isLastPage
-        ? Icons.check_rounded
-        : (isRtl ? Icons.arrow_back_rounded : Icons.arrow_forward_rounded);
+    // Icons.arrow_forward_rounded automatically mirrors in RTL via matchTextDirection.
+    final IconData centerIcon =
+        isLastPage ? Icons.check_rounded : Icons.arrow_forward_rounded;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         // Centered Next Button Surrounded by Page Progress Arcs
         GestureDetector(
-          onTap: () {
+          onTap: () async {
             AppHaptics.medium();
             if (!isLastPage) {
               pageController.nextPage(
@@ -46,6 +47,8 @@ class OnboardingNavBar extends StatelessWidget {
                 curve: Curves.easeInOutCubic,
               );
             } else {
+              await di.sl<SettingsLocalDataSource>().setOnboardingCompleted();
+              if (!context.mounted) return;
               AppRouter.navigateAndReplace(context, Routes.home);
             }
           },

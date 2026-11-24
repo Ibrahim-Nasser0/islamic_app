@@ -6,9 +6,9 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/routes/app_router.dart';
 import '../../../../core/routes/routes.dart';
-import '../../../../core/theme/typography.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/haptics.dart';
+import '../../../../core/widgets/widgets.dart';
 
 /// Tab 2: Azkar & Tasbeeh
 class AzkarTabView extends StatelessWidget {
@@ -64,11 +64,8 @@ class AzkarTabView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'azkar_sections_title'.tr(),
-            style: AppTypography.h4.copyWith(fontWeight: FontWeight.bold),
-          ),
-          Gap(12.h),
+          SanctuarySectionHeader(title: 'azkar_sections_title'.tr()),
+          Gap(14.h),
 
           ...azkarCategories.map((cat) {
             final isTasbeeh = cat['id'] == 'tasbeeh';
@@ -101,17 +98,13 @@ class AzkarTabView extends StatelessWidget {
                     ),
                     child: Row(
                       children: [
-                        Container(
-                          width: 44.w,
-                          height: 44.w,
-                          decoration: BoxDecoration(
-                            color: appColors.badgeBackground,
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
+                        OctagonalIconFrame(
+                          size: 44,
+                          active: isTasbeeh,
                           child: Icon(
                             cat['icon'] as IconData,
                             color: appColors.accentGold,
-                            size: 22.sp,
+                            size: 20.sp,
                           ),
                         ),
                         Gap(14.w),

@@ -24,6 +24,9 @@ abstract class SettingsLocalDataSource {
   String getLanguageCode();
   Future<void> setLanguageCode(String value);
 
+  bool hasCompletedOnboarding();
+  Future<void> setOnboardingCompleted();
+
   bool isManualLocation();
   ({double lat, double lng, String nameAr, String nameEn, bool isManual})
       getLocation();
@@ -96,6 +99,14 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   @override
   Future<void> setLanguageCode(String value) =>
       _prefs.setString(AppConstants.languageKey, value);
+
+  @override
+  bool hasCompletedOnboarding() =>
+      _prefs.getBool(AppConstants.onboardingKey) ?? false;
+
+  @override
+  Future<void> setOnboardingCompleted() =>
+      _prefs.setBool(AppConstants.onboardingKey, true);
 
   @override
   bool isManualLocation() =>

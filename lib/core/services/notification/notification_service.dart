@@ -143,10 +143,12 @@ class NotificationService {
   Future<bool> requestPermissions() async {
     try {
       if (Platform.isAndroid) {
+        final nativeGranted =
+            await const NativeAlarmBridgeService().requestNotificationPermission();
+        if (nativeGranted) return true;
         final androidPlugin = flutterLocalNotificationsPlugin
             .resolvePlatformSpecificImplementation<
                 AndroidFlutterLocalNotificationsPlugin>();
-
         return await androidPlugin?.requestNotificationsPermission() ?? false;
       } else if (Platform.isIOS) {
         return await const NativeAlarmBridgeService().requestIosPermissions();

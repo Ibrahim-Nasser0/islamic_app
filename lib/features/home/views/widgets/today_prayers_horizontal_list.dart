@@ -3,8 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../../../core/theme/typography.dart';
-import '../../../../core/utils/extensions.dart';
+import '../../../../core/widgets/widgets.dart';
 import '../../domain/entities/prayer_time_entry.dart';
 import 'prayer_time_card.dart';
 
@@ -21,32 +20,12 @@ class TodayPrayersHorizontalList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final appColors = context.appColors;
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'today_prayers'.tr(),
-              style: AppTypography.h4.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-            Text(
-              'prayers_count'.tr(),
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-                color: appColors.accentGold,
-              ),
-            ),
-          ],
+        SanctuarySectionHeader(
+          title: 'today_prayers'.tr(),
+          badgeText: 'prayers_count'.tr(),
         ),
         Gap(12.h),
 

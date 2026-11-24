@@ -90,10 +90,12 @@ void main() async {
 
   // Run permissions, Dhikr sync, and alarm scheduling only after first frame renders
   WidgetsBinding.instance.addPostFrameCallback((_) {
-    _bootstrapPostFrameServices(
-      syncCoordinator: syncCoordinator,
-      notificationService: notificationService,
-    );
+    Future<void>.delayed(const Duration(milliseconds: 450), () {
+      _bootstrapPostFrameServices(
+        syncCoordinator: syncCoordinator,
+        notificationService: notificationService,
+      );
+    });
   });
 }
 

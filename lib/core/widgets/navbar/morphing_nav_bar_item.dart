@@ -43,11 +43,10 @@ class _MorphingNavBarItemState extends State<MorphingNavBarItem> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final appColors = context.appColors;
 
-    final activePillBg = theme.colorScheme.primaryContainer;
-    final activeColor = theme.colorScheme.primary;
+    final activePillBg = appColors.navActivePillBg;
+    final activeColor = appColors.accentGold;
     final inactiveColor = appColors.textMuted;
 
     return GestureDetector(
@@ -72,7 +71,7 @@ class _MorphingNavBarItemState extends State<MorphingNavBarItem> {
             borderRadius: BorderRadius.circular(30.r),
             border: Border.all(
               color: widget.isSelected
-                  ? theme.colorScheme.primary.withValues(alpha: 0.2)
+                  ? appColors.accentGold.withValues(alpha: 0.42)
                   : Colors.transparent,
               width: 1.0,
             ),

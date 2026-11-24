@@ -10,6 +10,7 @@ import '../config/app_config.dart';
 import '../theme/theme_cubit.dart';
 import '../services/native/native_alarm_bridge_service.dart';
 import '../services/native/native_sync_coordinator.dart';
+import '../services/native/permission_readiness_cubit.dart';
 import '../services/notification/notification_service.dart';
 import '../services/notification/prayer_alarm_scheduler.dart';
 import '../services/notification/azkar_alarm_scheduler.dart';
@@ -124,6 +125,13 @@ Future<void> init() async {
         alarmScheduler: sl(),
         azkarScheduler: sl(),
         nativeBridge: sl(),
+      ));
+  sl.registerFactory(() => PermissionReadinessCubit(
+        bridge: sl(),
+        notificationService: sl(),
+        prayerScheduler: sl(),
+        azkarScheduler: sl(),
+        settingsDs: sl(),
       ));
 
   // Mosques Feature

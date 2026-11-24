@@ -6,6 +6,7 @@ class PageViewItemModel {
   final String subtitle;
   final String badgeText;
   final List<String> featureTags;
+  final bool isPermissionsStep;
 
   const PageViewItemModel({
     required this.icon,
@@ -13,5 +14,6 @@ class PageViewItemModel {
     required this.subtitle,
     required this.badgeText,
     this.featureTags = const [],
+    this.isPermissionsStep = false,
   });
 }

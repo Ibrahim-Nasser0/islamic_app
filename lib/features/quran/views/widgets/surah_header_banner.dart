@@ -6,6 +6,7 @@ import 'package:quran/quran.dart' as quran;
 
 import '../../../../core/theme/typography.dart';
 import '../../../../core/utils/extensions.dart';
+import '../../../../core/widgets/widgets.dart';
 
 /// Islamic ornamental header banner displayed at the beginning of each Surah
 class SurahHeaderBanner extends StatelessWidget {
@@ -28,52 +29,71 @@ class SurahHeaderBanner extends StatelessWidget {
 
     return Column(
       children: [
-        // Ornamental Arch Frame
-        Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 16.w),
-          decoration: BoxDecoration(
-            color: appColors.surfaceSubtle,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(
-              color: appColors.accentGold.withValues(alpha: 0.4),
-              width: 1.0,
-            ),
-          ),
-          child: Column(
-            children: [
-              Text(
-                'سُورَةُ $surahName',
-                textAlign: TextAlign.center,
-                style: AppTypography.quranAyah.copyWith(
-                  fontSize: 22.sp,
-                  fontWeight: FontWeight.bold,
-                  color: appColors.accentGold,
+        Stack(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 16.w),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    appColors.emeraldBevelTop.withValues(alpha: 0.22),
+                    appColors.surfaceSubtle,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(18.r),
+                border: Border.all(
+                  color: appColors.accentGold.withValues(alpha: 0.45),
+                  width: 1.0,
                 ),
               ),
-              Gap(4.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: Column(
                 children: [
-                  Text(
-                    isMakki ? 'makki'.tr() : 'madani'.tr(),
-                    style: TextStyle(fontSize: 11.sp, color: appColors.textMuted),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      RubElHizbMark(size: 14.w, color: appColors.accentGold),
+                      Gap(10.w),
+                      Text(
+                        'سُورَةُ $surahName',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.quranAyah.copyWith(
+                          fontSize: 22.sp,
+                          fontWeight: FontWeight.bold,
+                          color: appColors.accentGold,
+                        ),
+                      ),
+                      Gap(10.w),
+                      RubElHizbMark(size: 14.w, color: appColors.accentGold),
+                    ],
                   ),
-                  Gap(8.w),
-                  Text('•', style: TextStyle(color: appColors.textMuted)),
-                  Gap(8.w),
-                  Text(
-                    'ayahs_count'.tr(namedArgs: {'count': '$totalVerses'}),
-                    style: TextStyle(fontSize: 11.sp, color: appColors.textMuted),
+                  Gap(4.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        isMakki ? 'makki'.tr() : 'madani'.tr(),
+                        style: TextStyle(fontSize: 11.sp, color: appColors.textMuted),
+                      ),
+                      Gap(8.w),
+                      Text('•', style: TextStyle(color: appColors.accentGold)),
+                      Gap(8.w),
+                      Text(
+                        'ayahs_count'.tr(namedArgs: {'count': '$totalVerses'}),
+                        style: TextStyle(fontSize: 11.sp, color: appColors.textMuted),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+            const ManuscriptCorners(inset: 8, length: 11),
+          ],
         ),
         Gap(14.h),
 
-        // Noble Basmala (except Surah At-Tawbah)
         if (showBasmala) ...[
           Text(
             quran.basmala,
@@ -84,7 +104,9 @@ class SurahHeaderBanner extends StatelessWidget {
               height: 1.4,
             ),
           ),
-          Gap(16.h),
+          Gap(12.h),
+          const GoldHairlineDivider(jewelSize: 12),
+          Gap(14.h),
         ],
       ],
     );

@@ -59,6 +59,7 @@ void main() {
           };
         case 'syncPrayerSchedule':
         case 'syncAzkarSchedule':
+        case 'requestNotificationPermission':
           return true;
         case 'checkReliability':
           return {
@@ -143,12 +144,15 @@ void main() {
     await bridge.openExactAlarmSettings();
     await bridge.openFullScreenIntentSettings();
     await bridge.openBatterySettings();
+    final granted = await bridge.requestNotificationPermission();
 
+    expect(granted, true);
     expect(calls.map((c) => c.method), [
       'openNotificationSettings',
       'openExactAlarmSettings',
       'openFullScreenIntentSettings',
       'openBatterySettings',
+      'requestNotificationPermission',
     ]);
   });
 }
