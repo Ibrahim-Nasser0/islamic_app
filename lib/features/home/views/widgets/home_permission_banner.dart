@@ -19,10 +19,23 @@ class HomePermissionBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final appColors = context.appColors;
+    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
 
     return BlocBuilder<PermissionReadinessCubit, PermissionReadinessState>(
       builder: (context, state) {
         if (state.isCoreReady) return const SizedBox.shrink();
+
+        final ctaButton = _BannerCtaButton(
+          isBusy: state.isBusy,
+          appColors: appColors,
+          onTap: () async {
+            AppHaptics.medium();
+            await context
+                .read<PermissionReadinessCubit>()
+                .requestEssentialBatch();
+            onPermissionsUpdated?.call();
+          },
+        );
 
         return Container(
           margin: EdgeInsets.only(bottom: 16.h),
@@ -36,72 +49,108 @@ class HomePermissionBanner extends StatelessWidget {
             ),
             boxShadow: appColors.cardShadow,
           ),
-          child: Row(
-            children: [
-              OctagonalIconFrame(
-                size: 38,
-                active: true,
-                child: Icon(
-                  Icons.notifications_active_rounded,
-                  size: 18.sp,
-                  color: appColors.accentGold,
-                ),
-              ),
-              Gap(12.w),
-              Expanded(
-                child: Text(
-                  'perm_home_banner_title'.tr(),
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-              Gap(8.w),
-              InkWell(
-                onTap: state.isBusy
-                    ? null
-                    : () async {
-                        AppHaptics.medium();
-                        await context
-                            .read<PermissionReadinessCubit>()
-                            .requestEssentialBatch();
-                        onPermissionsUpdated?.call();
-                      },
-                borderRadius: BorderRadius.circular(12.r),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        appColors.emeraldBevelTop,
-                        appColors.emeraldBevelBottom,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final stackCta = constraints.maxWidth < 310 || textScale >= 1.22;
+              if (stackCta) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        _bannerIcon(appColors),
+                        Gap(12.w),
+                        Expanded(child: _bannerText(theme)),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(12.r),
-                    border: Border.all(
-                      color: appColors.accentGold.withValues(alpha: 0.5),
-                      width: 0.9,
+                    Gap(10.h),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: ctaButton,
                     ),
-                  ),
-                  child: Text(
-                    'perm_home_banner_cta'.tr(),
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.bold,
-                      color: appColors.accentGold,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  _bannerIcon(appColors),
+                  Gap(12.w),
+                  Expanded(child: _bannerText(theme)),
+                  Gap(8.w),
+                  ctaButton,
+                ],
+              );
+            },
           ),
         );
       },
+    );
+  }
+
+  Widget _bannerIcon(AppThemeColors appColors) {
+    return OctagonalIconFrame(
+      size: 38,
+      active: true,
+      child: Icon(
+        Icons.notifications_active_rounded,
+        size: 18.sp,
+        color: appColors.accentGold,
+      ),
+    );
+  }
+
+  Widget _bannerText(ThemeData theme) {
+    return Text(
+      'perm_home_banner_title'.tr(),
+      style: TextStyle(
+        fontSize: 12.sp,
+        fontWeight: FontWeight.w600,
+        color: theme.colorScheme.onSurface,
+        height: 1.4,
+      ),
+    );
+  }
+}
+
+class _BannerCtaButton extends StatelessWidget {
+  final bool isBusy;
+  final AppThemeColors appColors;
+  final VoidCallback onTap;
+
+  const _BannerCtaButton({
+    required this.isBusy,
+    required this.appColors,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: isBusy ? null : onTap,
+      borderRadius: BorderRadius.circular(12.r),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [appColors.emeraldBevelTop, appColors.emeraldBevelBottom],
+          ),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(
+            color: appColors.accentGold.withValues(alpha: 0.5),
+            width: 0.9,
+          ),
+        ),
+        child: Text(
+          'perm_home_banner_cta'.tr(),
+          style: TextStyle(
+            fontSize: 11.sp,
+            fontWeight: FontWeight.bold,
+            color: appColors.accentGold,
+          ),
+        ),
+      ),
     );
   }
 }

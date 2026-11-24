@@ -43,6 +43,13 @@ class MorphingNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final appColors = context.appColors;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final isNarrow = screenWidth < 360;
+    final isWide = screenWidth >= 600;
+    final hPadding = isWide
+        ? ((screenWidth - 460) / 2)
+            .clamp(AppConstants.spacingLG.w, screenWidth * 0.3)
+        : (isNarrow ? 12.w : AppConstants.spacingLG.w);
 
     return SafeArea(
       top: false,
@@ -51,8 +58,8 @@ class MorphingNavBar extends StatelessWidget {
         children: [
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: AppConstants.spacingLG.w,
-              vertical: AppConstants.spacingMD.h,
+              horizontal: hPadding,
+              vertical: isNarrow ? 10.h : AppConstants.spacingMD.h,
             ),
             child: RepaintBoundary(
               child: ClipRRect(

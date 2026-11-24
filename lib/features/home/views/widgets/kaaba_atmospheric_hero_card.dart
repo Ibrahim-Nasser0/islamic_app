@@ -102,43 +102,50 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-              decoration: BoxDecoration(
-                color: atmosphere.accentColor.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  RubElHizbMark(size: 11.w, color: atmosphere.accentColor),
-                  SizedBox(width: 5.w),
-                  Text(
-                    'next_prayer'.tr(),
-                    style: TextStyle(
-                      fontSize: 11.5.sp,
-                      color: atmosphere.accentColor,
-                      fontWeight: FontWeight.bold,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                decoration: BoxDecoration(
+                  color: atmosphere.accentColor.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    RubElHizbMark(size: 11.w, color: atmosphere.accentColor),
+                    SizedBox(width: 5.w),
+                    Text(
+                      'next_prayer'.tr(),
+                      style: TextStyle(
+                        fontSize: 11.5.sp,
+                        color: atmosphere.accentColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
+                  ],
+                ),
+              ),
+              Gap(6.h),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  'prayer_name_format'.tr(namedArgs: {'name': nextPrayerName}),
+                  style: AppTypography.quranAyah.copyWith(
+                    fontSize: 25.sp,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    height: 1.25,
                   ),
-                ],
+                ),
               ),
-            ),
-            Gap(6.h),
-            Text(
-              'prayer_name_format'.tr(namedArgs: {'name': nextPrayerName}),
-              style: AppTypography.quranAyah.copyWith(
-                fontSize: 25.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                height: 1.25,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
+        SizedBox(width: 10.w),
         Container(
           width: 46.w,
           height: 46.w,

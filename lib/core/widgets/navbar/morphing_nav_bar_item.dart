@@ -44,6 +44,7 @@ class _MorphingNavBarItemState extends State<MorphingNavBarItem> {
   @override
   Widget build(BuildContext context) {
     final appColors = context.appColors;
+    final isNarrow = MediaQuery.sizeOf(context).width < 360;
 
     final activePillBg = appColors.navActivePillBg;
     final activeColor = appColors.accentGold;
@@ -63,7 +64,9 @@ class _MorphingNavBarItemState extends State<MorphingNavBarItem> {
           duration: const Duration(milliseconds: 220),
           curve: Curves.easeOutCubic,
           padding: EdgeInsetsDirectional.symmetric(
-            horizontal: widget.isSelected ? 14.w : 10.w,
+            horizontal: widget.isSelected
+                ? (isNarrow ? 10.w : 14.w)
+                : (isNarrow ? 7.w : 10.w),
             vertical: 8.h,
           ),
           decoration: BoxDecoration(
@@ -80,7 +83,7 @@ class _MorphingNavBarItemState extends State<MorphingNavBarItem> {
             mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedScale(
-                scale: widget.isSelected ? 1.12 : 1.0,
+                scale: widget.isSelected ? 1.10 : 1.0,
                 duration: const Duration(milliseconds: 220),
                 curve: Curves.easeOutCubic,
                 child: Icon(
@@ -88,7 +91,7 @@ class _MorphingNavBarItemState extends State<MorphingNavBarItem> {
                       ? (widget.item.activeIcon ?? widget.item.icon)
                       : widget.item.icon,
                   color: widget.isSelected ? activeColor : inactiveColor,
-                  size: 22.sp,
+                  size: isNarrow ? 20.sp : 22.sp,
                 ),
               ),
               ClipRect(
@@ -102,17 +105,24 @@ class _MorphingNavBarItemState extends State<MorphingNavBarItem> {
                     curve: Curves.easeOutCubic,
                     opacity: widget.isSelected ? 1.0 : 0.0,
                     child: Padding(
-                      padding: EdgeInsetsDirectional.only(start: 6.w),
-                      child: Text(
-                        widget.item.label,
-                        style: TextStyle(
-                          fontSize: 12.5.sp,
-                          fontWeight: FontWeight.bold,
-                          color: activeColor,
-                          letterSpacing: 0.2,
+                      padding: EdgeInsetsDirectional.only(
+                        start: isNarrow ? 4.w : 6.w,
+                      ),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: isNarrow ? 78 : 110,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        child: Text(
+                          widget.item.label,
+                          style: TextStyle(
+                            fontSize: isNarrow ? 11.5.sp : 12.5.sp,
+                            fontWeight: FontWeight.bold,
+                            color: activeColor,
+                            letterSpacing: 0.2,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                   ),

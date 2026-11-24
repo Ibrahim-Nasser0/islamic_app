@@ -23,15 +23,22 @@ class HeroCardCountdownBadge extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        Text(
-          nextPrayerTime,
-          style: AppTypography.h1.copyWith(
-            fontSize: 34.sp,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-            letterSpacing: 0.5,
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              nextPrayerTime,
+              style: AppTypography.h1.copyWith(
+                fontSize: 34.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                letterSpacing: 0.5,
+              ),
+            ),
           ),
         ),
+        SizedBox(width: 10.w),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8.h),
           decoration: BoxDecoration(

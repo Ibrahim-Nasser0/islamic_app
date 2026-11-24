@@ -1,15 +1,14 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
-import '../../../../core/routes/app_router.dart';
-import '../../../../core/routes/routes.dart';
-import '../../../../core/theme/typography.dart';
+import '../../../../core/responsive/responsive_card_grid.dart';
+import '../../../../core/responsive/responsive_content_frame.dart';
+import '../../../../core/responsive/window_size_class.dart';
 import '../../../../core/utils/extensions.dart';
-import '../../../../core/utils/haptics.dart';
 import '../../../../core/widgets/widgets.dart';
+import 'ahadith_tab_cards.dart';
 
 /// Tab 3: Prophetic Ahadith Collection
 class AhadithTabView extends StatelessWidget {
@@ -19,164 +18,41 @@ class AhadithTabView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final appColors = context.appColors;
+    final bottomPad = context.bottomNavClearance();
 
     final books = [
-      {
-        'id': 'nawawi_forty',
-        'title': 'nawawi_forty'.tr(),
-        'subtitle': 'nawawi_forty_subtitle'.tr(),
-        'count': 'hadiths_count'.tr(namedArgs: {'count': '42'}),
-      },
-      {
-        'id': 'sahih_bukhari',
-        'title': 'sahih_bukhari'.tr(),
-        'subtitle': 'sahih_bukhari_subtitle'.tr(),
-        'count': 'hadiths_count'.tr(namedArgs: {'count': '100'}),
-      },
-      {
-        'id': 'sahih_muslim',
-        'title': 'sahih_muslim'.tr(),
-        'subtitle': 'sahih_muslim_subtitle'.tr(),
-        'count': 'hadiths_count'.tr(namedArgs: {'count': '100'}),
-      },
-      {
-        'id': 'riyad_assalihin',
-        'title': 'riyad_assalihin'.tr(),
-        'subtitle': 'riyad_assalihin_subtitle'.tr(),
-        'count': 'hadiths_count'.tr(namedArgs: {'count': '100'}),
-      },
+      ('nawawi_forty', 'nawawi_forty'.tr(), 'nawawi_forty_subtitle'.tr(), '42'),
+      ('sahih_bukhari', 'sahih_bukhari'.tr(), 'sahih_bukhari_subtitle'.tr(), '100'),
+      ('sahih_muslim', 'sahih_muslim'.tr(), 'sahih_muslim_subtitle'.tr(), '100'),
+      ('riyad_assalihin', 'riyad_assalihin'.tr(), 'riyad_assalihin_subtitle'.tr(), '100'),
     ];
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 100.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Daily Hadith Highlight
-          Stack(
-            children: [
-              Container(
-                padding: EdgeInsets.all(18.r),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      appColors.accentGold.withValues(alpha: 0.14),
-                      appColors.navActivePillBg,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(18.r),
-                  border: Border.all(
-                    color: appColors.accentGold.withValues(alpha: 0.4),
-                    width: 1.0,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        RubElHizbMark(size: 14.w, color: appColors.accentGold),
-                        SizedBox(width: 8.w),
-                        Text(
-                          'hadith_of_the_day'.tr(),
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.bold,
-                            color: appColors.accentGold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Gap(10.h),
-                    Text(
-                      'daily_hadith_text'.tr(),
-                      style: AppTypography.quranAyah.copyWith(
-                        fontSize: 18.sp,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                    Gap(6.h),
-                    Text(
-                      'narrated_by_bukhari_muslim'.tr(),
-                      style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
-                    ),
-                  ],
-                ),
-              ),
-              const ManuscriptCorners(inset: 8, length: 11),
-            ],
-          ),
-          Gap(20.h),
-
-          SanctuarySectionHeader(title: 'hadith_books_title'.tr()),
-          Gap(12.h),
-
-          ...books.map((book) {
-            return Container(
-              margin: EdgeInsets.only(bottom: 12.h),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: appColors.cardBorder, width: 0.8),
-                boxShadow: appColors.cardShadow,
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    AppHaptics.light();
-                    AppRouter.navigateTo(
-                      context,
-                      Routes.hadithReader,
-                      arguments: {
-                        'bookId': book['id'],
-                        'bookTitle': book['title'],
-                      },
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(16.r),
-                  child: Padding(
-                    padding: EdgeInsets.all(16.r),
-                    child: Row(
-                      children: [
-                        OctagonalIconFrame(
-                          size: 44,
-                          child: Icon(
-                            FlutterIslamicIcons.solidMohammad,
-                            color: appColors.accentGold,
-                            size: 19.sp,
-                          ),
-                        ),
-                        Gap(14.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                book['title'] as String,
-                                style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
-                              ),
-                              Gap(2.h),
-                              Text(
-                                book['subtitle'] as String,
-                                style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Text(
-                          book['count'] as String,
-                          style: TextStyle(fontSize: 11.sp, color: appColors.accentGold),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            );
-          }),
-        ],
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: EdgeInsets.only(top: 16.h, bottom: bottomPad),
+      child: ResponsiveContentFrame(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            DailyHadithHighlightCard(theme: theme, appColors: appColors),
+            Gap(20.h),
+            SanctuarySectionHeader(title: 'hadith_books_title'.tr()),
+            Gap(12.h),
+            ResponsiveCardGrid(
+              children: books.map((book) {
+                return HadithBookTile(
+                  id: book.$1,
+                  title: book.$2,
+                  subtitle: book.$3,
+                  countLabel: 'hadiths_count'.tr(namedArgs: {'count': book.$4}),
+                  theme: theme,
+                  appColors: appColors,
+                );
+              }).toList(),
+            ),
+          ],
+        ),
       ),
     );
   }

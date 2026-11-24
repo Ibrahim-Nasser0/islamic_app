@@ -28,6 +28,55 @@ class DailyWirdActionsBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final appColors = context.appColors;
+    final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+
+    final completeBtn = CustomButton(
+      height: 44.h,
+      borderRadius: 12,
+      fontSize: 13.sp,
+      text: completed
+          ? 'daily_wird_completed_badge'.tr()
+          : 'daily_wird_complete_btn'.tr(),
+      icon: completed ? Icons.verified_rounded : Icons.task_alt_rounded,
+      gradient: completed
+          ? null
+          : LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [appColors.emeraldBevelTop, appColors.emeraldBevelBottom],
+            ),
+      color: completed ? appColors.statusSuccess.withValues(alpha: 0.12) : null,
+      borderColor: completed
+          ? appColors.statusSuccess.withValues(alpha: 0.4)
+          : appColors.accentGold.withValues(alpha: 0.45),
+      borderWidth: 0.9,
+      textColor: completed ? appColors.statusSuccess : AppColors.quranPage,
+      iconColor: completed ? appColors.statusSuccess : AppColors.accentLight,
+      onPressed: completed
+          ? null
+          : () {
+              AppHaptics.medium();
+              cubit.markCompleted();
+            },
+    ).buttonAnimation();
+
+    final nextBtn = CustomButton(
+      height: 44.h,
+      borderRadius: 12,
+      fontSize: 12.5.sp,
+      color: appColors.surfaceSubtle,
+      borderColor: appColors.cardBorder,
+      borderWidth: 0.9,
+      textColor: theme.colorScheme.onSurface,
+      iconColor: appColors.accentGold,
+      text: 'daily_wird_next_btn'.tr(),
+      icon: Icons.navigate_next_rounded,
+      iconAfterText: true,
+      onPressed: () {
+        AppHaptics.selection();
+        cubit.moveToNextBatch();
+      },
+    ).buttonAnimation();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -51,69 +100,28 @@ class DailyWirdActionsBar extends StatelessWidget {
           style: TextStyle(fontSize: 10.5.sp, color: appColors.textMuted),
         ),
         Gap(14.h),
-        Row(
-          children: [
-            Expanded(
-              flex: 5,
-              child: CustomButton(
-                height: 44.h,
-                borderRadius: 12,
-                fontSize: 13.sp,
-                text: completed
-                    ? 'daily_wird_completed_badge'.tr()
-                    : 'daily_wird_complete_btn'.tr(),
-                icon: completed ? Icons.verified_rounded : Icons.task_alt_rounded,
-                gradient: completed
-                    ? null
-                    : LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          appColors.emeraldBevelTop,
-                          appColors.emeraldBevelBottom,
-                        ],
-                      ),
-                color: completed
-                    ? appColors.statusSuccess.withValues(alpha: 0.12)
-                    : null,
-                borderColor: completed
-                    ? appColors.statusSuccess.withValues(alpha: 0.4)
-                    : appColors.accentGold.withValues(alpha: 0.45),
-                borderWidth: 0.9,
-                textColor:
-                    completed ? appColors.statusSuccess : AppColors.quranPage,
-                iconColor:
-                    completed ? appColors.statusSuccess : AppColors.accentLight,
-                onPressed: completed
-                    ? null
-                    : () {
-                        AppHaptics.medium();
-                        cubit.markCompleted();
-                      },
-              ).buttonAnimation(),
-            ),
-            Gap(10.w),
-            Expanded(
-              flex: 4,
-              child: CustomButton(
-                height: 44.h,
-                borderRadius: 12,
-                fontSize: 12.5.sp,
-                color: appColors.surfaceSubtle,
-                borderColor: appColors.cardBorder,
-                borderWidth: 0.9,
-                textColor: theme.colorScheme.onSurface,
-                iconColor: appColors.accentGold,
-                text: 'daily_wird_next_btn'.tr(),
-                icon: Icons.navigate_next_rounded,
-                iconAfterText: true,
-                onPressed: () {
-                  AppHaptics.selection();
-                  cubit.moveToNextBatch();
-                },
-              ).buttonAnimation(),
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final stackVertically =
+                constraints.maxWidth < 290 || textScale >= 1.22;
+            if (stackVertically) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  completeBtn,
+                  Gap(8.h),
+                  nextBtn,
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(flex: 5, child: completeBtn),
+                Gap(10.w),
+                Expanded(flex: 4, child: nextBtn),
+              ],
+            );
+          },
         ),
       ],
     );

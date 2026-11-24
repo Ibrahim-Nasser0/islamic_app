@@ -7,7 +7,8 @@ import '../../../../core/widgets/widgets.dart';
 import '../../domain/entities/prayer_time_entry.dart';
 import 'prayer_time_card.dart';
 
-/// Horizontal Row List displaying all prayers of the day using the unified PrayerTimeCard
+/// Adaptive list displaying all prayers of the day:
+/// horizontal strip on compact widths, 3x2 grid on wider containers.
 class TodayPrayersHorizontalList extends StatelessWidget {
   final List<PrayerTimeEntry> prayers;
   final ValueChanged<int>? onPrayerTap;
@@ -28,26 +29,71 @@ class TodayPrayersHorizontalList extends StatelessWidget {
           badgeText: 'prayers_count'.tr(),
         ),
         Gap(12.h),
-
-        // Horizontal List of Reusable Prayer Cards
-        SizedBox(
-          height: 126.h,
-          child: ListView.separated(
-            padding: EdgeInsets.symmetric(vertical: 4.h),
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: prayers.length,
-            separatorBuilder: (context, index) => SizedBox(width: 8.w),
-            itemBuilder: (context, index) {
-              final prayer = prayers[index];
-              return PrayerTimeCard(
-                prayer: prayer,
-                onTap: () => onPrayerTap?.call(index),
-              );
-            },
-          ),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth >= 500) {
+              return _buildThreeByTwoGrid();
+            }
+            return _buildHorizontalStrip();
+          },
         ),
       ],
     );
+  }
+
+  Widget _buildHorizontalStrip() {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.symmetric(vertical: 4.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: List.generate(prayers.length, (index) {
+          return Padding(
+            padding: EdgeInsetsDirectional.only(
+              end: index < prayers.length - 1 ? 8.w : 0,
+            ),
+            child: PrayerTimeCard(
+              prayer: prayers[index],
+              onTap: () => onPrayerTap?.call(index),
+            ),
+          );
+        }),
+      ),
+    );
+  }
+
+  Widget _buildThreeByTwoGrid() {
+    final rows = <Widget>[];
+    for (var i = 0; i < prayers.length; i += 3) {
+      final end = (i + 3).clamp(0, prayers.length);
+      rows.add(
+        Padding(
+          padding: EdgeInsets.only(bottom: end < prayers.length ? 10.h : 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(3, (col) {
+              final idx = i + col;
+              if (idx >= prayers.length) {
+                return const Expanded(child: SizedBox.shrink());
+              }
+              return Expanded(
+                child: Padding(
+                  padding: EdgeInsetsDirectional.only(
+                    end: col < 2 ? 10.w : 0,
+                  ),
+                  child: PrayerTimeCard(
+                    prayer: prayers[idx],
+                    width: double.infinity,
+                    onTap: () => onPrayerTap?.call(idx),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ),
+      );
+    }
+    return Column(children: rows);
   }
 }

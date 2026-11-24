@@ -54,7 +54,7 @@ class PrayerTimeCard extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 240),
           width: width ?? 94.w,
-          height: height ?? 118.h,
+          constraints: BoxConstraints(minHeight: height ?? 112.h),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(17.r),
             gradient: isNext
@@ -105,6 +105,7 @@ class PrayerTimeCard extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       OctagonalIconFrame(
@@ -120,6 +121,7 @@ class PrayerTimeCard extends StatelessWidget {
                                   : appColors.accentGold),
                         ),
                       ),
+                      Gap(6.h),
                       Column(
                         children: [
                           Text(
@@ -175,6 +177,7 @@ class PrayerTimeCard extends StatelessWidget {
                           ),
                         ],
                       ),
+                      Gap(6.h),
                       PrayerCardStatusPill(status: prayer.status),
                     ],
                   ),

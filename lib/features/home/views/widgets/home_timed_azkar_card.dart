@@ -71,7 +71,7 @@ class HomeTimedAzkarCard extends StatelessWidget {
   Widget _buildCompletedBox(BuildContext context, TimedAzkarCubit cubit) {
     final appColors = context.appColors;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
       decoration: BoxDecoration(
         color: appColors.statusSuccess.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14.r),
@@ -79,34 +79,9 @@ class HomeTimedAzkarCard extends StatelessWidget {
           color: appColors.statusSuccess.withValues(alpha: 0.35),
         ),
       ),
-      child: Row(
-        children: [
-          Icon(
-            Icons.verified_rounded,
-            color: appColors.statusSuccess,
-            size: 24.sp,
-          ),
-          Gap(10.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'timed_azkar_done_title'.tr(),
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.bold,
-                    color: appColors.statusSuccess,
-                  ),
-                ),
-                Text(
-                  'timed_azkar_done_desc'.tr(),
-                  style: TextStyle(fontSize: 11.sp, color: appColors.textMuted),
-                ),
-              ],
-            ),
-          ),
-          TextButton(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final resetBtn = TextButton(
             onPressed: () {
               AppHaptics.light();
               cubit.resetCurrentPeriod();
@@ -115,8 +90,55 @@ class HomeTimedAzkarCard extends StatelessWidget {
               'timed_azkar_reset'.tr(),
               style: TextStyle(fontSize: 11.5.sp),
             ),
-          ),
-        ],
+          );
+          final infoRow = Row(
+            children: [
+              Icon(
+                Icons.verified_rounded,
+                color: appColors.statusSuccess,
+                size: 24.sp,
+              ),
+              Gap(10.w),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'timed_azkar_done_title'.tr(),
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.bold,
+                        color: appColors.statusSuccess,
+                      ),
+                    ),
+                    Text(
+                      'timed_azkar_done_desc'.tr(),
+                      style:
+                          TextStyle(fontSize: 11.sp, color: appColors.textMuted),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+
+          if (constraints.maxWidth < 280) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                infoRow,
+                Align(alignment: AlignmentDirectional.centerEnd, child: resetBtn),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: infoRow),
+              resetBtn,
+            ],
+          );
+        },
       ),
     );
   }

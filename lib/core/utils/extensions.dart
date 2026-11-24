@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import '../theme/app_theme_colors.dart';
+export '../theme/app_theme_colors.dart';
 
 /// String Extensions
 extension StringExtension on String {
@@ -187,12 +188,8 @@ extension ListExtension<T> on List<T> {
 
 /// Num Extensions
 extension NumExtension on num {
-  /// Converts number to currency format
-  String toCurrency({String symbol = '\$'}) {
-    return '$symbol${toStringAsFixed(2)}';
-  }
+  String toCurrency({String symbol = '\$'}) => '$symbol${toStringAsFixed(2)}';
 
-  /// Converts bytes to human readable format
   String toFileSize() {
     if (this < 1024) return '$this B';
     if (this < 1024 * 1024) return '${(this / 1024).toStringAsFixed(2)} KB';

@@ -22,10 +22,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
-  // Set preferred orientations
+  // Allow all orientations; adaptive layouts handle portrait and landscape
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
+    DeviceOrientation.landscapeLeft,
+    DeviceOrientation.landscapeRight,
   ]);
 
   // Set system UI overlay style
@@ -135,10 +137,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.sizeOf(context);
+    // Cap ScreenUtil scale factor on wide/tablet viewports so .w/.sp stay balanced.
+    final adaptiveDesignSize = screenSize.width > 450
+        ? Size(screenSize.width / 1.15, screenSize.height / 1.15)
+        : const Size(375, 812);
+
     return BlocProvider(
       create: (_) => di.sl<ThemeCubit>(),
       child: ScreenUtilInit(
-        designSize: const Size(375, 812),
+        designSize: adaptiveDesignSize,
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (context, child) {
@@ -160,7 +168,18 @@ class MyApp extends StatelessWidget {
                 supportedLocales: context.supportedLocales,
                 locale: context.locale,
                 builder: (context, child) {
-                  return AppUnfocus(child: child ?? const SizedBox.shrink());
+                  // Clamp textScaler to [0.90, 1.25] for layout safety
+                  final mediaData = MediaQuery.of(context);
+                  final clampedScaler = mediaData.textScaler.clamp(
+                    minScaleFactor: 0.90,
+                    maxScaleFactor: 1.25,
+                  );
+                  return MediaQuery(
+                    data: mediaData.copyWith(textScaler: clampedScaler),
+                    child: AppUnfocus(
+                      child: child ?? const SizedBox.shrink(),
+                    ),
+                  );
                 },
               );
             },

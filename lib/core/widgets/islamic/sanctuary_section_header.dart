@@ -35,22 +35,27 @@ class SanctuarySectionHeader extends StatelessWidget {
           ),
         ),
         if (badgeText != null)
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
-            decoration: BoxDecoration(
-              color: appColors.badgeBackground,
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(
-                color: appColors.accentGold.withValues(alpha: 0.25),
-                width: 0.8,
+          Flexible(
+            flex: 0,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 3.h),
+              decoration: BoxDecoration(
+                color: appColors.badgeBackground,
+                borderRadius: BorderRadius.circular(12.r),
+                border: Border.all(
+                  color: appColors.accentGold.withValues(alpha: 0.25),
+                  width: 0.8,
+                ),
               ),
-            ),
-            child: Text(
-              badgeText!,
-              style: TextStyle(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.w600,
-                color: appColors.accentGold,
+              child: Text(
+                badgeText!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 11.sp,
+                  fontWeight: FontWeight.w600,
+                  color: appColors.accentGold,
+                ),
               ),
             ),
           ),
