@@ -28,43 +28,48 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _navigateToNext() async {
-    final nativeRoute =
-        await di.sl<NativeSyncCoordinator>().consumeInitialLaunchRoute();
-    if (nativeRoute != null && mounted) {
-      final route = nativeRoute['route'] as String;
-      final args = nativeRoute['args'] as Map<String, dynamic>?;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        Navigator.pushReplacementNamed(context, Routes.home);
-        if (route != Routes.home) {
-          Navigator.pushNamed(context, route, arguments: args);
-        }
-      });
-      return;
-    }
+    try {
+      final nativeRoute = await di
+          .sl<NativeSyncCoordinator>()
+          .consumeInitialLaunchRoute()
+          .timeout(const Duration(seconds: 2), onTimeout: () => null);
+      if (nativeRoute != null && mounted) {
+        final route = nativeRoute['route'] as String;
+        final args = nativeRoute['args'] as Map<String, dynamic>?;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, Routes.home);
+          if (route != Routes.home) {
+            Navigator.pushNamed(context, route, arguments: args);
+          }
+        });
+        return;
+      }
 
-    final pending = di.sl<NotificationService>().consumePendingPayload();
-    if (pending != null &&
-        (pending.startsWith('adhan:') || pending.startsWith('pre:'))) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        Navigator.pushReplacementNamed(context, Routes.home);
-      });
-      return;
-    }
-    if (pending != null && pending.startsWith('azkar:')) {
-      final parts = pending.split(':');
-      final categoryId = parts.length > 1 ? parts[1] : 'morning';
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        Navigator.pushReplacementNamed(context, Routes.home);
-        Navigator.pushNamed(
-          context,
-          Routes.azkarCategory,
-          arguments: {'categoryId': categoryId},
-        );
-      });
-      return;
+      final pending = di.sl<NotificationService>().consumePendingPayload();
+      if (pending != null &&
+          (pending.startsWith('adhan:') || pending.startsWith('pre:'))) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) Navigator.pushReplacementNamed(context, Routes.home);
+        });
+        return;
+      }
+      if (pending != null && pending.startsWith('azkar:')) {
+        final parts = pending.split(':');
+        final categoryId = parts.length > 1 ? parts[1] : 'morning';
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          Navigator.pushReplacementNamed(context, Routes.home);
+          Navigator.pushNamed(
+            context,
+            Routes.azkarCategory,
+            arguments: {'categoryId': categoryId},
+          );
+        });
+        return;
+      }
+    } catch (_) {
+      // Never block splash navigation if native deep-link bridge fails
     }
 
     Future.delayed(const Duration(milliseconds: 2600), () {
@@ -97,11 +102,7 @@ class _SplashScreenState extends State<SplashScreen> {
               Text(
                 'app_name'.tr(),
                 textAlign: TextAlign.center,
-                style: AppTypography.h1.copyWith(
-                  fontSize: 32.sp,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
+                style: AppTypography.h1.copyWith(fontSize: 32.sp, fontWeight: FontWeight.bold, color: Colors.white),
               ).animate().fade(duration: 600.ms, delay: 200.ms).slideY(begin: 0.2),
               Gap(12.h),
               Padding(
@@ -109,11 +110,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 child: Text(
                   'splash_verse'.tr(),
                   textAlign: TextAlign.center,
-                  style: AppTypography.quranAyah.copyWith(
-                    fontSize: 17.sp,
-                    color: appColors.accentGold,
-                    height: 1.8,
-                  ),
+                  style: AppTypography.quranAyah.copyWith(fontSize: 17.sp, color: appColors.accentGold, height: 1.8),
                 ),
               ).animate().fade(duration: 600.ms, delay: 400.ms).slideY(begin: 0.2),
               const Spacer(flex: 4),

@@ -39,61 +39,43 @@ void main() async {
   // Initialize dependency injection
   await di.init();
 
-  // Bind native lockscreen deep links & sync any offline Azkar completions
+  // Bind native lockscreen deep links & initialize notifications safely without blocking launch
   final syncCoordinator = di.sl<NativeSyncCoordinator>();
   syncCoordinator.bindForegroundRouteHandler();
-  await syncCoordinator.syncPendingDhikrUpdates();
 
-  // Initialize notification service & permissions
   final notificationService = di.sl<NotificationService>();
-  await notificationService.init(
-    onNotificationTap: (response) {
-      if (response.actionId == 'stop_adhan') {
-        if (response.id != null) {
-          notificationService.cancel(response.id!);
-        }
-        return;
-      }
-      final payload = response.payload;
-      if (payload != null && payload.startsWith('adhan:')) {
-        if (response.id != null) {
-          notificationService.cancel(response.id!);
-        }
-        return;
-      }
-      if (notificationService.didNotificationLaunchApp) return;
-      if (payload != null && payload.startsWith('azkar:')) {
-        final parts = payload.split(':');
-        if (parts.length > 1) {
-          AppRouter.navigatorKey.currentState?.pushNamed(
-            Routes.azkarCategory,
-            arguments: {'categoryId': parts[1]},
-          );
-        }
-      }
-    },
-  );
-  await notificationService.requestPermissions();
-
-  // Initial prayer & azkar alarm schedule
   try {
-    final scheduler = di.sl<PrayerAlarmScheduler>();
-    final azkarScheduler = di.sl<AzkarAlarmScheduler>();
-    final settingsDs = di.sl<SettingsLocalDataSource>();
-    final loc = settingsDs.getLocation();
-    await scheduler.schedulePrayerAlarms(
-      latitude: loc.lat,
-      longitude: loc.lng,
-      adhanEnabled:
-          settingsDs.getPrayerNotification() && settingsDs.getAthanSound(),
-      preAlertEnabled:
-          settingsDs.getPrayerNotification() && settingsDs.getPrePrayerNotification(),
-    );
-    await azkarScheduler.scheduleDailyAzkar(
-      enabled: settingsDs.getAzkarNotification(),
-    );
+    await notificationService
+        .init(
+          onNotificationTap: (response) {
+            if (response.actionId == 'stop_adhan') {
+              if (response.id != null) {
+                notificationService.cancel(response.id!);
+              }
+              return;
+            }
+            final payload = response.payload;
+            if (payload != null && payload.startsWith('adhan:')) {
+              if (response.id != null) {
+                notificationService.cancel(response.id!);
+              }
+              return;
+            }
+            if (notificationService.didNotificationLaunchApp) return;
+            if (payload != null && payload.startsWith('azkar:')) {
+              final parts = payload.split(':');
+              if (parts.length > 1) {
+                AppRouter.navigatorKey.currentState?.pushNamed(
+                  Routes.azkarCategory,
+                  arguments: {'categoryId': parts[1]},
+                );
+              }
+            }
+          },
+        )
+        .timeout(const Duration(seconds: 2));
   } catch (_) {
-    // Background scheduling init fallback
+    // Keep startup resilient if platform notification init is delayed
   }
 
   runApp(
@@ -105,6 +87,45 @@ void main() async {
       child: const MyApp(),
     ),
   );
+
+  // Run permissions, Dhikr sync, and alarm scheduling only after first frame renders
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _bootstrapPostFrameServices(
+      syncCoordinator: syncCoordinator,
+      notificationService: notificationService,
+    );
+  });
+}
+
+Future<void> _bootstrapPostFrameServices({
+  required NativeSyncCoordinator syncCoordinator,
+  required NotificationService notificationService,
+}) async {
+  try {
+    await syncCoordinator.syncPendingDhikrUpdates();
+  } catch (_) {}
+
+  try {
+    await notificationService.requestPermissions();
+  } catch (_) {}
+
+  try {
+    final scheduler = di.sl<PrayerAlarmScheduler>();
+    final azkarScheduler = di.sl<AzkarAlarmScheduler>();
+    final settingsDs = di.sl<SettingsLocalDataSource>();
+    final loc = settingsDs.getLocation();
+    await scheduler.schedulePrayerAlarms(
+      latitude: loc.lat,
+      longitude: loc.lng,
+      adhanEnabled:
+          settingsDs.getPrayerNotification() && settingsDs.getAthanSound(),
+      preAlertEnabled: settingsDs.getPrayerNotification() &&
+          settingsDs.getPrePrayerNotification(),
+    );
+    await azkarScheduler.scheduleDailyAzkar(
+      enabled: settingsDs.getAzkarNotification(),
+    );
+  } catch (_) {}
 }
 
 class MyApp extends StatelessWidget {

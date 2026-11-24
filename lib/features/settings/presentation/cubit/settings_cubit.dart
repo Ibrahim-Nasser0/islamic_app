@@ -54,7 +54,9 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   Future<void> fixMissingPermissions() async {
     final rel = state.reliability;
-    if (rel['exactAlarms'] == false) {
+    if (rel['notifications'] == false) {
+      await _nativeBridge?.openNotificationSettings();
+    } else if (rel['exactAlarms'] == false) {
       await _nativeBridge?.openExactAlarmSettings();
     } else if (rel['fullScreenIntent'] == false) {
       await _nativeBridge?.openFullScreenIntentSettings();

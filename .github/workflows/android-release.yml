@@ -1,0 +1,98 @@
+name: Build & Release Android (APK & AAB)
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+    inputs:
+      build_android:
+        description: 'Build Android APK & AAB'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-android:
+    name: Build Android (APK & AAB)
+    if: github.event_name != 'workflow_dispatch' || inputs.build_android
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Accept Android SDK licenses
+        run: yes | flutter doctor --android-licenses || true
+
+      - name: Get dependencies & verify
+        run: |
+          flutter pub get
+          flutter analyze --no-fatal-infos
+          flutter test
+
+      - name: Build Android Release (Split APKs, Universal APK & AAB) (v1.0.${{ github.run_number }})
+        run: |
+          # 1. Build Split-per-ABI APKs (Lightweight & optimized per CPU architecture)
+          flutter build apk --release --split-per-abi --build-number=${{ github.run_number }} --build-name=1.0.${{ github.run_number }}
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk ZadAlMuslim-v1.0.${{ github.run_number }}-arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk ZadAlMuslim-v1.0.${{ github.run_number }}-armeabi-v7a.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk ZadAlMuslim-v1.0.${{ github.run_number }}-x86_64.apk
+
+          # 2. Build Universal APK (Recommended all-in-one direct download for landing page)
+          flutter build apk --release --build-number=${{ github.run_number }} --build-name=1.0.${{ github.run_number }}
+          cp build/app/outputs/flutter-apk/app-release.apk ZadAlMuslim-v1.0.${{ github.run_number }}-universal.apk
+
+          # 3. Build Android App Bundle (Google Play Store)
+          flutter build appbundle --release --build-number=${{ github.run_number }} --build-name=1.0.${{ github.run_number }}
+          cp build/app/outputs/bundle/release/app-release.aab ZadAlMuslim-v1.0.${{ github.run_number }}.aab
+
+      - name: Publish Android Release to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.${{ github.run_number }}
+          name: Zad Al-Muslim v1.0.${{ github.run_number }}
+          body: |
+            ## 🕊️ زاد المسلم (Zad Al-Muslim) — Release v1.0.${{ github.run_number }}
+
+            ### 📦 Android Downloads
+            - **Recommended (All Android Devices - Universal APK)**: `ZadAlMuslim-v1.0.${{ github.run_number }}-universal.apk`
+            - **ARM64-v8a (Modern 64-bit Phones - Smaller size)**: `ZadAlMuslim-v1.0.${{ github.run_number }}-arm64-v8a.apk`
+            - **ARMv7 (Older 32-bit Phones)**: `ZadAlMuslim-v1.0.${{ github.run_number }}-armeabi-v7a.apk`
+            - **x86_64 (Emulators / Chromebooks)**: `ZadAlMuslim-v1.0.${{ github.run_number }}-x86_64.apk`
+            - **Google Play App Bundle (AAB)**: `ZadAlMuslim-v1.0.${{ github.run_number }}.aab`
+
+            ---
+            *Automated CI/CD Android release build #${{ github.run_number }} from commit `${{ github.sha }}`.*
+          files: |
+            ZadAlMuslim-v1.0.${{ github.run_number }}-universal.apk
+            ZadAlMuslim-v1.0.${{ github.run_number }}-arm64-v8a.apk
+            ZadAlMuslim-v1.0.${{ github.run_number }}-armeabi-v7a.apk
+            ZadAlMuslim-v1.0.${{ github.run_number }}-x86_64.apk
+            ZadAlMuslim-v1.0.${{ github.run_number }}.aab
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

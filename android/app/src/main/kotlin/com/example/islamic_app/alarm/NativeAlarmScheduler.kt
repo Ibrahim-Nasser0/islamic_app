@@ -252,11 +252,24 @@ object NativeAlarmScheduler {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         runCatching { context.startActivity(intent) }.onFailure {
-            val appIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            openAppDetailsSettings(context)
+        }
+    }
+
+    fun openNotificationSettings(context: Context) {
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+        } else {
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                 data = Uri.fromParts("package", context.packageName, null)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
-            context.startActivity(appIntent)
+        }
+        runCatching { context.startActivity(intent) }.onFailure {
+            openAppDetailsSettings(context)
         }
     }
 
@@ -266,7 +279,9 @@ object NativeAlarmScheduler {
                 data = Uri.fromParts("package", context.packageName, null)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
-            context.startActivity(intent)
+            runCatching { context.startActivity(intent) }.onFailure {
+                openAppDetailsSettings(context)
+            }
         }
     }
 
@@ -276,7 +291,17 @@ object NativeAlarmScheduler {
                 data = Uri.fromParts("package", context.packageName, null)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
-            context.startActivity(intent)
+            runCatching { context.startActivity(intent) }.onFailure {
+                openAppDetailsSettings(context)
+            }
         }
+    }
+
+    private fun openAppDetailsSettings(context: Context) {
+        val appIntent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", context.packageName, null)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        runCatching { context.startActivity(appIntent) }
     }
 }

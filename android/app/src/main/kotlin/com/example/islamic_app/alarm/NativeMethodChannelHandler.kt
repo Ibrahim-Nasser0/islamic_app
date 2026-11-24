@@ -82,6 +82,10 @@ class NativeMethodChannelHandler(
                 NativeAlarmScheduler.openBatterySettings(context)
                 result.success(null)
             }
+            "openNotificationSettings" -> {
+                NativeAlarmScheduler.openNotificationSettings(context)
+                result.success(null)
+            }
             "openExactAlarmSettings" -> {
                 NativeAlarmScheduler.openExactAlarmSettings(context)
                 result.success(null)

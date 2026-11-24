@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.example.islamic_app.R
 
 class PrayerAlarmReceiver : BroadcastReceiver() {
     companion object {
@@ -60,7 +61,7 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         }
 
         val notif = NotificationCompat.Builder(context, PRE_CHANNEL_ID)
-            .setSmallIcon(context.resources.getIdentifier("ic_launcher", "mipmap", context.packageName))
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(if (isAr) "اقترب موعد صلاة $titleAr" else "$titleEn Prayer in 5 minutes")
             .setContentText(
                 if (isAr) "بقي 5 دقائق لدخول وقت الصلاة • استعد للوضوء والصلاة"
@@ -146,7 +147,7 @@ class AzkarAlarmReceiver : BroadcastReceiver() {
         }
 
         val notif = NotificationCompat.Builder(context, AZKAR_CHANNEL_ID)
-            .setSmallIcon(context.resources.getIdentifier("ic_launcher", "mipmap", context.packageName))
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
             .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

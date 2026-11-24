@@ -125,6 +125,8 @@ class NativeAlarmBridgeService {
     };
   }
 
+  Future<void> openNotificationSettings() =>
+      _invokeVoid('openNotificationSettings');
   Future<void> openBatterySettings() => _invokeVoid('openBatterySettings');
   Future<void> openExactAlarmSettings() => _invokeVoid('openExactAlarmSettings');
   Future<void> openFullScreenIntentSettings() =>

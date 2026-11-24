@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -75,9 +76,9 @@ class NotificationService {
       }
     }
 
-    // 4. Create Android Notification Channels
+    // 4. Create Android Notification Channels without blocking cold startup
     if (Platform.isAndroid) {
-      await _createNotificationChannels();
+      unawaited(_createNotificationChannels().catchError((_) {}));
     }
   }
 
@@ -140,19 +141,32 @@ class NotificationService {
   }
 
   Future<bool> requestPermissions() async {
-    if (Platform.isAndroid) {
+    try {
+      if (Platform.isAndroid) {
+        final androidPlugin = flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin>();
+
+        return await androidPlugin?.requestNotificationsPermission() ?? false;
+      } else if (Platform.isIOS) {
+        return await const NativeAlarmBridgeService().requestIosPermissions();
+      }
+    } catch (_) {
+      return false;
+    }
+    return true;
+  }
+
+  Future<bool> requestExactAlarmsPermission() async {
+    if (!Platform.isAndroid) return true;
+    try {
       final androidPlugin = flutterLocalNotificationsPlugin
           .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin>();
-
-      final notifGranted =
-          await androidPlugin?.requestNotificationsPermission() ?? false;
-      await androidPlugin?.requestExactAlarmsPermission();
-      return notifGranted;
-    } else if (Platform.isIOS) {
-      return const NativeAlarmBridgeService().requestIosPermissions();
+      return await androidPlugin?.requestExactAlarmsPermission() ?? false;
+    } catch (_) {
+      return false;
     }
-    return true;
   }
 
   Future<void> cancelAll() async {

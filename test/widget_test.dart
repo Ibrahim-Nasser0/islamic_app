@@ -1,30 +1,55 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_ui/material_ui.dart';
-
-import 'package:islamic_app/main.dart';
+import 'package:islamic_app/features/home/data/datasources/prayer_calculation_service.dart';
+import 'package:islamic_app/features/home/domain/entities/prayer_time_entry.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('PrayerCalculationService', () {
+    final service = PrayerCalculationService();
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    test('calculates ordered daily schedule with Hijri dates for Cairo', () {
+      final schedule = service.calculateSchedule(
+        latitude: 30.0444,
+        longitude: 31.2357,
+        locationNameAr: 'القاهرة',
+        locationNameEn: 'Cairo',
+        targetDate: DateTime(2026, 6, 15, 12, 0),
+      );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      expect(schedule.prayers.length, 6);
+      expect(schedule.prayers.map((p) => p.type).toList(), [
+        PrayerType.fajr,
+        PrayerType.sunrise,
+        PrayerType.dhuhr,
+        PrayerType.asr,
+        PrayerType.maghrib,
+        PrayerType.isha,
+      ]);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      for (int i = 1; i < schedule.prayers.length; i++) {
+        expect(
+          schedule.prayers[i].time.isAfter(schedule.prayers[i - 1].time),
+          isTrue,
+        );
+      }
+
+      expect(schedule.locationNameAr, 'القاهرة');
+      expect(schedule.locationNameEn, 'Cairo');
+      expect(schedule.hijriDateAr.trim(), isNotEmpty);
+      expect(schedule.hijriDateEn.trim(), isNotEmpty);
+      expect(schedule.timeToNextPrayer.isNegative, isFalse);
+    });
+
+    test('computes Makkah schedule without errors', () {
+      final schedule = service.calculateSchedule(
+        latitude: 21.4225,
+        longitude: 39.8262,
+        locationNameAr: 'مكة المكرمة',
+        locationNameEn: 'Makkah',
+        targetDate: DateTime(2026, 3, 1, 5, 0),
+      );
+
+      expect(schedule.prayers.length, 6);
+      expect(schedule.nextPrayer.nameEn, isNotEmpty);
+    });
   });
 }

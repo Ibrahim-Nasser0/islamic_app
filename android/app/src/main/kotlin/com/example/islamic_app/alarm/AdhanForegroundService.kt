@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
+import com.example.islamic_app.R
 
 class AdhanForegroundService : Service() {
     companion object {
@@ -97,7 +98,7 @@ class AdhanForegroundService : Service() {
         val stopLabel = if (isArabic) "إيقاف الأذان" else "Stop Adhan"
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(resources.getIdentifier("ic_launcher", "mipmap", packageName))
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(notifTitle)
             .setContentText(notifBody)
             .setPriority(NotificationCompat.PRIORITY_MAX)

@@ -136,4 +136,19 @@ void main() {
     expect((args['eveningItems'] as List), isNotEmpty);
     expect((args['triggers'] as List), isNotEmpty);
   });
+
+  test('NativeAlarmBridgeService dispatches openNotificationSettings cleanly', () async {
+    const bridge = NativeAlarmBridgeService(platformSupportedOverride: true);
+    await bridge.openNotificationSettings();
+    await bridge.openExactAlarmSettings();
+    await bridge.openFullScreenIntentSettings();
+    await bridge.openBatterySettings();
+
+    expect(calls.map((c) => c.method), [
+      'openNotificationSettings',
+      'openExactAlarmSettings',
+      'openFullScreenIntentSettings',
+      'openBatterySettings',
+    ]);
+  });
 }
