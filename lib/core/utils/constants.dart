@@ -33,6 +33,11 @@ class AppConstants {
   static const String customLocationLngKey = 'custom_location_lng';
   static const String customLocationNameArKey = 'custom_location_name_ar';
   static const String customLocationNameEnKey = 'custom_location_name_en';
+  static const String dailyWirdCountKey = 'daily_wird_ayah_count';
+  static const String dailyWirdCursorKey = 'daily_wird_cursor_ayah';
+  static const String dailyWirdCompletedDateKey = 'daily_wird_completed_date';
+  static const String dailyWirdCursorCompletedKey = 'daily_wird_cursor_completed';
+  static const String dailyWirdLastBatchEndKey = 'daily_wird_last_batch_end';
 
   // Pagination
   static const int defaultPageSize = 20;

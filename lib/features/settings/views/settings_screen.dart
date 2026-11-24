@@ -8,6 +8,7 @@ import '../../../core/di/injection_container.dart' as di;
 import '../../../core/theme/typography.dart';
 import '../../../core/utils/extensions.dart';
 import '../../../core/widgets/custom_app_bar.dart';
+import '../../quran/presentation/cubit/daily_wird_cubit.dart';
 import '../presentation/cubit/settings_cubit.dart';
 import '../presentation/cubit/settings_state.dart';
 import '../presentation/views/widgets/settings_about_card.dart';
@@ -18,14 +19,18 @@ import '../presentation/views/widgets/settings_lockscreen_card.dart';
 import '../presentation/views/widgets/settings_notification_card.dart';
 import '../presentation/views/widgets/settings_share_card.dart';
 import '../presentation/views/widgets/settings_theme_card.dart';
+import '../presentation/views/widgets/settings_wird_card.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => di.sl<SettingsCubit>()..refreshReliability(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => di.sl<SettingsCubit>()..refreshReliability()),
+        BlocProvider.value(value: di.sl<DailyWirdCubit>()..loadWird()),
+      ],
       child: const _SettingsView(),
     );
   }
@@ -110,6 +115,8 @@ class _SettingsView extends StatelessWidget {
                   onPreviewAzkar: cubit.previewNativeAzkar,
                   onFixPermissions: cubit.fixMissingPermissions,
                 ),
+                Gap(10.h),
+                const SettingsWirdCard(),
                 Gap(20.h),
 
                 // Section 2: Atmosphere & Language

@@ -6,17 +6,19 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/services/native/permission_readiness_cubit.dart';
-import '../../../../core/theme/typography.dart';
-import '../../../../core/utils/extensions.dart';
-import '../../../../core/widgets/widgets.dart';
+import '../../../../core/widgets/custom_skeleton.dart';
+import '../../../azkar/presentation/cubit/timed_azkar_cubit.dart';
+import '../../../quran/presentation/cubit/daily_wird_cubit.dart';
 import '../../presentation/cubit/prayer_times_cubit.dart';
 import '../../presentation/cubit/prayer_times_state.dart';
+import 'home_daily_wird_card.dart';
 import 'home_permission_banner.dart';
 import 'home_quick_actions_bar.dart';
+import 'home_timed_azkar_card.dart';
 import 'kaaba_atmospheric_hero_card.dart';
 import 'today_prayers_horizontal_list.dart';
 
-/// Tab 0: Home & Prayer Times connected to PrayerTimesCubit with live countdown
+/// Tab 0: Home & Prayer Times with Time-Aware Azkar and Sequential Daily Quran Wird.
 class HomePrayerView extends StatelessWidget {
   const HomePrayerView({super.key});
 
@@ -26,6 +28,8 @@ class HomePrayerView extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => sl<PrayerTimesCubit>()..loadPrayerTimes()),
         BlocProvider(create: (_) => sl<PermissionReadinessCubit>()..refresh()),
+        BlocProvider(create: (_) => sl<TimedAzkarCubit>()..loadForCurrentTime()),
+        BlocProvider.value(value: sl<DailyWirdCubit>()..loadWird()),
       ],
       child: const _HomePrayerContent(),
     );
@@ -37,147 +41,64 @@ class _HomePrayerContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final appColors = context.appColors;
-
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 110.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          HomePermissionBanner(
-            onPermissionsUpdated: () =>
-                context.read<PrayerTimesCubit>().refreshLocation(),
-          ),
-          // 1. Dynamic Hero Card with Live Countdown
-          BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
-            builder: (context, state) {
-              if (state is PrayerTimesLoaded) {
-                final schedule = state.schedule;
-                final next = schedule.nextPrayer;
-                final isAr = context.locale.languageCode == 'ar';
-                final nextName = isAr ? next.nameAr : next.nameEn;
-                final nextTimeStr = DateFormat(
-                  'hh:mm a',
-                  context.locale.languageCode,
-                ).format(next.time);
-
-                final hijri =
-                    schedule.getHijriDate(context.locale.languageCode);
-                final gregorian = DateFormat(
-                  'd MMMM yyyy',
-                  context.locale.languageCode,
-                ).format(schedule.date);
-                final loc = schedule.getLocalizedLocation(context.locale.languageCode);
-
-                return KaabaAtmosphericHeroCard(
-                  location: loc,
-                  hijriDate: hijri,
-                  gregorianDate: gregorian,
-                  nextPrayerName: nextName,
-                  nextPrayerTime: nextTimeStr,
-                  remainingTime: state.formattedRemainingTime,
-                  onLocationTap: () =>
-                      context.read<PrayerTimesCubit>().refreshLocation(),
-                );
-              }
-
-              // Loading Shimmer Skeleton
-              return CustomSkeleton(
-                height: 220.h,
-                borderRadius: 24,
-              );
-            },
-          ),
-          Gap(20.h),
-
-          // 2. Horizontal Prayers List Row
-          BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
-            buildWhen: (prev, curr) {
-              if (prev is PrayerTimesLoaded && curr is PrayerTimesLoaded) {
-                // Only rebuild list if prayers change or once a minute
-                return prev.schedule != curr.schedule;
-              }
-              return true;
-            },
-            builder: (context, state) {
-              if (state is PrayerTimesLoaded) {
-                return TodayPrayersHorizontalList(
-                  prayers: state.schedule.prayers,
-                );
-              }
-
-              // Loading Shimmer Skeleton for prayers row
-              return CustomSkeleton(
-                height: 130.h,
-                borderRadius: 16,
-              );
-            },
-          ),
-          Gap(24.h),
-
-          // 3. Quick Action Cards
-          const HomeQuickActionsBar(),
-          Gap(20.h),
-
-          // 4. Daily Ayah Card
-          _buildDailyAyahCard(appColors),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDailyAyahCard(dynamic appColors) {
-    return Stack(
-      children: [
-        Container(
-          padding: EdgeInsets.all(18.r),
-          decoration: BoxDecoration(
-            color: appColors.quranPageBackground,
-            borderRadius: BorderRadius.circular(18.r),
-            border: Border.all(
-              color: appColors.accentGold.withValues(alpha: 0.35),
-              width: 1.0,
+    return BlocListener<PrayerTimesCubit, PrayerTimesState>(
+      listener: (context, state) {
+        if (state is PrayerTimesLoaded) {
+          context
+              .read<TimedAzkarCubit>()
+              .loadForCurrentTime(schedule: state.schedule);
+        }
+      },
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 110.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            HomePermissionBanner(
+              onPermissionsUpdated: () =>
+                  context.read<PrayerTimesCubit>().refreshLocation(),
             ),
-          ),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  RubElHizbMark(size: 13.w, color: appColors.accentGold),
-                  SizedBox(width: 8.w),
-                  Text(
-                    'daily_ayah'.tr(),
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.bold,
-                      color: appColors.accentGold,
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  RubElHizbMark(size: 13.w, color: appColors.accentGold),
-                ],
-              ),
-              Gap(12.h),
-              Text(
-                'daily_ayah_text'.tr(),
-                textAlign: TextAlign.center,
-                style: AppTypography.quranAyah.copyWith(
-                  fontSize: 20.sp,
-                  color: appColors.quranAyahText,
-                ),
-              ),
-              Gap(6.h),
-              Text(
-                'daily_ayah_surah'.tr(),
-                style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
-              ),
-            ],
-          ),
+            BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
+              builder: (context, state) {
+                if (state is PrayerTimesLoaded) {
+                  final schedule = state.schedule;
+                  final next = schedule.nextPrayer;
+                  final isAr = context.locale.languageCode == 'ar';
+                  return KaabaAtmosphericHeroCard(
+                    location: schedule.getLocalizedLocation(context.locale.languageCode),
+                    hijriDate: schedule.getHijriDate(context.locale.languageCode),
+                    gregorianDate: DateFormat('d MMMM yyyy', context.locale.languageCode).format(schedule.date),
+                    nextPrayerName: isAr ? next.nameAr : next.nameEn,
+                    nextPrayerTime: DateFormat('hh:mm a', context.locale.languageCode).format(next.time),
+                    remainingTime: state.formattedRemainingTime,
+                    onLocationTap: () => context.read<PrayerTimesCubit>().refreshLocation(),
+                  );
+                }
+                return CustomSkeleton(height: 220.h, borderRadius: 24);
+              },
+            ),
+            Gap(20.h),
+            BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
+              buildWhen: (prev, curr) =>
+                  !(prev is PrayerTimesLoaded && curr is PrayerTimesLoaded) ||
+                  prev.schedule != curr.schedule,
+              builder: (context, state) {
+                if (state is PrayerTimesLoaded) {
+                  return TodayPrayersHorizontalList(prayers: state.schedule.prayers);
+                }
+                return CustomSkeleton(height: 130.h, borderRadius: 16);
+              },
+            ),
+            Gap(24.h),
+            const HomeQuickActionsBar(),
+            Gap(24.h),
+            const HomeTimedAzkarCard(),
+            Gap(24.h),
+            const HomeDailyWirdCard(),
+          ],
         ),
-        const ManuscriptCorners(),
-      ],
+      ),
     );
   }
 }

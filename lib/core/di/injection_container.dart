@@ -23,11 +23,13 @@ import '../../features/qibla/presentation/cubit/qibla_cubit.dart';
 import '../../features/quran/data/datasources/quran_local_data_source.dart';
 import '../../features/quran/data/repositories/quran_repository_impl.dart';
 import '../../features/quran/domain/repositories/quran_repository.dart';
+import '../../features/quran/presentation/cubit/daily_wird_cubit.dart';
 import '../../features/quran/presentation/cubit/quran_cubit.dart';
 import '../../features/azkar/data/datasources/azkar_local_data_source.dart';
 import '../../features/azkar/data/repositories/azkar_repository_impl.dart';
 import '../../features/azkar/domain/repositories/azkar_repository.dart';
 import '../../features/azkar/presentation/cubit/azkar_cubit.dart';
+import '../../features/azkar/presentation/cubit/timed_azkar_cubit.dart';
 import '../../features/hadith/data/datasources/hadith_local_data_source.dart';
 import '../../features/hadith/data/repositories/hadith_repository_impl.dart';
 import '../../features/hadith/domain/repositories/hadith_repository.dart';
@@ -97,11 +99,13 @@ Future<void> init() async {
   sl.registerLazySingleton<QuranLocalDataSource>(() => QuranLocalDataSourceImpl());
   sl.registerLazySingleton<QuranRepository>(() => QuranRepositoryImpl(localDataSource: sl()));
   sl.registerFactory(() => QuranCubit(repository: sl()));
+  sl.registerLazySingleton(() => DailyWirdCubit(settingsDs: sl()));
 
   // Azkar Feature
   sl.registerLazySingleton<AzkarLocalDataSource>(() => AzkarLocalDataSourceImpl());
   sl.registerLazySingleton<AzkarRepository>(() => AzkarRepositoryImpl(localDataSource: sl()));
   sl.registerFactory(() => AzkarCubit(repository: sl(), syncCoordinator: sl()));
+  sl.registerFactory(() => TimedAzkarCubit(sl()));
 
   // Hadith Feature
   sl.registerLazySingleton<HadithLocalDataSource>(() => HadithLocalDataSourceImpl());
