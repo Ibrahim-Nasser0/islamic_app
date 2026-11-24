@@ -14,10 +14,12 @@ import 'settings_icon_badge.dart';
 
 class SettingsNotificationCard extends StatelessWidget {
   final bool prayerNotification;
+  final bool prePrayerNotification;
   final bool azkarNotification;
   final bool athanSound;
   final MuadhinOption selectedMuadhin;
   final ValueChanged<bool> onPrayerChanged;
+  final ValueChanged<bool> onPrePrayerChanged;
   final ValueChanged<bool> onAzkarChanged;
   final ValueChanged<bool> onAthanChanged;
   final ValueChanged<MuadhinOption> onMuadhinChanged;
@@ -25,10 +27,12 @@ class SettingsNotificationCard extends StatelessWidget {
   const SettingsNotificationCard({
     super.key,
     required this.prayerNotification,
+    required this.prePrayerNotification,
     required this.azkarNotification,
     required this.athanSound,
     required this.selectedMuadhin,
     required this.onPrayerChanged,
+    required this.onPrePrayerChanged,
     required this.onAzkarChanged,
     required this.onAthanChanged,
     required this.onMuadhinChanged,
@@ -59,6 +63,19 @@ class SettingsNotificationCard extends StatelessWidget {
             activeSwitchIcon: Icons.notifications_active_rounded,
             inactiveSwitchIcon: Icons.notifications_off_rounded,
             onChanged: onPrayerChanged,
+          ),
+          Divider(color: appColors.cardBorder, height: 1),
+          CustomSwitcherTile(
+            title: 'pre_prayer_notification'.tr(),
+            subtitle: 'pre_prayer_notification_desc'.tr(),
+            icon: prePrayerNotification
+                ? Icons.hourglass_bottom_rounded
+                : Icons.hourglass_disabled_rounded,
+            iconColor: appColors.accentGold,
+            value: prePrayerNotification,
+            activeSwitchIcon: Icons.hourglass_bottom_rounded,
+            inactiveSwitchIcon: Icons.hourglass_disabled_rounded,
+            onChanged: onPrePrayerChanged,
           ),
           Divider(color: appColors.cardBorder, height: 1),
           CustomSwitcherTile(

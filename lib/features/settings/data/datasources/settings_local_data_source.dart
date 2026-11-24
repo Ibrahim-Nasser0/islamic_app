@@ -6,6 +6,9 @@ abstract class SettingsLocalDataSource {
   bool getPrayerNotification();
   Future<void> setPrayerNotification(bool value);
 
+  bool getPrePrayerNotification();
+  Future<void> setPrePrayerNotification(bool value);
+
   bool getAzkarNotification();
   Future<void> setAzkarNotification(bool value);
 
@@ -42,6 +45,14 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   @override
   Future<void> setPrayerNotification(bool value) =>
       _prefs.setBool(AppConstants.prayerNotificationKey, value);
+
+  @override
+  bool getPrePrayerNotification() =>
+      _prefs.getBool(AppConstants.prePrayerNotificationKey) ?? true;
+
+  @override
+  Future<void> setPrePrayerNotification(bool value) =>
+      _prefs.setBool(AppConstants.prePrayerNotificationKey, value);
 
   @override
   bool getAzkarNotification() =>

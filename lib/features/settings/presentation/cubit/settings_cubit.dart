@@ -1,12 +1,17 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/services/notification/prayer_alarm_scheduler.dart';
 import '../../data/datasources/settings_local_data_source.dart';
 import '../models/muadhin_option.dart';
 import 'settings_state.dart';
 
 class SettingsCubit extends Cubit<SettingsState> {
   final SettingsLocalDataSource _localDataSource;
+  final PrayerAlarmScheduler? _alarmScheduler;
 
-  SettingsCubit(this._localDataSource) : super(_createInitialState(_localDataSource));
+  SettingsCubit(this._localDataSource, {PrayerAlarmScheduler? alarmScheduler})
+    : _alarmScheduler = alarmScheduler,
+      super(_createInitialState(_localDataSource));
 
   static SettingsState _createInitialState(SettingsLocalDataSource dataSource) {
     final loc = dataSource.getLocation();
@@ -18,6 +23,7 @@ class SettingsCubit extends Cubit<SettingsState> {
 
     return SettingsState(
       prayerNotification: dataSource.getPrayerNotification(),
+      prePrayerNotification: dataSource.getPrePrayerNotification(),
       azkarNotification: dataSource.getAzkarNotification(),
       athanSound: dataSource.getAthanSound(),
       selectedMuadhin: selectedMuadhin,
@@ -33,6 +39,11 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> setPrayerNotification(bool value) async {
     emit(state.copyWith(prayerNotification: value));
     await _localDataSource.setPrayerNotification(value);
+  }
+
+  Future<void> setPrePrayerNotification(bool value) async {
+    emit(state.copyWith(prePrayerNotification: value));
+    await _localDataSource.setPrePrayerNotification(value);
   }
 
   Future<void> setAzkarNotification(bool value) async {
@@ -61,13 +72,15 @@ class SettingsCubit extends Cubit<SettingsState> {
     required String nameAr,
     required String nameEn,
   }) async {
-    emit(state.copyWith(
-      latitude: lat,
-      longitude: lng,
-      locationNameAr: nameAr,
-      locationNameEn: nameEn,
-      isManualLocation: true,
-    ));
+    emit(
+      state.copyWith(
+        latitude: lat,
+        longitude: lng,
+        locationNameAr: nameAr,
+        locationNameEn: nameEn,
+        isManualLocation: true,
+      ),
+    );
     await _localDataSource.setManualLocation(
       lat: lat,
       lng: lng,
@@ -82,13 +95,15 @@ class SettingsCubit extends Cubit<SettingsState> {
     required String nameAr,
     required String nameEn,
   }) async {
-    emit(state.copyWith(
-      latitude: lat,
-      longitude: lng,
-      locationNameAr: nameAr,
-      locationNameEn: nameEn,
-      isManualLocation: false,
-    ));
+    emit(
+      state.copyWith(
+        latitude: lat,
+        longitude: lng,
+        locationNameAr: nameAr,
+        locationNameEn: nameEn,
+        isManualLocation: false,
+      ),
+    );
     await _localDataSource.resetToGps();
   }
 }

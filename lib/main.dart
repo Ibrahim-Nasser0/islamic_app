@@ -10,6 +10,9 @@ import 'core/theme/theme_cubit.dart';
 import 'core/di/injection_container.dart' as di;
 import 'core/localization/localization_manager.dart';
 import 'core/widgets/app_unfocus.dart';
+import 'core/services/notification/notification_service.dart';
+import 'core/services/notification/prayer_alarm_scheduler.dart';
+import 'features/settings/data/datasources/settings_local_data_source.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -33,6 +36,38 @@ void main() async {
 
   // Initialize dependency injection
   await di.init();
+
+  // Initialize notification service & permissions
+  final notificationService = di.sl<NotificationService>();
+  await notificationService.init(
+    onNotificationTap: (response) {
+      final payload = response.payload;
+      if (payload != null && payload.startsWith('adhan:')) {
+        AppRouter.navigatorKey.currentState?.pushNamed(
+          Routes.adhan,
+          arguments: payload,
+        );
+      }
+    },
+  );
+  await notificationService.requestPermissions();
+
+  // Initial prayer alarm schedule
+  try {
+    final scheduler = di.sl<PrayerAlarmScheduler>();
+    final settingsDs = di.sl<SettingsLocalDataSource>();
+    final loc = settingsDs.getLocation();
+    await scheduler.schedulePrayerAlarms(
+      latitude: loc.lat,
+      longitude: loc.lng,
+      adhanEnabled:
+          settingsDs.getPrayerNotification() && settingsDs.getAthanSound(),
+      preAlertEnabled:
+          settingsDs.getPrayerNotification() && settingsDs.getPrePrayerNotification(),
+    );
+  } catch (_) {
+    // Background scheduling init fallback
+  }
 
   runApp(
     EasyLocalization(

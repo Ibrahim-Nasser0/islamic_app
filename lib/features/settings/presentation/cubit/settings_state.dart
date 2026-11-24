@@ -3,6 +3,7 @@ import '../models/muadhin_option.dart';
 
 class SettingsState extends Equatable {
   final bool prayerNotification;
+  final bool prePrayerNotification;
   final bool azkarNotification;
   final bool athanSound;
   final MuadhinOption selectedMuadhin;
@@ -15,6 +16,7 @@ class SettingsState extends Equatable {
 
   const SettingsState({
     required this.prayerNotification,
+    required this.prePrayerNotification,
     required this.azkarNotification,
     required this.athanSound,
     required this.selectedMuadhin,
@@ -31,6 +33,7 @@ class SettingsState extends Equatable {
 
   SettingsState copyWith({
     bool? prayerNotification,
+    bool? prePrayerNotification,
     bool? azkarNotification,
     bool? athanSound,
     MuadhinOption? selectedMuadhin,
@@ -43,6 +46,8 @@ class SettingsState extends Equatable {
   }) {
     return SettingsState(
       prayerNotification: prayerNotification ?? this.prayerNotification,
+      prePrayerNotification:
+          prePrayerNotification ?? this.prePrayerNotification,
       azkarNotification: azkarNotification ?? this.azkarNotification,
       athanSound: athanSound ?? this.athanSound,
       selectedMuadhin: selectedMuadhin ?? this.selectedMuadhin,
@@ -58,6 +63,7 @@ class SettingsState extends Equatable {
   @override
   List<Object?> get props => [
         prayerNotification,
+        prePrayerNotification,
         azkarNotification,
         athanSound,
         selectedMuadhin,

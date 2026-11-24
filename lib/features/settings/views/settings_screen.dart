@@ -90,10 +90,12 @@ class _SettingsView extends StatelessWidget {
                 Gap(10.h),
                 SettingsNotificationCard(
                   prayerNotification: state.prayerNotification,
+                  prePrayerNotification: state.prePrayerNotification,
                   azkarNotification: state.azkarNotification,
                   athanSound: state.athanSound,
                   selectedMuadhin: state.selectedMuadhin,
                   onPrayerChanged: cubit.setPrayerNotification,
+                  onPrePrayerChanged: cubit.setPrePrayerNotification,
                   onAzkarChanged: cubit.setAzkarNotification,
                   onAthanChanged: cubit.setAthanSound,
                   onMuadhinChanged: cubit.setMuadhinVoice,

@@ -8,6 +8,8 @@ import '../../core/routes/routes.dart';
 import '../../core/theme/colors.dart';
 import '../../core/theme/typography.dart';
 import '../../core/utils/extensions.dart';
+import '../../core/di/injection_container.dart' as di;
+import '../../core/services/notification/notification_service.dart';
 
 /// Royal Islamic Splash Screen featuring sacred medallion emblem & verse animation
 class SplashScreen extends StatefulWidget {
@@ -26,7 +28,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _navigateToNext() {
     Future.delayed(const Duration(milliseconds: 2600), () {
-      if (mounted) Navigator.pushReplacementNamed(context, Routes.onboarding);
+      if (!mounted) return;
+      final pending = di.sl<NotificationService>().consumePendingPayload();
+      if (pending != null && pending.startsWith('adhan:')) {
+        Navigator.pushReplacementNamed(context, Routes.home);
+        Navigator.pushNamed(context, Routes.adhan, arguments: pending);
+        return;
+      }
+      Navigator.pushReplacementNamed(context, Routes.onboarding);
     });
   }
 

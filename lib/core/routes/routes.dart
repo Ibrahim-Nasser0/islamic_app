@@ -16,4 +16,5 @@ class Routes {
   static const String azkarCategory = '/azkar-category';
   static const String hadithReader = '/hadith-reader';
   static const String hadithDetail = '/hadith-detail';
+  static const String adhan = '/adhan';
 }

@@ -229,5 +229,13 @@
   "mosques_count_found": "Found {count} mosques",
   "open_in_maps": "Open in Maps",
   "gps_required_for_mosques": "Please enable GPS to accurately locate nearby mosques",
-  "retry": "Retry"
+  "retry": "Retry",
+  "pre_prayer_notification": "5-Minute Pre-Prayer Alert",
+  "pre_prayer_notification_desc": "Gentle reminder to prepare and perform wudu before prayer",
+  "prayer_time_arrived": "It is now time for {name} Prayer",
+  "stop_adhan": "Stop Adhan",
+  "post_adhan_duaa": "Supplication After Adhan",
+  "post_adhan_duaa_text": "اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ ، وَالصَّلاَةِ القَائِمَةِ ، آتِ مُحَمَّدًا الوَسِيلَةَ وَالفَضِيلَةَ ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ",
+  "prayer_completed": "Prayer Completed",
+  "muezzin_voice_label": "Mu'adhin Voice"
 }

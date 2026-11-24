@@ -12,6 +12,8 @@ import '../../features/hadith/views/hadith_list_screen.dart';
 import '../../features/settings/views/settings_screen.dart';
 import '../../features/mosques/presentation/views/mosques_screen.dart';
 import '../../features/tasbeeh/views/tasbeeh_screen.dart';
+import '../../features/adhan/views/adhan_screen.dart';
+import '../../features/adhan/presentation/models/adhan_args.dart';
 
 /// Application Router
 class AppRouter {
@@ -67,6 +69,20 @@ class AppRouter {
         final hadith = args['hadith'] as HadithItem;
         return _buildRoute(
           HadithDetailScreen(hadith: hadith),
+          settings,
+        );
+      case Routes.adhan:
+        final args = settings.arguments;
+        AdhanArgs? adhanArgs;
+        if (args is AdhanArgs) {
+          adhanArgs = args;
+        } else if (args is Map<String, dynamic>) {
+          adhanArgs = AdhanArgs.fromMap(args);
+        } else if (args is String) {
+          adhanArgs = AdhanArgs.fromPayload(args);
+        }
+        return _buildRoute(
+          AdhanScreen(args: adhanArgs),
           settings,
         );
       default:

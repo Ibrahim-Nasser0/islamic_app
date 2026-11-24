@@ -23,6 +23,7 @@ class AppConstants {
   static const String languageKey = 'language_code';
   static const String onboardingKey = 'onboarding_completed';
   static const String prayerNotificationKey = 'prayer_notifications';
+  static const String prePrayerNotificationKey = 'pre_prayer_notifications';
   static const String azkarNotificationKey = 'azkar_notifications';
   static const String athanSoundKey = 'athan_sound';
   static const String muadhinVoiceKey = 'muadhin_voice';
