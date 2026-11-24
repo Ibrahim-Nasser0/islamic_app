@@ -41,7 +41,7 @@ class NotificationService {
 
     // 2. Android Initialization Settings
     const AndroidInitializationSettings androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('@drawable/ic_stat_mosque');
 
     // 3. iOS Initialization Settings
     const DarwinInitializationSettings darwinSettings =

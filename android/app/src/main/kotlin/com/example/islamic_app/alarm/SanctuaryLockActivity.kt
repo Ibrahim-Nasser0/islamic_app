@@ -24,7 +24,8 @@ class SanctuaryLockActivity : Activity() {
 
     private val finishReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            adhanPresenter?.updatePlayingState(false)
+            val playing = intent?.action == AdhanForegroundService.ACTION_STARTED_BROADCAST
+            adhanPresenter?.updatePlayingState(playing)
         }
     }
 
@@ -33,7 +34,10 @@ class SanctuaryLockActivity : Activity() {
         configureLockscreenWindow()
         renderIntent(intent)
 
-        val filter = IntentFilter(AdhanForegroundService.ACTION_FINISHED_BROADCAST)
+        val filter = IntentFilter().apply {
+            addAction(AdhanForegroundService.ACTION_STARTED_BROADCAST)
+            addAction(AdhanForegroundService.ACTION_FINISHED_BROADCAST)
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(finishReceiver, filter, RECEIVER_NOT_EXPORTED)
         } else {

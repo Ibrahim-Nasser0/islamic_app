@@ -192,6 +192,8 @@ object NativeAlarmScheduler {
                         requestCode + 5000,
                         Intent(context, SanctuaryLockActivity::class.java).apply {
                             flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            putExtra(SanctuaryLockActivity.EXTRA_MODE, SanctuaryLockActivity.MODE_ADHAN)
+                            putExtras(intent)
                         },
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                     )

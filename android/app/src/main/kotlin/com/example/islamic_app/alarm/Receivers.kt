@@ -61,7 +61,7 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         }
 
         val notif = NotificationCompat.Builder(context, PRE_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_mosque)
             .setContentTitle(if (isAr) "اقترب موعد صلاة $titleAr" else "$titleEn Prayer in 5 minutes")
             .setContentText(
                 if (isAr) "بقي 5 دقائق لدخول وقت الصلاة • استعد للوضوء والصلاة"
@@ -147,7 +147,7 @@ class AzkarAlarmReceiver : BroadcastReceiver() {
         }
 
         val notif = NotificationCompat.Builder(context, AZKAR_CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_mosque)
             .setContentTitle(title)
             .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

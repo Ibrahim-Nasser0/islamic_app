@@ -11,6 +11,7 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -21,8 +22,9 @@ class AdhanForegroundService : Service() {
     companion object {
         const val ACTION_START = "com.example.islamic_app.action.START_ADHAN"
         const val ACTION_STOP = "com.example.islamic_app.action.STOP_ADHAN"
+        const val ACTION_STARTED_BROADCAST = "com.example.islamic_app.action.ADHAN_STARTED"
         const val ACTION_FINISHED_BROADCAST = "com.example.islamic_app.action.ADHAN_FINISHED"
-        private const val CHANNEL_ID = "zad_native_adhan_service_v1"
+        private const val CHANNEL_ID = "zad_native_adhan_service_v2"
         private const val NOTIF_ID = 7701
 
         @Volatile
@@ -98,14 +100,14 @@ class AdhanForegroundService : Service() {
         val stopLabel = if (isArabic) "إيقاف الأذان" else "Stop Adhan"
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_mosque)
             .setContentTitle(notifTitle)
             .setContentText(notifBody)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
-            .setSilent(true)
+            .setOnlyAlertOnce(true)
             .setContentIntent(contentPending)
             .addAction(0, stopLabel, stopPending)
 
@@ -161,16 +163,30 @@ class AdhanForegroundService : Service() {
         wakeLock = null
     }
 
+    private fun resolveRawResId(rawSound: String): Int = when (rawSound) {
+        "abdulbasit_fajr" -> R.raw.abdulbasit_fajr
+        "abdulbasit_regular" -> R.raw.abdulbasit_regular
+        "alafasy_fajr" -> R.raw.alafasy_fajr
+        "alafasy_regular" -> R.raw.alafasy_regular
+        "al_harram_fajr" -> R.raw.al_harram_fajr
+        "al_harram_regular" -> R.raw.al_harram_regular
+        else -> R.raw.al_harram_regular
+    }
+
+    private fun resolveFlutterAssetPath(rawSound: String): String = when (rawSound) {
+        "abdulbasit_fajr" -> "flutter_assets/assets/audio/abdulbasit/abd-elbaset-fajr.mp3"
+        "abdulbasit_regular" -> "flutter_assets/assets/audio/abdulbasit/abd-elbaset-regular.mp3"
+        "alafasy_fajr" -> "flutter_assets/assets/audio/alafasy/alafasy-fajr.mp3"
+        "alafasy_regular" -> "flutter_assets/assets/audio/alafasy/alafasy-regular.mp3"
+        "al_harram_fajr" -> "flutter_assets/assets/audio/harram/al-harram-fajr.mp3"
+        else -> "flutter_assets/assets/audio/harram/al-harram-regular.mp3"
+    }
+
     private fun startAdhanAudio(rawSound: String) {
         stopAudioPlayerOnly()
-        val resId = resources.getIdentifier(rawSound, "raw", packageName)
-            .takeIf { it != 0 }
-            ?: resources.getIdentifier("al_harram_regular", "raw", packageName)
-        if (resId == 0) return
-
         val attributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_ALARM)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
             .build()
 
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -178,10 +194,18 @@ class AdhanForegroundService : Service() {
             val focusReq = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
                 .setAudioAttributes(attributes)
                 .setOnAudioFocusChangeListener { change ->
-                    if (change == AudioManager.AUDIOFOCUS_LOSS ||
-                        change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
-                    ) {
-                        stopPlaybackAndSelf()
+                    when (change) {
+                        AudioManager.AUDIOFOCUS_LOSS -> stopPlaybackAndSelf()
+                        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> runCatching {
+                            if (mediaPlayer?.isPlaying == true) mediaPlayer?.pause()
+                        }
+                        AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> runCatching {
+                            mediaPlayer?.setVolume(0.25f, 0.25f)
+                        }
+                        AudioManager.AUDIOFOCUS_GAIN -> runCatching {
+                            mediaPlayer?.setVolume(1.0f, 1.0f)
+                            if (mediaPlayer?.isPlaying == false) mediaPlayer?.start()
+                        }
                     }
                 }
                 .build()
@@ -189,16 +213,31 @@ class AdhanForegroundService : Service() {
             audioManager?.requestAudioFocus(focusReq)
         }
 
-        val afd = resources.openRawResourceFd(resId) ?: return
         val player = MediaPlayer()
         mediaPlayer = player
         runCatching {
             player.setAudioAttributes(attributes)
-            player.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-            afd.close()
+            val resId = resolveRawResId(rawSound)
+            val rawAfd = runCatching { resources.openRawResourceFd(resId) }.getOrNull()
+            if (rawAfd != null) {
+                player.setDataSource(rawAfd.fileDescriptor, rawAfd.startOffset, rawAfd.length)
+                rawAfd.close()
+            } else {
+                val assetAfd = runCatching { assets.openFd(resolveFlutterAssetPath(rawSound)) }.getOrNull()
+                if (assetAfd != null) {
+                    player.setDataSource(assetAfd.fileDescriptor, assetAfd.startOffset, assetAfd.length)
+                    assetAfd.close()
+                } else {
+                    val alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                        ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+                    player.setDataSource(this, alarmUri)
+                }
+            }
             player.setOnPreparedListener { mp ->
                 isPlaying = true
+                mp.setVolume(1.0f, 1.0f)
                 mp.start()
+                sendBroadcast(Intent(ACTION_STARTED_BROADCAST).setPackage(packageName))
             }
             player.setOnCompletionListener {
                 stopPlaybackAndSelf()
@@ -209,7 +248,6 @@ class AdhanForegroundService : Service() {
             }
             player.prepareAsync()
         }.onFailure {
-            runCatching { afd.close() }
             stopPlaybackAndSelf()
         }
     }
