@@ -27,6 +27,10 @@ class NotificationService {
   static const String preChannelName = 'تنبيه ما قبل الصلاة (5 دقائق)';
   static const String preChannelDesc = 'تنبيه استباقي للاستعداد والوضوء';
 
+  static const String azkarChannelId = 'prayer_azkar_channel';
+  static const String azkarChannelName = 'أذكار الصباح والمساء';
+  static const String azkarChannelDesc = 'تنبيهات الأذكار اليومية والأدعية النبوية';
+
   Future<void> init({void Function(NotificationResponse)? onNotificationTap}) async {
     // 1. Initialize Timezones
     tz.initializeTimeZones();
@@ -81,6 +85,16 @@ class NotificationService {
       );
       await androidPlugin.createNotificationChannel(preChannel);
 
+      const AndroidNotificationChannel azkarChannel = AndroidNotificationChannel(
+        azkarChannelId,
+        azkarChannelName,
+        description: azkarChannelDesc,
+        importance: Importance.high,
+        playSound: true,
+        enableVibration: true,
+      );
+      await androidPlugin.createNotificationChannel(azkarChannel);
+
       // Create distinct channels for each muezzin and prayer mode
       for (final muezzin in MuadhinOption.defaultList) {
         for (final isFajr in [false, true]) {
@@ -134,6 +148,16 @@ class NotificationService {
 
   Future<void> cancelAll() async {
     await flutterLocalNotificationsPlugin.cancelAll();
+  }
+
+  Future<bool> canScheduleExactAlarms() async {
+    if (Platform.isAndroid) {
+      final androidPlugin = flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+      return await androidPlugin?.canScheduleExactNotifications() ?? true;
+    }
+    return true;
   }
 }
 

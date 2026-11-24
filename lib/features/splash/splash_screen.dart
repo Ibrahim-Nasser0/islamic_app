@@ -27,14 +27,25 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToNext() {
+    final pending = di.sl<NotificationService>().consumePendingPayload();
+    if (pending != null && pending.startsWith('adhan:')) {
+      Navigator.pushReplacementNamed(context, Routes.home);
+      Navigator.pushNamed(context, Routes.adhan, arguments: pending);
+      return;
+    }
+    if (pending != null && pending.startsWith('azkar:')) {
+      final categoryId = pending.split(':')[1];
+      Navigator.pushReplacementNamed(context, Routes.home);
+      Navigator.pushNamed(
+        context,
+        Routes.azkarCategory,
+        arguments: {'categoryId': categoryId},
+      );
+      return;
+    }
+
     Future.delayed(const Duration(milliseconds: 2600), () {
       if (!mounted) return;
-      final pending = di.sl<NotificationService>().consumePendingPayload();
-      if (pending != null && pending.startsWith('adhan:')) {
-        Navigator.pushReplacementNamed(context, Routes.home);
-        Navigator.pushNamed(context, Routes.adhan, arguments: pending);
-        return;
-      }
       Navigator.pushReplacementNamed(context, Routes.onboarding);
     });
   }

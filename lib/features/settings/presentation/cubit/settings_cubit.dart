@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/services/notification/azkar_alarm_scheduler.dart';
 import '../../../../core/services/notification/prayer_alarm_scheduler.dart';
 import '../../data/datasources/settings_local_data_source.dart';
 import '../models/muadhin_option.dart';
@@ -8,10 +9,15 @@ import 'settings_state.dart';
 class SettingsCubit extends Cubit<SettingsState> {
   final SettingsLocalDataSource _localDataSource;
   final PrayerAlarmScheduler? _alarmScheduler;
+  final AzkarAlarmScheduler? _azkarScheduler;
 
-  SettingsCubit(this._localDataSource, {PrayerAlarmScheduler? alarmScheduler})
-    : _alarmScheduler = alarmScheduler,
-      super(_createInitialState(_localDataSource));
+  SettingsCubit(
+    this._localDataSource, {
+    PrayerAlarmScheduler? alarmScheduler,
+    AzkarAlarmScheduler? azkarScheduler,
+  })  : _alarmScheduler = alarmScheduler,
+        _azkarScheduler = azkarScheduler,
+        super(_createInitialState(_localDataSource));
 
   static SettingsState _createInitialState(SettingsLocalDataSource dataSource) {
     final loc = dataSource.getLocation();
@@ -51,6 +57,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> setAzkarNotification(bool value) async {
     emit(state.copyWith(azkarNotification: value));
     await _localDataSource.setAzkarNotification(value);
+    _azkarScheduler?.scheduleDailyAzkar(enabled: value);
   }
 
   Future<void> setAthanSound(bool value) async {

@@ -22,15 +22,16 @@ class PrayerAlarmScheduler {
     required bool preAlertEnabled,
     MuadhinOption? muadhin,
   }) async {
-    // 1. Cancel previous alarms
     await _notificationService.cancelAll();
-
     if (!adhanEnabled && !preAlertEnabled) return;
 
     final chosenMuadhin = muadhin ?? _resolveMuadhin();
     final now = DateTime.now();
+    final canExact = await _notificationService.canScheduleExactAlarms();
+    final scheduleMode = canExact
+        ? AndroidScheduleMode.exactAllowWhileIdle
+        : AndroidScheduleMode.inexactAllowWhileIdle;
 
-    // 2. Schedule for 7 days ahead
     for (int dayOffset = 0; dayOffset < 7; dayOffset++) {
       final targetDate = now.add(Duration(days: dayOffset));
       final schedule = _calculationService.calculateSchedule(
@@ -51,31 +52,25 @@ class PrayerAlarmScheduler {
         final prayerName = prayer.nameAr;
         final prayerTime = prayer.time;
 
-        // A. 5-Minute Pre-Notification
-        if (preAlertEnabled) {
-          final preTime = prayerTime.subtract(const Duration(minutes: 5));
-          if (preTime.isAfter(now)) {
-            final preId = 1000 + (dayOffset * 10) + i;
-            await _schedulePrePrayerNotification(
-              id: preId,
-              prayerName: prayerName,
-              scheduledDate: preTime,
-            );
-          }
+        if (preAlertEnabled && prayerTime.subtract(const Duration(minutes: 5)).isAfter(now)) {
+          await _schedulePrePrayer(
+            id: 1000 + (dayOffset * 10) + i,
+            prayerKey: prayerKey,
+            prayerName: prayerName,
+            date: prayerTime.subtract(const Duration(minutes: 5)),
+            mode: scheduleMode,
+          );
         }
 
-        // B. Exact Adhan Alarm & Full-Screen Notification
-        if (adhanEnabled) {
-          if (prayerTime.isAfter(now)) {
-            final adhanId = 2000 + (dayOffset * 10) + i;
-            await _scheduleExactAdhanNotification(
-              id: adhanId,
-              prayerKey: prayerKey,
-              prayerName: prayerName,
-              prayerTime: prayerTime,
-              muadhin: chosenMuadhin,
-            );
-          }
+        if (adhanEnabled && prayerTime.isAfter(now)) {
+          await _scheduleExactAdhan(
+            id: 2000 + (dayOffset * 10) + i,
+            prayerKey: prayerKey,
+            prayerName: prayerName,
+            time: prayerTime,
+            muadhin: chosenMuadhin,
+            mode: scheduleMode,
+          );
         }
       }
     }
@@ -84,9 +79,8 @@ class PrayerAlarmScheduler {
   MuadhinOption _resolveMuadhin() {
     try {
       final ds = di.sl<SettingsLocalDataSource>();
-      final voice = ds.getMuadhinVoice();
       return MuadhinOption.defaultList.firstWhere(
-        (m) => m.id == voice,
+        (m) => m.id == ds.getMuadhinVoice(),
         orElse: () => MuadhinOption.defaultList.first,
       );
     } catch (_) {
@@ -94,14 +88,15 @@ class PrayerAlarmScheduler {
     }
   }
 
-  Future<void> _schedulePrePrayerNotification({
+  Future<void> _schedulePrePrayer({
     required int id,
+    required String prayerKey,
     required String prayerName,
-    required DateTime scheduledDate,
+    required DateTime date,
+    required AndroidScheduleMode mode,
   }) async {
-    final tzDate = tz.TZDateTime.from(scheduledDate, tz.local);
-
-    const androidDetails = AndroidNotificationDetails(
+    final tzDate = tz.TZDateTime.from(date, tz.local);
+    const android = AndroidNotificationDetails(
       NotificationService.preChannelId,
       NotificationService.preChannelName,
       channelDescription: NotificationService.preChannelDesc,
@@ -109,40 +104,49 @@ class PrayerAlarmScheduler {
       priority: Priority.high,
       icon: '@mipmap/ic_launcher',
     );
+    const ios = DarwinNotificationDetails(presentAlert: true, presentSound: true);
 
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentSound: true,
-      presentBadge: false,
-    );
-
-    await _notificationService.flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      'اقترب موعد صلاة $prayerName',
-      'بقي 5 دقائق لدخول وقت الصلاة • استعد للوضوء والصلاة',
-      tzDate,
-      const NotificationDetails(android: androidDetails, iOS: iosDetails),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
+    try {
+      await _notificationService.flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        'اقترب موعد صلاة $prayerName',
+        'بقي 5 دقائق لدخول وقت الصلاة • استعد للوضوء والصلاة',
+        tzDate,
+        const NotificationDetails(android: android, iOS: ios),
+        androidScheduleMode: mode,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: 'pre:$prayerKey:$prayerName',
+      );
+    } catch (_) {
+      await _notificationService.flutterLocalNotificationsPlugin.zonedSchedule(
+        id,
+        'اقترب موعد صلاة $prayerName',
+        'بقي 5 دقائق لدخول وقت الصلاة • استعد للوضوء والصلاة',
+        tzDate,
+        const NotificationDetails(android: android, iOS: ios),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        payload: 'pre:$prayerKey:$prayerName',
+      );
+    }
   }
 
-  Future<void> _scheduleExactAdhanNotification({
+  Future<void> _scheduleExactAdhan({
     required int id,
     required String prayerKey,
     required String prayerName,
-    required DateTime prayerTime,
+    required DateTime time,
     required MuadhinOption muadhin,
+    required AndroidScheduleMode mode,
   }) async {
-    final tzDate = tz.TZDateTime.from(prayerTime, tz.local);
+    final tzDate = tz.TZDateTime.from(time, tz.local);
     final isFajr = prayerKey.toLowerCase() == 'fajr';
-    final channelId = muadhin.getChannelId(isFajr: isFajr);
-    final rawSound = muadhin.getRawSound(isFajr: isFajr);
-    final sound = RawResourceAndroidNotificationSound(rawSound);
+    final sound = RawResourceAndroidNotificationSound(muadhin.getRawSound(isFajr: isFajr));
 
-    final androidDetails = AndroidNotificationDetails(
-      channelId,
+    final android = AndroidNotificationDetails(
+      muadhin.getChannelId(isFajr: isFajr),
       'أذان $prayerName',
       channelDescription: 'تنبيه الأذان مع تشغيل الصوت تلقائياً',
       importance: Importance.max,
@@ -155,32 +159,28 @@ class PrayerAlarmScheduler {
       visibility: NotificationVisibility.public,
       icon: '@mipmap/ic_launcher',
       actions: const <AndroidNotificationAction>[
-        AndroidNotificationAction(
-          'stop_adhan',
-          'إيقاف الأذان',
-          cancelNotification: true,
-        ),
+        AndroidNotificationAction('open_adhan', 'عرض الأذان والدعاء', showsUserInterface: true),
+        AndroidNotificationAction('stop_adhan', 'إيقاف الأذان', cancelNotification: true),
       ],
     );
+    const ios = DarwinNotificationDetails(presentAlert: true, presentSound: true);
+    final payload = 'adhan:$prayerKey:$prayerName:${time.toIso8601String()}:$id';
+    final details = NotificationDetails(android: android, iOS: ios);
 
-    const iosDetails = DarwinNotificationDetails(
-      presentAlert: true,
-      presentSound: true,
-      presentBadge: false,
-    );
-
-    final payload = 'adhan:$prayerKey:$prayerName:${prayerTime.toIso8601String()}:$id';
-
-    await _notificationService.flutterLocalNotificationsPlugin.zonedSchedule(
-      id,
-      'حان الآن موعد صلاة $prayerName',
-      'الله أكبر • حي على الصلاة • حي على الفلاح',
-      tzDate,
-      NotificationDetails(android: androidDetails, iOS: iosDetails),
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      payload: payload,
-    );
+    try {
+      await _notificationService.flutterLocalNotificationsPlugin.zonedSchedule(
+        id, 'حان الآن موعد صلاة $prayerName', 'الله أكبر • حي على الصلاة • حي على الفلاح',
+        tzDate, details, androidScheduleMode: mode,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payload,
+      );
+    } catch (_) {
+      await _notificationService.flutterLocalNotificationsPlugin.zonedSchedule(
+        id, 'حان الآن موعد صلاة $prayerName', 'الله أكبر • حي على الصلاة • حي على الفلاح',
+        tzDate, details, androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payload,
+      );
+    }
   }
 }

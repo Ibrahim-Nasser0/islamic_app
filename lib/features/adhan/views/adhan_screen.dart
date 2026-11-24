@@ -1,8 +1,9 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/di/injection_container.dart' as di;
-import '../../../../core/services/notification/notification_service.dart';
+import 'package:islamic_app/core/di/injection_container.dart' as di;
+import 'package:islamic_app/core/services/notification/notification_service.dart';
 import '../../settings/data/datasources/settings_local_data_source.dart';
 import '../../settings/presentation/models/muadhin_option.dart';
 import '../presentation/models/adhan_args.dart';
@@ -24,7 +25,7 @@ class AdhanScreen extends StatefulWidget {
 class _AdhanScreenState extends State<AdhanScreen> {
   late final AudioPlayer _audioPlayer;
   late AdhanArgs _args;
-  late MuadhinOption _muadhin;
+  MuadhinOption _muadhin = MuadhinOption.defaultList.first;
   bool _isPlaying = true;
 
   @override
@@ -38,7 +39,17 @@ class _AdhanScreenState extends State<AdhanScreen> {
           prayerTime: DateTime.now(),
         );
 
-    _initMuezzinAndAudio();
+    // Initialize muezzin synchronously before build() can run
+    try {
+      final settingsDs = di.sl<SettingsLocalDataSource>();
+      final savedId = settingsDs.getMuadhinVoice();
+      _muadhin = MuadhinOption.defaultList.firstWhere(
+        (m) => m.id == savedId,
+        orElse: () => MuadhinOption.defaultList.first,
+      );
+    } catch (_) {}
+
+    _initAudioPlayback();
   }
 
   @override
@@ -54,18 +65,10 @@ class _AdhanScreenState extends State<AdhanScreen> {
     }
   }
 
-  Future<void> _initMuezzinAndAudio() async {
-    // Silence any native background notification sound so AdhanScreen manages it
+  Future<void> _initAudioPlayback() async {
     try {
       await di.sl<NotificationService>().cancelAll();
     } catch (_) {}
-
-    final settingsDs = di.sl<SettingsLocalDataSource>();
-    final savedId = settingsDs.getMuadhinVoice();
-    _muadhin = MuadhinOption.defaultList.firstWhere(
-      (m) => m.id == savedId,
-      orElse: () => MuadhinOption.defaultList.first,
-    );
 
     _audioPlayer.onPlayerComplete.listen((_) {
       if (mounted) {
@@ -81,7 +84,7 @@ class _AdhanScreenState extends State<AdhanScreen> {
       await _audioPlayer.setReleaseMode(ReleaseMode.stop);
       await _audioPlayer.play(AssetSource(path));
     } catch (_) {
-      // Audio playback fallback
+      // Audio fallback
     }
   }
 
@@ -120,30 +123,44 @@ class _AdhanScreenState extends State<AdhanScreen> {
             SafeArea(
               child: Column(
                 children: [
-                  AdhanHeader(
-                    prayerName: _args.prayerName,
-                    prayerTime: _args.prayerTime,
-                    muezzinName: _muadhin.nameKey.tr(),
-                    onClose: _closeScreen,
+                  FadeInDown(
+                    duration: const Duration(milliseconds: 600),
+                    child: AdhanHeader(
+                      prayerName: _args.prayerName,
+                      prayerTime: _args.prayerTime,
+                      muezzinName: _muadhin.nameKey.tr(),
+                      onClose: _closeScreen,
+                    ),
                   ),
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
                       child: Column(
                         children: [
-                          const SizedBox(height: 12),
-                          AdhanVisualizerWave(isPlaying: _isPlaying),
-                          const SizedBox(height: 20),
-                          const AdhanPostDuaaCard(),
+                          const SizedBox(height: 8),
+                          FadeIn(
+                            duration: const Duration(milliseconds: 800),
+                            delay: const Duration(milliseconds: 200),
+                            child: AdhanVisualizerWave(isPlaying: _isPlaying),
+                          ),
+                          const SizedBox(height: 16),
+                          FadeInUp(
+                            duration: const Duration(milliseconds: 700),
+                            delay: const Duration(milliseconds: 350),
+                            child: const AdhanPostDuaaCard(),
+                          ),
                           const SizedBox(height: 16),
                         ],
                       ),
                     ),
                   ),
-                  AdhanActionsBar(
-                    isPlaying: _isPlaying,
-                    onStopAdhan: _stopAdhan,
-                    onClose: _closeScreen,
+                  SlideInUp(
+                    duration: const Duration(milliseconds: 500),
+                    child: AdhanActionsBar(
+                      isPlaying: _isPlaying,
+                      onStopAdhan: _stopAdhan,
+                      onClose: _closeScreen,
+                    ),
                   ),
                 ],
               ),

@@ -10,6 +10,7 @@ import '../config/app_config.dart';
 import '../theme/theme_cubit.dart';
 import '../services/notification/notification_service.dart';
 import '../services/notification/prayer_alarm_scheduler.dart';
+import '../services/notification/azkar_alarm_scheduler.dart';
 import '../../features/home/data/datasources/location_service.dart';
 import '../../features/home/data/datasources/prayer_calculation_service.dart';
 import '../../features/home/data/repositories/prayer_repository_impl.dart';
@@ -110,7 +111,12 @@ Future<void> init() async {
   sl.registerLazySingleton<NotificationService>(() => NotificationService());
   sl.registerLazySingleton<PrayerAlarmScheduler>(
       () => PrayerAlarmScheduler(calculationService: sl()));
-  sl.registerFactory(() => SettingsCubit(sl(), alarmScheduler: sl()));
+  sl.registerLazySingleton<AzkarAlarmScheduler>(() => AzkarAlarmScheduler());
+  sl.registerFactory(() => SettingsCubit(
+        sl(),
+        alarmScheduler: sl(),
+        azkarScheduler: sl(),
+      ));
 
   // Mosques Feature
   sl.registerLazySingleton<MosquesRemoteDataSource>(

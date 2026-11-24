@@ -2,12 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/core/utils/extensions.dart';
+import 'package:islamic_app/core/utils/haptics.dart';
+import 'package:islamic_app/core/widgets/animations/button_animation.dart';
+import 'package:islamic_app/core/widgets/custom_button.dart';
 import 'package:islamic_app/features/mosques/domain/entities/mosque.dart' show Mosque;
 import 'package:material_ui/material_ui.dart';
-import '/../../../core/utils/extensions.dart';
-import '/../../../core/utils/haptics.dart';
-import '/../../../core/widgets/animations/button_animation.dart';
-import '/../../../core/widgets/custom_button.dart';
+
 
 
 class MosqueFloatingCard extends StatelessWidget {

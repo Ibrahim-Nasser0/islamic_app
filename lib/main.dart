@@ -12,6 +12,7 @@ import 'core/localization/localization_manager.dart';
 import 'core/widgets/app_unfocus.dart';
 import 'core/services/notification/notification_service.dart';
 import 'core/services/notification/prayer_alarm_scheduler.dart';
+import 'core/services/notification/azkar_alarm_scheduler.dart';
 import 'features/settings/data/datasources/settings_local_data_source.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -41,6 +42,12 @@ void main() async {
   final notificationService = di.sl<NotificationService>();
   await notificationService.init(
     onNotificationTap: (response) {
+      if (response.actionId == 'stop_adhan') {
+        if (response.id != null) {
+          notificationService.cancel(response.id!);
+        }
+        return;
+      }
       final payload = response.payload;
       if (payload != null && payload.startsWith('adhan:')) {
         if (response.id != null) {
@@ -50,14 +57,21 @@ void main() async {
           Routes.adhan,
           arguments: payload,
         );
+      } else if (payload != null && payload.startsWith('azkar:')) {
+        final categoryId = payload.split(':')[1];
+        AppRouter.navigatorKey.currentState?.pushNamed(
+          Routes.azkarCategory,
+          arguments: {'categoryId': categoryId},
+        );
       }
     },
   );
   await notificationService.requestPermissions();
 
-  // Initial prayer alarm schedule
+  // Initial prayer & azkar alarm schedule
   try {
     final scheduler = di.sl<PrayerAlarmScheduler>();
+    final azkarScheduler = di.sl<AzkarAlarmScheduler>();
     final settingsDs = di.sl<SettingsLocalDataSource>();
     final loc = settingsDs.getLocation();
     await scheduler.schedulePrayerAlarms(
@@ -67,6 +81,9 @@ void main() async {
           settingsDs.getPrayerNotification() && settingsDs.getAthanSound(),
       preAlertEnabled:
           settingsDs.getPrayerNotification() && settingsDs.getPrePrayerNotification(),
+    );
+    await azkarScheduler.scheduleDailyAzkar(
+      enabled: settingsDs.getAzkarNotification(),
     );
   } catch (_) {
     // Background scheduling init fallback

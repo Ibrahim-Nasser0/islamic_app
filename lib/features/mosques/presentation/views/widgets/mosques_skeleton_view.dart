@@ -1,7 +1,8 @@
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/core/widgets/custom_skeleton.dart';
 import 'package:material_ui/material_ui.dart';
-import '/../../../core/widgets/custom_skeleton.dart';
+
 
 class MosquesSkeletonView extends StatelessWidget {
   const MosquesSkeletonView({super.key});

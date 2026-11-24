@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:islamic_app/features/mosques/domain/entities/mosque.dart';
 import 'package:material_ui/material_ui.dart';
-import '/../../../core/utils/extensions.dart';
-import '/../../../core/utils/haptics.dart';
+import 'package:islamic_app/core/utils/extensions.dart';
+import 'package:islamic_app/core/utils/haptics.dart';
 
 
 class MosqueListCard extends StatelessWidget {
