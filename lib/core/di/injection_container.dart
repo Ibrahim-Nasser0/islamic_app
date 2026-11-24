@@ -6,6 +6,7 @@ import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import '../network/network_info.dart';
 import '../api/api_interceptors.dart';
 import '../config/app_config.dart';
+import '../theme/theme_cubit.dart';
 import '../../features/home/data/datasources/location_service.dart';
 import '../../features/home/data/datasources/prayer_calculation_service.dart';
 import '../../features/home/data/repositories/prayer_repository_impl.dart';
@@ -34,6 +35,7 @@ Future<void> init() async {
 
   //! External
   sl.registerLazySingleton(() => InternetConnectionChecker.createInstance());
+  sl.registerLazySingleton(() => ThemeCubit());
 
   sl.registerLazySingleton(() {
     final dio = Dio(

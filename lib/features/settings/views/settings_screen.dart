@@ -2,12 +2,18 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/theme/typography.dart';
 import '../../../core/utils/extensions.dart';
-import '../../../core/utils/haptics.dart';
 import '../../../core/widgets/custom_app_bar.dart';
-import '../../../core/widgets/custom_switcher_tile.dart';
+import '../presentation/models/muadhin_option.dart';
+import '../presentation/views/widgets/settings_about_card.dart';
+import '../presentation/views/widgets/settings_hero_header.dart';
+import '../presentation/views/widgets/settings_language_card.dart';
+import '../presentation/views/widgets/settings_notification_card.dart';
+import '../presentation/views/widgets/settings_share_card.dart';
+import '../presentation/views/widgets/settings_theme_card.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -20,6 +26,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _prayerNotification = true;
   bool _azkarNotification = true;
   bool _athanSound = true;
+  MuadhinOption _selectedMuadhin = MuadhinOption.defaultList.first;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _prayerNotification = prefs.getBool('prayer_notifications') ?? true;
+      _azkarNotification = prefs.getBool('azkar_notifications') ?? true;
+      _athanSound = prefs.getBool('athan_sound') ?? true;
+      final savedMuadhinId = prefs.getString('muadhin_voice') ?? 'makkah';
+      _selectedMuadhin = MuadhinOption.defaultList.firstWhere(
+        (m) => m.id == savedMuadhinId,
+        orElse: () => MuadhinOption.defaultList.first,
+      );
+    });
+  }
+
+  Future<void> _updatePref(String key, dynamic val) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (val is bool) {
+      await prefs.setBool(key, val);
+    } else if (val is String) {
+      await prefs.setString(key, val);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +63,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final appColors = context.appColors;
 
     return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
       appBar: CustomAppBar(
         title: 'settings'.tr(),
         showBackButton: true,
@@ -34,141 +71,82 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Notifications Group
-            _buildSectionHeader('notifications_and_alerts'.tr()),
-            Gap(10.h),
-            Container(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: appColors.cardBorder, width: 0.8),
-                boxShadow: appColors.cardShadow,
-              ),
-              child: Column(
-                children: [
-                  CustomSwitcherTile(
-                    title: 'prayer_notifications'.tr(),
-                    subtitle: 'prayer_notifications_desc'.tr(),
-                    icon: Icons.notifications_active_rounded,
-                    value: _prayerNotification,
-                    onChanged: (val) => setState(() => _prayerNotification = val),
-                  ),
-                  Divider(color: appColors.cardBorder, height: 1),
-                  CustomSwitcherTile(
-                    title: 'daily_azkar_notifications'.tr(),
-                    subtitle: 'daily_azkar_notifications_desc'.tr(),
-                    icon: Icons.favorite_rounded,
-                    value: _azkarNotification,
-                    onChanged: (val) => setState(() => _azkarNotification = val),
-                  ),
-                  Divider(color: appColors.cardBorder, height: 1),
-                  CustomSwitcherTile(
-                    title: 'athan_audio'.tr(),
-                    subtitle: 'athan_audio_desc'.tr(),
-                    icon: Icons.volume_up_rounded,
-                    value: _athanSound,
-                    onChanged: (val) => setState(() => _athanSound = val),
-                  ),
-                ],
-              ),
-            ),
+            // Top Hero Sanctuary Header
+            SettingsHeroHeader(athanEnabled: _athanSound),
+            Gap(20.h),
 
+            // Section 1: Worship & Adhan
+            _buildSectionTitle('worship_and_alerts'.tr(), appColors),
+            Gap(10.h),
+            SettingsNotificationCard(
+              prayerNotification: _prayerNotification,
+              azkarNotification: _azkarNotification,
+              athanSound: _athanSound,
+              selectedMuadhin: _selectedMuadhin,
+              onPrayerChanged: (val) {
+                setState(() => _prayerNotification = val);
+                _updatePref('prayer_notifications', val);
+              },
+              onAzkarChanged: (val) {
+                setState(() => _azkarNotification = val);
+                _updatePref('azkar_notifications', val);
+              },
+              onAthanChanged: (val) {
+                setState(() => _athanSound = val);
+                _updatePref('athan_sound', val);
+              },
+              onMuadhinChanged: (muadhin) {
+                setState(() => _selectedMuadhin = muadhin);
+                _updatePref('muadhin_voice', muadhin.id);
+              },
+            ),
+            Gap(20.h),
+
+            // Section 2: Atmosphere & Language
+            _buildSectionTitle('atmosphere_and_language'.tr(), appColors),
+            Gap(10.h),
+            const SettingsThemeCard(),
+            Gap(10.h),
+            const SettingsLanguageCard(),
+            Gap(20.h),
+
+            // Section 3: Ongoing Charity & Blessings
+            _buildSectionTitle('good_deeds_and_sharing'.tr(), appColors),
+            Gap(10.h),
+            const SettingsShareCard(),
+            Gap(10.h),
+            const SettingsAboutCard(),
             Gap(24.h),
-
-            // General Group (Language)
-            _buildSectionHeader('app_language'.tr()),
-            Gap(10.h),
-            Container(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: appColors.cardBorder, width: 0.8),
-                boxShadow: appColors.cardShadow,
-              ),
-              child: ListTile(
-                leading: Icon(Icons.language_rounded, color: theme.colorScheme.primary),
-                title: Text(
-                  'app_language'.tr(),
-                  style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
-                ),
-                trailing: Text(
-                  context.locale.languageCode == 'ar' ? 'العربية' : 'English',
-                  style: TextStyle(
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.bold,
-                    color: appColors.accentGold,
-                  ),
-                ),
-                onTap: () {
-                  AppHaptics.selection();
-                  final newLocale = context.locale.languageCode == 'ar'
-                      ? const Locale('en')
-                      : const Locale('ar');
-                  context.setLocale(newLocale);
-                },
-              ),
-            ),
-
-            Gap(24.h),
-
-            // App Info Section
-            _buildSectionHeader('about_app'.tr()),
-            Gap(10.h),
-            Container(
-              padding: EdgeInsets.all(16.r),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(16.r),
-                border: Border.all(color: appColors.cardBorder, width: 0.8),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 44.w,
-                    height: 44.w,
-                    decoration: BoxDecoration(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.12),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(Icons.info_outline_rounded, color: theme.colorScheme.primary),
-                  ),
-                  Gap(14.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'app_name'.tr(),
-                          style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.bold),
-                        ),
-                        Gap(2.h),
-                        Text(
-                          'app_version'.tr(),
-                          style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title,
-      style: AppTypography.h4.copyWith(
-        fontSize: 14.sp,
-        fontWeight: FontWeight.bold,
-      ),
+  Widget _buildSectionTitle(String title, dynamic appColors) {
+    return Row(
+      children: [
+        Container(
+          width: 3.5.w,
+          height: 14.h,
+          decoration: BoxDecoration(
+            color: appColors.accentGold,
+            borderRadius: BorderRadius.circular(2.r),
+          ),
+        ),
+        Gap(8.w),
+        Text(
+          title,
+          style: AppTypography.h4.copyWith(
+            fontSize: 13.sp,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }

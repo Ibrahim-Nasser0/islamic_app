@@ -86,6 +86,8 @@ class WirdItemRow extends StatelessWidget {
                   value: item.isEnabled,
                   onChanged: onToggle,
                   activeColor: appColors.accentGold,
+                  activeIcon: Icons.check_rounded,
+                  inactiveIcon: Icons.remove_rounded,
                 ),
               ],
             ),
