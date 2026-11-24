@@ -2,11 +2,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/home/data/datasources/location_service.dart';
 import '../utils/constants.dart';
 
-
-import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/constants.dart';
-import '../../features/home/data/datasources/location_service.dart';
-
 class LocationPreferenceService {
   static Future<({
     double latitude,
