@@ -10,6 +10,7 @@ import '../../features/hadith/domain/entities/hadith_item.dart';
 import '../../features/hadith/views/hadith_detail_screen.dart';
 import '../../features/hadith/views/hadith_list_screen.dart';
 import '../../features/settings/views/settings_screen.dart';
+import '../../features/mosques/presentation/views/mosques_screen.dart';
 import '../../features/tasbeeh/views/tasbeeh_screen.dart';
 
 /// Application Router
@@ -29,6 +30,8 @@ class AppRouter {
         return _buildRoute(const HomeScreen(), settings);
       case Routes.settings:
         return _buildRoute(const SettingsScreen(), settings);
+      case Routes.mosques:
+        return _buildRoute(const MosquesScreen(), settings);
       case Routes.qibla:
         return _buildRoute(const QiblaScreen(), settings);
       case Routes.tasbeeh:

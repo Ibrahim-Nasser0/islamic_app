@@ -27,7 +27,7 @@ class HomeQuickActionsBar extends StatelessWidget {
       {
         'title': 'mosques'.tr(),
         'icon': FlutterIslamicIcons.locationMosque,
-        'route': null,
+        'route': Routes.mosques,
       },
       {
         'title': 'azkar'.tr(),

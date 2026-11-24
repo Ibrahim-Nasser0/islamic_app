@@ -23,6 +23,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
   final Color statusWarning;
   final Color statusError;
   final Color statusInfo;
+  final String mapTileUrl;
+  final ColorFilter? mapColorFilter;
 
   const AppThemeColors({
     required this.quranPageBackground,
@@ -42,6 +44,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     required this.statusWarning,
     required this.statusError,
     required this.statusInfo,
+    required this.mapTileUrl,
+    this.mapColorFilter,
   });
 
   static AppThemeColors get light => AppThemeColors(
@@ -68,6 +72,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     statusWarning: AppColors.warning,
     statusError: AppColors.error,
     statusInfo: AppColors.info,
+    mapTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    mapColorFilter: null,
   );
 
   static AppThemeColors get dark => AppThemeColors(
@@ -94,6 +100,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     statusWarning: AppColors.warning,
     statusError: AppColors.error,
     statusInfo: AppColors.info,
+    mapTileUrl: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    mapColorFilter: const ColorFilter.matrix(<double>[
+      -0.22, -0.68, -0.10, 0, 225,
+      -0.20, -0.65, -0.10, 0, 225,
+      -0.22, -0.68, -0.10, 0, 230,
+      0,     0,     0,    1, 0,
+    ]),
   );
 
   @override
@@ -115,6 +128,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
     Color? statusWarning,
     Color? statusError,
     Color? statusInfo,
+    String? mapTileUrl,
+    ColorFilter? mapColorFilter,
   }) {
     return AppThemeColors(
       quranPageBackground: quranPageBackground ?? this.quranPageBackground,
@@ -134,6 +149,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       statusWarning: statusWarning ?? this.statusWarning,
       statusError: statusError ?? this.statusError,
       statusInfo: statusInfo ?? this.statusInfo,
+      mapTileUrl: mapTileUrl ?? this.mapTileUrl,
+      mapColorFilter: mapColorFilter ?? this.mapColorFilter,
     );
   }
 
@@ -161,6 +178,8 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
       statusWarning: Color.lerp(statusWarning, other.statusWarning, t)!,
       statusError: Color.lerp(statusError, other.statusError, t)!,
       statusInfo: Color.lerp(statusInfo, other.statusInfo, t)!,
+      mapTileUrl: t < 0.5 ? mapTileUrl : other.mapTileUrl,
+      mapColorFilter: t < 0.5 ? mapColorFilter : other.mapColorFilter,
     );
   }
 }

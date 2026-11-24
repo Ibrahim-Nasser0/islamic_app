@@ -28,6 +28,10 @@ import '../../features/hadith/domain/repositories/hadith_repository.dart';
 import '../../features/hadith/presentation/cubit/hadith_cubit.dart';
 import '../../features/settings/data/datasources/settings_local_data_source.dart';
 import '../../features/settings/presentation/cubit/settings_cubit.dart';
+import '../../features/mosques/data/datasources/mosques_remote_data_source.dart';
+import '../../features/mosques/data/repositories/mosques_repository_impl.dart';
+import '../../features/mosques/domain/repositories/mosques_repository.dart';
+import '../../features/mosques/presentation/cubit/mosques_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -102,4 +106,11 @@ Future<void> init() async {
   sl.registerLazySingleton<SettingsLocalDataSource>(
       () => SettingsLocalDataSourceImpl(sl()));
   sl.registerFactory(() => SettingsCubit(sl()));
+
+  // Mosques Feature
+  sl.registerLazySingleton<MosquesRemoteDataSource>(
+      () => MosquesRemoteDataSourceImpl(dio: sl()));
+  sl.registerLazySingleton<MosquesRepository>(
+      () => MosquesRepositoryImpl(remoteDataSource: sl()));
+  sl.registerFactory(() => MosquesCubit(repository: sl()));
 }

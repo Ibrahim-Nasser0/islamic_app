@@ -68,6 +68,8 @@ dependencies:
   flutter_islamic_icons: ^1.0.2
   flutter_compass: ^0.8.1
   quran: ^1.4.1
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
 
 dev_dependencies:
   flutter_test:
