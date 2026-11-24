@@ -70,6 +70,7 @@ dependencies:
   quran: ^1.4.1
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
+  audioplayers: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -95,3 +96,6 @@ flutter:
     - assets/lang/
     - assets/icons/
     - assets/hadith/
+    - assets/audio/abdulbasit/
+    - assets/audio/harram/
+    - assets/audio/alafasy/
