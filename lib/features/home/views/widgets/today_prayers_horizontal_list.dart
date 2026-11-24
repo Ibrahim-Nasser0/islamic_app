@@ -31,12 +31,13 @@ class TodayPrayersHorizontalList extends StatelessWidget {
 
         // Horizontal List of Reusable Prayer Cards
         SizedBox(
-          height: 130.h,
+          height: 126.h,
           child: ListView.separated(
+            padding: EdgeInsets.symmetric(vertical: 4.h),
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             itemCount: prayers.length,
-            separatorBuilder: (context, index) => SizedBox(width: 10.w),
+            separatorBuilder: (context, index) => SizedBox(width: 8.w),
             itemBuilder: (context, index) {
               final prayer = prayers[index];
               return PrayerTimeCard(

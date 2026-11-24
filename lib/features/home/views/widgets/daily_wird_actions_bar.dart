@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../core/theme/colors.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/widgets/animations/button_animation.dart';
@@ -10,7 +11,7 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../quran/domain/entities/daily_wird_verse.dart';
 import '../../../quran/presentation/cubit/daily_wird_cubit.dart';
 
-/// Progress bar and dual action buttons (Mission Complete + Next Verses) for Daily Quran Wird.
+/// Progress bar and Celestial Sanctuary dual action buttons for Daily Quran Wird.
 class DailyWirdActionsBar extends StatelessWidget {
   final DailyWirdSlice slice;
   final DailyWirdCubit cubit;
@@ -40,7 +41,7 @@ class DailyWirdActionsBar extends StatelessWidget {
             valueColor: AlwaysStoppedAnimation<Color>(appColors.accentGold),
           ),
         ),
-        Gap(5.h),
+        Gap(6.h),
         Text(
           'daily_wird_progress'.tr(namedArgs: {
             'current': '${slice.endGlobalAyah}',
@@ -53,34 +54,59 @@ class DailyWirdActionsBar extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              flex: 3,
+              flex: 5,
               child: CustomButton(
-                height: 46.h,
-                fontSize: 12.5.sp,
+                height: 44.h,
+                borderRadius: 12,
+                fontSize: 13.sp,
                 text: completed
                     ? 'daily_wird_completed_badge'.tr()
                     : 'daily_wird_complete_btn'.tr(),
                 icon: completed ? Icons.verified_rounded : Icons.task_alt_rounded,
+                gradient: completed
+                    ? null
+                    : LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          appColors.emeraldBevelTop,
+                          appColors.emeraldBevelBottom,
+                        ],
+                      ),
                 color: completed
-                    ? appColors.statusSuccess
-                    : theme.colorScheme.primary,
-                onPressed: () {
-                  if (completed) return;
-                  AppHaptics.medium();
-                  cubit.markCompleted();
-                },
+                    ? appColors.statusSuccess.withValues(alpha: 0.12)
+                    : null,
+                borderColor: completed
+                    ? appColors.statusSuccess.withValues(alpha: 0.4)
+                    : appColors.accentGold.withValues(alpha: 0.45),
+                borderWidth: 0.9,
+                textColor:
+                    completed ? appColors.statusSuccess : AppColors.quranPage,
+                iconColor:
+                    completed ? appColors.statusSuccess : AppColors.accentLight,
+                onPressed: completed
+                    ? null
+                    : () {
+                        AppHaptics.medium();
+                        cubit.markCompleted();
+                      },
               ).buttonAnimation(),
             ),
             Gap(10.w),
             Expanded(
-              flex: 2,
+              flex: 4,
               child: CustomButton(
-                height: 46.h,
+                height: 44.h,
+                borderRadius: 12,
                 fontSize: 12.5.sp,
-                isOutlined: true,
-                color: appColors.accentGold,
+                color: appColors.surfaceSubtle,
+                borderColor: appColors.cardBorder,
+                borderWidth: 0.9,
+                textColor: theme.colorScheme.onSurface,
+                iconColor: appColors.accentGold,
                 text: 'daily_wird_next_btn'.tr(),
-                icon: Icons.arrow_forward_rounded,
+                icon: Icons.navigate_next_rounded,
+                iconAfterText: true,
                 onPressed: () {
                   AppHaptics.selection();
                   cubit.moveToNextBatch();

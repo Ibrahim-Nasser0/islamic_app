@@ -87,7 +87,7 @@ class _HomePrayerContent extends StatelessWidget {
                 if (state is PrayerTimesLoaded) {
                   return TodayPrayersHorizontalList(prayers: state.schedule.prayers);
                 }
-                return CustomSkeleton(height: 130.h, borderRadius: 16);
+                return CustomSkeleton(height: 124.h, borderRadius: 17);
               },
             ),
             Gap(24.h),
