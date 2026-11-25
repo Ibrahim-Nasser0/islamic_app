@@ -5,9 +5,11 @@ import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../core/di/injection_container.dart' as di;
+import '../../../core/services/native/permission_readiness_cubit.dart';
 import '../../../core/theme/typography.dart';
 import '../../../core/utils/extensions.dart';
 import '../../../core/widgets/custom_app_bar.dart';
+import '../../../core/widgets/permissions_checklist_sheet.dart';
 import '../../quran/presentation/cubit/daily_wird_cubit.dart';
 import '../presentation/cubit/settings_cubit.dart';
 import '../presentation/cubit/settings_state.dart';
@@ -21,14 +23,45 @@ import '../presentation/views/widgets/settings_share_card.dart';
 import '../presentation/views/widgets/settings_theme_card.dart';
 import '../presentation/views/widgets/settings_wird_card.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  late final SettingsCubit _settingsCubit;
+  late final PermissionReadinessCubit _permCubit;
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _settingsCubit = di.sl<SettingsCubit>()..refreshReliability();
+    _permCubit = di.sl<PermissionReadinessCubit>()..refresh();
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        _settingsCubit.refreshReliability();
+        _permCubit.refresh();
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    _settingsCubit.close();
+    _permCubit.close();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => di.sl<SettingsCubit>()..refreshReliability()),
+        BlocProvider.value(value: _settingsCubit),
+        BlocProvider.value(value: _permCubit),
         BlocProvider.value(value: di.sl<DailyWirdCubit>()..loadWird()),
       ],
       child: const _SettingsView(),
@@ -113,7 +146,11 @@ class _SettingsView extends StatelessWidget {
                   onLockscreenChanged: cubit.setAdhanLockscreen,
                   onPreviewAdhan: cubit.previewNativeAdhan,
                   onPreviewAzkar: cubit.previewNativeAzkar,
-                  onFixPermissions: cubit.fixMissingPermissions,
+                  onFixPermissions: () => PermissionsChecklistSheet.show(
+                    context,
+                    context.read<PermissionReadinessCubit>(),
+                    onUpdated: cubit.refreshReliability,
+                  ),
                 ),
                 Gap(10.h),
                 const SettingsWirdCard(),
@@ -146,21 +183,11 @@ class _SettingsView extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 3.5.w,
-          height: 14.h,
-          decoration: BoxDecoration(
-            color: appColors.accentGold,
-            borderRadius: BorderRadius.circular(2.r),
-          ),
+          width: 3.5.w, height: 14.h,
+          decoration: BoxDecoration(color: appColors.accentGold, borderRadius: BorderRadius.circular(2.r)),
         ),
         Gap(8.w),
-        Text(
-          title,
-          style: AppTypography.h4.copyWith(
-            fontSize: 13.sp,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        Text(title, style: AppTypography.h4.copyWith(fontSize: 13.sp, fontWeight: FontWeight.bold)),
       ],
     );
   }

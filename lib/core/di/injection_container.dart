@@ -107,7 +107,9 @@ Future<void> init() async {
         calculationService: sl(),
         locationService: sl(),
       ));
-  sl.registerFactory(() => PrayerTimesCubit(sl()));
+  sl.registerFactory(
+    () => PrayerTimesCubit(sl(), alarmScheduler: sl(), settingsDs: sl()),
+  );
   sl.registerFactory(() => QiblaCubit(sl()));
 
   // Quran Feature

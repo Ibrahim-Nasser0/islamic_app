@@ -108,6 +108,17 @@ class OnboardingPermissionsStage extends StatelessWidget {
                   }
                 },
               ),
+              Gap(10.h),
+              OnboardingPermissionTile(
+                icon: Icons.screen_lock_portrait_rounded,
+                title: 'perm_fullscreen_title'.tr(),
+                desc: 'perm_fullscreen_desc'.tr(),
+                granted: state.fullScreenIntentGranted,
+                onTap: () {
+                  AppHaptics.light();
+                  cubit.fixFullScreenIntent();
+                },
+              ),
               if (!state.isCoreReady) ...[
                 Gap(16.h),
                 CustomButton(

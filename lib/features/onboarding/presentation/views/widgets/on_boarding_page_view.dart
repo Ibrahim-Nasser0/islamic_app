@@ -25,11 +25,15 @@ class OnBoardingPageView extends StatefulWidget {
 
 class _OnBoardingPageViewState extends State<OnBoardingPageView> {
   late final PageController _pageController;
+  late final PermissionReadinessCubit _permCubit;
+  late final AppLifecycleListener _lifecycle;
   int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
+    _permCubit = di.sl<PermissionReadinessCubit>()..refresh();
+    _lifecycle = AppLifecycleListener(onResume: () => _permCubit.refresh());
     _pageController = PageController();
     _pageController.addListener(() {
       final page = _pageController.page?.round() ?? 0;
@@ -39,6 +43,8 @@ class _OnBoardingPageViewState extends State<OnBoardingPageView> {
 
   @override
   void dispose() {
+    _lifecycle.dispose();
+    _permCubit.close();
     _pageController.dispose();
     super.dispose();
   }
@@ -49,8 +55,8 @@ class _OnBoardingPageViewState extends State<OnBoardingPageView> {
     final appColors = context.appColors;
     final isLastPage = _currentPage == pages.length - 1;
 
-    return BlocProvider(
-      create: (_) => di.sl<PermissionReadinessCubit>()..refresh(),
+    return BlocProvider.value(
+      value: _permCubit,
       child: SafeArea(
         child: Column(
           children: [

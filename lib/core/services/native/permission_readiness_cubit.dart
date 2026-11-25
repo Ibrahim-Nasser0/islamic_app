@@ -83,11 +83,19 @@ class PermissionReadinessCubit extends Cubit<PermissionReadinessState> {
 
   Future<void> fixExactAlarms() async {
     await _bridge.openExactAlarmSettings();
+    await _rescheduleAlarms();
+    await refresh();
+  }
+
+  Future<void> fixFullScreenIntent() async {
+    await _bridge.openFullScreenIntentSettings();
+    await _rescheduleAlarms();
     await refresh();
   }
 
   Future<void> fixBatteryOptimization() async {
     await _bridge.openBatterySettings();
+    await _rescheduleAlarms();
     await refresh();
   }
 

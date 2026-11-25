@@ -138,22 +138,20 @@ class _HomePrayerContent extends StatelessWidget {
         if (state is PrayerTimesLoaded) {
           final schedule = state.schedule;
           final next = schedule.nextPrayer;
-          final isAr = context.locale.languageCode == 'ar';
+          final prev = schedule.currentPrayer;
+          final lang = context.locale.languageCode;
+          final isAr = lang == 'ar';
+          final prevLabel = prev == null
+              ? null
+              : '${isAr ? prev.nameAr : prev.nameEn} ${DateFormat('hh:mm a', lang).format(prev.time)}';
           return KaabaAtmosphericHeroCard(
-            location: schedule.getLocalizedLocation(
-              context.locale.languageCode,
-            ),
-            hijriDate: schedule.getHijriDate(context.locale.languageCode),
-            gregorianDate: DateFormat(
-              'd MMMM yyyy',
-              context.locale.languageCode,
-            ).format(schedule.date),
+            location: schedule.getLocalizedLocation(lang),
+            hijriDate: schedule.getHijriDate(lang),
+            gregorianDate: DateFormat('d MMMM yyyy', lang).format(schedule.date),
             nextPrayerName: isAr ? next.nameAr : next.nameEn,
-            nextPrayerTime: DateFormat(
-              'hh:mm a',
-              context.locale.languageCode,
-            ).format(next.time),
+            nextPrayerTime: DateFormat('hh:mm a', lang).format(next.time),
             remainingTime: state.formattedRemainingTime,
+            prevPrayerLabel: prevLabel,
             intervalProgress: state.intervalProgress,
             isManualLocation: state.isManualLocation,
             isRefreshingLocation: state.isRefreshingLocation,

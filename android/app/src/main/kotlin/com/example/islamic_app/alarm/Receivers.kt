@@ -1,11 +1,14 @@
 package com.example.islamic_app.alarm
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
+import android.net.Uri
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
@@ -16,6 +19,7 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         const val ACTION_ADHAN = "com.example.islamic_app.action.ALARM_ADHAN"
         const val ACTION_PRE_PRAYER = "com.example.islamic_app.action.ALARM_PRE"
         private const val PRE_CHANNEL_ID = "zad_native_pre_prayer_v1"
+        private const val ADHAN_FALLBACK_CHANNEL_PREFIX = "zad_adhan_fallback_"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -25,10 +29,61 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                     action = AdhanForegroundService.ACTION_START
                     putExtras(intent)
                 }
-                ContextCompat.startForegroundService(context, serviceIntent)
+                runCatching {
+                    ContextCompat.startForegroundService(context, serviceIntent)
+                }.onFailure {
+                    showFallbackAdhanNotification(context, intent)
+                }
             }
             ACTION_PRE_PRAYER -> showPrePrayerNotification(context, intent)
         }
+    }
+
+    private fun showFallbackAdhanNotification(context: Context, intent: Intent) {
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val rawSound = intent.getStringExtra("rawSound") ?: "al_harram_regular"
+        val channelId = "$ADHAN_FALLBACK_CHANNEL_PREFIX$rawSound"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            nm.getNotificationChannel(channelId) == null
+        ) {
+            val soundUri = Uri.parse("android.resource://${context.packageName}/raw/$rawSound")
+            val attrs = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_ALARM)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+            val ch = NotificationChannel(channelId, "تنبيه الأذان الاحتياطي", NotificationManager.IMPORTANCE_HIGH).apply {
+                setSound(soundUri, attrs)
+                enableVibration(true)
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
+            nm.createNotificationChannel(ch)
+        }
+        val lang = intent.getStringExtra("languageCode") ?: "ar"
+        val isAr = lang == "ar"
+        val titleAr = intent.getStringExtra("titleAr") ?: "الصلاة"
+        val titleEn = intent.getStringExtra("titleEn") ?: "Prayer"
+        val notifId = intent.getIntExtra("alarmId", 2001)
+        val lockIntent = Intent(context, SanctuaryLockActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(SanctuaryLockActivity.EXTRA_MODE, SanctuaryLockActivity.MODE_ADHAN)
+            putExtras(intent)
+        }
+        val pending = PendingIntent.getActivity(
+            context, notifId, lockIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val notif = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_stat_mosque)
+            .setContentTitle(if (isAr) "حان الآن موعد صلاة $titleAr" else "It is now time for $titleEn Prayer")
+            .setContentText(if (isAr) "الله أكبر • حي على الصلاة" else "Allahu Akbar • Come to Prayer")
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setAutoCancel(true)
+            .setContentIntent(pending)
+            .setFullScreenIntent(pending, true)
+            .build()
+        runCatching { nm.notify(notifId, notif) }
     }
 
     private fun showPrePrayerNotification(context: Context, intent: Intent) {
@@ -41,7 +96,10 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
                     PRE_CHANNEL_ID,
                     "تنبيه ما قبل الصلاة (5 دقائق)",
                     NotificationManager.IMPORTANCE_HIGH,
-                )
+                ).apply {
+                    enableVibration(true)
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
             )
         }
         val lang = intent.getStringExtra("languageCode") ?: "ar"
@@ -102,7 +160,10 @@ class AzkarAlarmReceiver : BroadcastReceiver() {
                     AZKAR_CHANNEL_ID,
                     "أذكار الصباح والمساء",
                     NotificationManager.IMPORTANCE_HIGH,
-                )
+                ).apply {
+                    enableVibration(true)
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
             )
         }
 

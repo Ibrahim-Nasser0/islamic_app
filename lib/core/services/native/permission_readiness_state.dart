@@ -17,9 +17,21 @@ class PermissionReadinessState extends Equatable {
     this.isBusy = false,
   });
 
+  int get missingCount => [
+        notificationsGranted,
+        locationGranted,
+        exactAlarmsGranted,
+        fullScreenIntentGranted,
+        batteryUnrestricted,
+      ].where((granted) => !granted).length;
+
   bool get isCoreReady => notificationsGranted && locationGranted;
+  bool get isAllReady => missingCount == 0;
   bool get isAdhanOptimal =>
-      notificationsGranted && exactAlarmsGranted && batteryUnrestricted;
+      notificationsGranted &&
+      exactAlarmsGranted &&
+      fullScreenIntentGranted &&
+      batteryUnrestricted;
 
   PermissionReadinessState copyWith({
     bool? notificationsGranted,

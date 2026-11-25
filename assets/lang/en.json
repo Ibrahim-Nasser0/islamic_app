@@ -319,5 +319,16 @@
   "atmosphere_noon": "Daylight Serenity",
   "atmosphere_afternoon": "Afternoon Calm",
   "atmosphere_sunset": "Evening Dusk",
-  "atmosphere_night": "Night Tranquility"
+  "atmosphere_night": "Night Tranquility",
+  "perm_fullscreen_title": "Lockscreen Full-Screen (Android 14+)",
+  "perm_fullscreen_desc": "Required to show the Adhan & Azkar sanctuary screen when locked",
+  "perm_battery_title": "Unrestricted Battery Usage",
+  "perm_battery_desc": "Prevents background battery savers from silencing Adhan alarms",
+  "perm_sheet_title": "Adhan & Alert Readiness",
+  "perm_sheet_subtitle": "Verify these permissions so Adhan, pre-prayer & Azkar fire reliably on time",
+  "perm_adhan_setup_title": "Some background permissions are needed for exact lockscreen Adhan",
+  "perm_adhan_setup_cta": "Review Permissions",
+  "perm_missing_count": "{count} remaining",
+  "perm_all_ready": "All Adhan, alert & location permissions are active",
+  "countdown_remaining": "In"
 }

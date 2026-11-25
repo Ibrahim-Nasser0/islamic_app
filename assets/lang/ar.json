@@ -319,5 +319,16 @@
   "atmosphere_noon": "نور الضحى والنهار",
   "atmosphere_afternoon": "سكينة العصر",
   "atmosphere_sunset": "شفق الغروب",
-  "atmosphere_night": "هدوء الليل"
+  "atmosphere_night": "هدوء الليل",
+  "perm_fullscreen_title": "الظهور على شاشة القفل (أندرويد 14+)",
+  "perm_fullscreen_desc": "لعرض شاشة الأذان والأذكار كاملة عند حلول وقتها والهاتف مغلق",
+  "perm_battery_title": "استثناء توفير البطارية",
+  "perm_battery_desc": "لمنع النظام من إيقاف الأذان والإشعارات في الخلفية",
+  "perm_sheet_title": "جاهزية الأذان والتنبيهات",
+  "perm_sheet_subtitle": "تأكد من تفعيل الصلاحيات التالية ليصدح الأذان في وقته وتعمل الإشعارات بدقة",
+  "perm_adhan_setup_title": "بعض صلاحيات الخلفية مطلوبة ليصدح الأذان على شاشة القفل بدقة",
+  "perm_adhan_setup_cta": "مراجعة الصلاحيات",
+  "perm_missing_count": "متبقي {count} صلاحيات",
+  "perm_all_ready": "جميع صلاحيات الأذان والموقع مفعّلة بالكامل",
+  "countdown_remaining": "يتبقى"
 }

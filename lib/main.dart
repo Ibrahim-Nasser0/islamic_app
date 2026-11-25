@@ -109,14 +109,16 @@ Future<void> _bootstrapPostFrameServices({
     await syncCoordinator.syncPendingDhikrUpdates();
   } catch (_) {}
 
-  try {
-    await notificationService.requestPermissions();
-  } catch (_) {}
+  final settingsDs = di.sl<SettingsLocalDataSource>();
+  if (settingsDs.hasCompletedOnboarding()) {
+    try {
+      await notificationService.requestPermissions();
+    } catch (_) {}
+  }
 
   try {
     final scheduler = di.sl<PrayerAlarmScheduler>();
     final azkarScheduler = di.sl<AzkarAlarmScheduler>();
-    final settingsDs = di.sl<SettingsLocalDataSource>();
     final loc = settingsDs.getLocation();
     await scheduler.schedulePrayerAlarms(
       latitude: loc.lat,
