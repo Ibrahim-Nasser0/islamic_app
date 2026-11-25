@@ -1,176 +1,200 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/services.dart';
+
 import '../../../../core/utils/haptics.dart';
-import '../../domain/entities/tasbeeh_defaults.dart';
+import '../../data/datasources/tasbeeh_local_data_source.dart';
+import '../../domain/entities/tasbeeh_feedback_mode.dart';
 import '../../domain/entities/tasbeeh_item.dart';
 import '../../domain/entities/wird_item.dart';
 import 'tasbeeh_state.dart';
+import 'tasbeeh_wird_helpers.dart';
 
-/// Cubit managing both free digital tasbeeh and custom structured daily Wird
+/// Cubit managing Free Tasbeeh, Daily Wird, feedback modes, and persistence.
 class TasbeehCubit extends Cubit<TasbeehState> {
-  TasbeehCubit()
-      : super(const TasbeehState(
-          items: TasbeehDefaults.defaultAzkar,
-          wirdItems: TasbeehDefaults.defaultWird,
-        ));
+  final TasbeehLocalDataSource? _localDs;
+  Future<void> _pendingSave = Future.value();
+
+  TasbeehCubit({TasbeehLocalDataSource? localDs})
+      : _localDs = localDs,
+        super(TasbeehWirdHelpers.buildInitialState(localDs));
+
+  void _emitAndSave(TasbeehState next) {
+    emit(next);
+    final ds = _localDs;
+    if (ds != null) {
+      final snapshot = TasbeehWirdHelpers.toSnapshot(next);
+      _pendingSave = _pendingSave.then((_) => ds.saveSnapshot(snapshot));
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    await _pendingSave;
+    return super.close();
+  }
+
+  void _playFeedback({bool milestone = false}) {
+    if (state.feedbackMode == TasbeehFeedbackMode.silent) return;
+    milestone ? AppHaptics.heavy() : AppHaptics.selection();
+    if (state.feedbackMode == TasbeehFeedbackMode.soundAndHaptic) {
+      try {
+        SystemSound.play(SystemSoundType.click);
+      } catch (_) {}
+    }
+  }
 
   void setMode(TasbeehMode mode) {
     AppHaptics.selection();
     emit(state.copyWith(mode: mode));
   }
 
-  // --- Free Tasbeeh Methods ---
+  void cycleFeedbackMode() {
+    final next = state.feedbackMode.next();
+    if (next != TasbeehFeedbackMode.silent) AppHaptics.light();
+    _emitAndSave(state.copyWith(feedbackMode: next));
+  }
+
   void increment() {
     final current = state.currentItem;
     final newCount = current.currentCount + 1;
-    final isTargetReached =
-        state.target > 0 && (newCount % state.target == 0);
-
-    if (isTargetReached) {
-      AppHaptics.heavy();
-    } else {
-      AppHaptics.selection();
-    }
-
-    final updatedItems = List<TasbeehItem>.from(state.items);
-    updatedItems[state.selectedIndex] = current.copyWith(
+    final milestone = state.target > 0 && (newCount % state.target == 0);
+    _playFeedback(milestone: milestone);
+    final updated = List<TasbeehItem>.from(state.items);
+    updated[state.selectedIndex] = current.copyWith(
       currentCount: newCount,
       totalCount: current.totalCount + 1,
     );
-
-    emit(state.copyWith(
-      items: updatedItems,
+    _emitAndSave(state.copyWith(
+      items: updated,
       sessionTotal: state.sessionTotal + 1,
-      isTargetReached: isTargetReached,
+      lifetimeTotal: state.lifetimeTotal + 1,
+      isTargetReached: milestone,
+    ));
+  }
+
+  /// Steps back 1 count to correct accidental double-taps.
+  void decrement() {
+    final current = state.currentItem;
+    if (current.currentCount <= 0) return;
+    _playFeedback();
+    final updated = List<TasbeehItem>.from(state.items);
+    updated[state.selectedIndex] = current.copyWith(
+      currentCount: current.currentCount - 1,
+      totalCount: (current.totalCount - 1).clamp(0, 1 << 30),
+    );
+    _emitAndSave(state.copyWith(
+      items: updated,
+      sessionTotal: (state.sessionTotal - 1).clamp(0, 1 << 30),
+      lifetimeTotal: (state.lifetimeTotal - 1).clamp(0, 1 << 30),
+      isTargetReached: false,
     ));
   }
 
   void resetCurrent() {
-    AppHaptics.heavy();
-    final current = state.currentItem;
-    final updatedItems = List<TasbeehItem>.from(state.items);
-    updatedItems[state.selectedIndex] = current.copyWith(currentCount: 0);
-
-    emit(state.copyWith(items: updatedItems, isTargetReached: false));
+    if (state.feedbackMode != TasbeehFeedbackMode.silent) AppHaptics.heavy();
+    final updated = List<TasbeehItem>.from(state.items);
+    updated[state.selectedIndex] = state.currentItem.copyWith(currentCount: 0);
+    _emitAndSave(state.copyWith(items: updated, isTargetReached: false));
   }
 
   void setTarget(int target) {
     AppHaptics.selection();
-    emit(state.copyWith(target: target));
+    _emitAndSave(state.copyWith(target: target, isTargetReached: false));
   }
 
   void selectDhikr(int index) {
     if (index < 0 || index >= state.items.length) return;
     AppHaptics.selection();
-    emit(state.copyWith(selectedIndex: index, isTargetReached: false));
+    _emitAndSave(state.copyWith(selectedIndex: index, isTargetReached: false));
   }
 
-  // --- Daily Wird Methods ---
   void incrementWird() {
     final active = state.activeWirdItem;
     if (active == null) return;
+    final activeIdx = state.wirdItems.indexOf(active);
+    if (activeIdx < 0) return;
 
     final newCount = active.currentCount + 1;
-    final isCompleted = newCount >= active.targetCount;
+    final itemDone = newCount >= active.targetCount;
+    _playFeedback(milestone: itemDone);
 
     final updated = List<WirdItem>.from(state.wirdItems);
-    updated[state.activeWirdIndex] = active.copyWith(currentCount: newCount);
+    updated[activeIdx] = active.copyWith(currentCount: newCount);
+    final allDone = TasbeehWirdHelpers.areAllEnabledDone(updated);
+    final nextIndex = itemDone && !allDone
+        ? TasbeehWirdHelpers.resolveNextWirdIndex(updated, activeIdx)
+        : activeIdx;
+    _emitAndSave(state.copyWith(
+      wirdItems: updated,
+      activeWirdIndex: nextIndex,
+      isWirdCompleted: allDone,
+      sessionTotal: state.sessionTotal + 1,
+      lifetimeTotal: state.lifetimeTotal + 1,
+    ));
+  }
 
-    if (isCompleted) {
-      AppHaptics.heavy();
-      final allCompleted =
-          updated.where((i) => i.isEnabled).every((i) => i.isCompleted);
-
-      int nextIndex = state.activeWirdIndex;
-      if (!allCompleted) {
-        for (int i = 0; i < updated.length; i++) {
-          final candidateIndex = (state.activeWirdIndex + 1 + i) % updated.length;
-          if (updated[candidateIndex].isEnabled &&
-              !updated[candidateIndex].isCompleted) {
-            nextIndex = candidateIndex;
-            break;
-          }
-        }
-      }
-
-      emit(state.copyWith(
-        wirdItems: updated,
-        activeWirdIndex: nextIndex,
-        isWirdCompleted: allCompleted,
-        sessionTotal: state.sessionTotal + 1,
-      ));
-    } else {
-      AppHaptics.selection();
-      emit(state.copyWith(
-        wirdItems: updated,
-        sessionTotal: state.sessionTotal + 1,
-      ));
-    }
+  void decrementWird() {
+    final active = state.activeWirdItem;
+    if (active == null || active.currentCount <= 0) return;
+    final activeIdx = state.wirdItems.indexOf(active);
+    if (activeIdx < 0) return;
+    _playFeedback();
+    final updated = List<WirdItem>.from(state.wirdItems);
+    updated[activeIdx] = active.copyWith(currentCount: active.currentCount - 1);
+    _emitAndSave(state.copyWith(
+      wirdItems: updated,
+      isWirdCompleted: false,
+      sessionTotal: (state.sessionTotal - 1).clamp(0, 1 << 30),
+      lifetimeTotal: (state.lifetimeTotal - 1).clamp(0, 1 << 30),
+    ));
   }
 
   void selectWirdItem(int index) {
     if (index < 0 || index >= state.wirdItems.length) return;
     AppHaptics.selection();
-    emit(state.copyWith(activeWirdIndex: index));
+    _emitAndSave(state.copyWith(activeWirdIndex: index));
   }
 
   void toggleWirdItem(String id, bool enabled) {
     AppHaptics.light();
-    final updated = state.wirdItems.map((item) {
-      return item.id == id ? item.copyWith(isEnabled: enabled) : item;
-    }).toList();
-    emit(state.copyWith(wirdItems: updated));
+    _applyWirdMutation(TasbeehWirdHelpers.toggleItem(state.wirdItems, id, enabled));
   }
 
   void updateWirdItemTarget(String id, int target) {
     if (target <= 0) return;
     AppHaptics.selection();
-    final updated = state.wirdItems.map((item) {
-      return item.id == id ? item.copyWith(targetCount: target) : item;
-    }).toList();
-    emit(state.copyWith(wirdItems: updated));
+    _applyWirdMutation(TasbeehWirdHelpers.updateTarget(state.wirdItems, id, target));
   }
 
-  /// Sets all enabled items to a unified target (e.g., 100 for all)
   void setAllTargets(int target) {
     if (target <= 0) return;
     AppHaptics.medium();
-    final updated = state.wirdItems.map((item) {
-      return item.copyWith(targetCount: target);
-    }).toList();
-    emit(state.copyWith(wirdItems: updated));
+    _applyWirdMutation(TasbeehWirdHelpers.setAllTargets(state.wirdItems, target));
   }
 
   void addCustomWirdItem(String text, int target) {
     if (text.trim().isEmpty || target <= 0) return;
     AppHaptics.medium();
-    final newItem = WirdItem(
-      id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
-      arabicText: text.trim(),
-      targetCount: target,
-    );
-    final updated = List<WirdItem>.from(state.wirdItems)..add(newItem);
-    emit(state.copyWith(wirdItems: updated));
+    _applyWirdMutation(TasbeehWirdHelpers.addCustom(state.wirdItems, text, target));
   }
 
   void removeWirdItem(String id) {
     AppHaptics.heavy();
-    final updated = state.wirdItems.where((i) => i.id != id).toList();
-    int newIndex = state.activeWirdIndex;
-    if (newIndex >= updated.length) {
-      newIndex = updated.isEmpty ? 0 : updated.length - 1;
-    }
-    emit(state.copyWith(wirdItems: updated, activeWirdIndex: newIndex));
+    _applyWirdMutation(state.wirdItems.where((i) => i.id != id).toList());
   }
 
   void resetWird() {
-    AppHaptics.heavy();
-    final updated = state.wirdItems.map((item) {
-      return item.copyWith(currentCount: 0);
-    }).toList();
-    emit(state.copyWith(
+    if (state.feedbackMode != TasbeehFeedbackMode.silent) AppHaptics.heavy();
+    _applyWirdMutation(state.wirdItems.map((i) => i.copyWith(currentCount: 0)).toList(), resetCursor: true);
+  }
+
+  void _applyWirdMutation(List<WirdItem> updated, {bool resetCursor = false}) {
+    final maxIdx = updated.isEmpty ? 0 : updated.length - 1;
+    final seed = resetCursor ? 0 : state.activeWirdIndex.clamp(0, maxIdx);
+    _emitAndSave(state.copyWith(
       wirdItems: updated,
-      activeWirdIndex: 0,
-      isWirdCompleted: false,
+      activeWirdIndex: TasbeehWirdHelpers.resolveNextWirdIndex(updated, seed),
+      isWirdCompleted: TasbeehWirdHelpers.areAllEnabledDone(updated),
     ));
   }
 }

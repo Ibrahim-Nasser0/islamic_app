@@ -42,12 +42,16 @@ class _WirdCustomizationSheetState extends State<WirdCustomizationSheet> {
 
   Future<void> _confirmDelete(String id, String title) async {
     AppHaptics.heavy();
+    final errColor = Theme.of(context).colorScheme.error;
     final confirmed = await AppDialogs.confirm(
       context,
       title: 'delete'.tr(),
-      message: 'هل تريد حقاً حذف "$title" من الورد؟',
-      confirmText: 'delete'.tr(),
-      cancelText: 'cancel'.tr(),
+      message: 'tasbeeh_delete_wird_msg'.tr(namedArgs: {'title': title}),
+      icon: Icons.delete_outline_rounded,
+      iconColor: errColor,
+      confirmButtonColor: errColor,
+      confirmText: 'delete',
+      cancelText: 'cancel',
     );
     if (confirmed == true) {
       widget.onDeleteCustom(id);

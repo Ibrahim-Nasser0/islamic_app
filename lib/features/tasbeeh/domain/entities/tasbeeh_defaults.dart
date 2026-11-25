@@ -6,16 +6,45 @@ class TasbeehDefaults {
   const TasbeehDefaults._();
 
   static const List<TasbeehItem> defaultAzkar = [
-    TasbeehItem(id: 'subhan_allah', arabicText: 'سُبْحَانَ اللَّهِ'),
-    TasbeehItem(id: 'alhamdulillah', arabicText: 'الْحَمْدُ لِلَّهِ'),
-    TasbeehItem(id: 'la_ilaha_illallah', arabicText: 'لَا إِلَهَ إِلَّا اللَّهُ'),
-    TasbeehItem(id: 'allahu_akbar', arabicText: 'اللَّهُ أَكْبَرُ'),
-    TasbeehItem(id: 'astaghfirullah', arabicText: 'أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ'),
-    TasbeehItem(id: 'hawqalah', arabicText: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ'),
-    TasbeehItem(id: 'salawat', arabicText: 'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ'),
+    TasbeehItem(
+      id: 'subhan_allah',
+      arabicText: 'سُبْحَانَ اللَّهِ',
+      virtueKey: 'tasbeeh_virtue_subhan_allah',
+    ),
+    TasbeehItem(
+      id: 'alhamdulillah',
+      arabicText: 'الْحَمْدُ لِلَّهِ',
+      virtueKey: 'tasbeeh_virtue_alhamdulillah',
+    ),
+    TasbeehItem(
+      id: 'la_ilaha_illallah',
+      arabicText: 'لَا إِلَهَ إِلَّا اللَّهُ',
+      virtueKey: 'tasbeeh_virtue_tahlil',
+    ),
+    TasbeehItem(
+      id: 'allahu_akbar',
+      arabicText: 'اللَّهُ أَكْبَرُ',
+      virtueKey: 'tasbeeh_virtue_takbir',
+    ),
+    TasbeehItem(
+      id: 'astaghfirullah',
+      arabicText: 'أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ',
+      virtueKey: 'tasbeeh_virtue_istighfar',
+    ),
+    TasbeehItem(
+      id: 'hawqalah',
+      arabicText: 'لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ',
+      virtueKey: 'tasbeeh_virtue_hawqalah',
+    ),
+    TasbeehItem(
+      id: 'salawat',
+      arabicText: 'اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّدٍ',
+      virtueKey: 'tasbeeh_virtue_salawat',
+    ),
     TasbeehItem(
       id: 'subhan_wa_bihamdihi',
       arabicText: 'سُبْحَانَ اللَّهِ وَبِحَمْدِهِ ، سُبْحَانَ اللَّهِ الْعَظِيمِ',
+      virtueKey: 'tasbeeh_virtue_baqiyat',
     ),
   ];
 

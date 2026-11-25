@@ -23,50 +23,43 @@ class TasbeehDhikrSelector extends StatelessWidget {
     final theme = Theme.of(context);
     final appColors = context.appColors;
 
-    return SizedBox(
-      height: 48.h,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemCount: items.length,
-        separatorBuilder: (_, _) => SizedBox(width: 8.w),
-        itemBuilder: (context, index) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.symmetric(vertical: 2.h),
+      child: Row(
+        children: List.generate(items.length, (index) {
           final isSelected = index == selectedIndex;
           final item = items[index];
 
-          return InkWell(
-            onTap: () => onSelect(index),
-            borderRadius: BorderRadius.circular(24.r),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? appColors.accentGold.withValues(alpha: 0.15)
-                    : theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(24.r),
-                border: Border.all(
+          return Padding(
+            padding: EdgeInsetsDirectional.only(
+              end: index < items.length - 1 ? 8.w : 0,
+            ),
+            child: InkWell(
+              onTap: () => onSelect(index),
+              borderRadius: BorderRadius.circular(24.r),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 220),
+                padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
+                decoration: BoxDecoration(
                   color: isSelected
-                      ? appColors.accentGold
-                      : appColors.cardBorder,
-                  width: isSelected ? 1.4 : 0.8,
+                      ? appColors.accentGold.withValues(alpha: 0.15)
+                      : theme.colorScheme.surface,
+                  borderRadius: BorderRadius.circular(24.r),
+                  border: Border.all(
+                    color: isSelected
+                        ? appColors.accentGold
+                        : appColors.cardBorder,
+                    width: isSelected ? 1.3 : 0.8,
+                  ),
+                  boxShadow: appColors.cardShadow,
                 ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: appColors.accentGold.withValues(alpha: 0.12),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : appColors.cardShadow,
-              ),
-              child: Center(
                 child: Text(
                   item.arabicText,
+                  maxLines: 1,
                   style: AppTypography.h5.copyWith(
-                    fontSize: 14.sp,
+                    fontSize: 13.5.sp,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                     color: isSelected
                         ? appColors.accentGold
@@ -76,7 +69,7 @@ class TasbeehDhikrSelector extends StatelessWidget {
               ),
             ),
           );
-        },
+        }),
       ),
     );
   }

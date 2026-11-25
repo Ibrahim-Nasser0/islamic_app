@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
@@ -98,7 +99,7 @@ class WirdItemRow extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'الهدف:',
+                    'tasbeeh_wird_target_label'.tr(),
                     style: TextStyle(
                       fontSize: 11.sp,
                       fontWeight: FontWeight.bold,
@@ -147,7 +148,7 @@ class WirdItemRow extends StatelessWidget {
                                         ? FontWeight.bold
                                         : FontWeight.w500,
                                     color: isSelected
-                                        ? Colors.black
+                                        ? theme.colorScheme.onPrimary
                                         : theme.colorScheme.onSurface,
                                   ),
                                 ),

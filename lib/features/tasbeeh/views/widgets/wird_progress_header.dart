@@ -49,38 +49,41 @@ class WirdProgressHeader extends StatelessWidget {
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Title & Counter with icon
-              Row(
-                children: [
-                  Icon(
-                    isDone ? Icons.verified_rounded : Icons.auto_stories_rounded,
-                    size: 17.sp,
-                    color: isDone ? appColors.statusSuccess : appColors.accentGold,
-                  ),
-                  Gap(8.w),
-                  Text(
-                    'wird_progress'.tr(namedArgs: {
-                      'done': '$completedCount',
-                      'total': '$totalCount',
-                      'percent': '$percent',
-                    }),
-                    style: AppTypography.h5.copyWith(
-                      fontSize: 12.5.sp,
-                      fontWeight: FontWeight.bold,
-                      color: isDone
-                          ? appColors.statusSuccess
-                          : theme.colorScheme.onSurface,
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(
+                      isDone ? Icons.verified_rounded : Icons.auto_stories_rounded,
+                      size: 17.sp,
+                      color: isDone ? appColors.statusSuccess : appColors.accentGold,
                     ),
-                  ),
-                ],
+                    Gap(8.w),
+                    Flexible(
+                      child: Text(
+                        'wird_progress'.tr(namedArgs: {
+                          'done': '$completedCount',
+                          'total': '$totalCount',
+                          'percent': '$percent',
+                        }),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.h5.copyWith(
+                          fontSize: 12.5.sp,
+                          fontWeight: FontWeight.bold,
+                          color: isDone
+                              ? appColors.statusSuccess
+                              : theme.colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-
-              // Action Buttons: Customize & Reset
+              Gap(8.w),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Customize Pill
                   InkWell(
                     onTap: () {
                       AppHaptics.light();
@@ -98,6 +101,7 @@ class WirdProgressHeader extends StatelessWidget {
                         ),
                       ),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.tune_rounded,
@@ -118,8 +122,6 @@ class WirdProgressHeader extends StatelessWidget {
                     ),
                   ),
                   Gap(6.w),
-
-                  // Reset Button
                   InkWell(
                     onTap: () async {
                       AppHaptics.heavy();
@@ -127,7 +129,11 @@ class WirdProgressHeader extends StatelessWidget {
                         context,
                         title: 'reset_confirm_title'.tr(),
                         message: 'reset_confirm_message'.tr(),
-                        confirmText: 'reset_counter'.tr(),
+                        icon: Icons.refresh_rounded,
+                        iconColor: theme.colorScheme.error,
+                        confirmButtonColor: theme.colorScheme.error,
+                        confirmText: 'reset_counter',
+                        cancelText: 'cancel',
                       );
                       if (confirmed == true) {
                         onReset();

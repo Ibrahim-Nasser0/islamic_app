@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 class TasbeehItem extends Equatable {
   final String id;
   final String arabicText;
+  final String? virtueKey;
   final int defaultTarget;
   final int currentCount;
   final int totalCount;
@@ -11,6 +12,7 @@ class TasbeehItem extends Equatable {
   const TasbeehItem({
     required this.id,
     required this.arabicText,
+    this.virtueKey,
     this.defaultTarget = 33,
     this.currentCount = 0,
     this.totalCount = 0,
@@ -19,6 +21,7 @@ class TasbeehItem extends Equatable {
   TasbeehItem copyWith({
     String? id,
     String? arabicText,
+    String? virtueKey,
     int? defaultTarget,
     int? currentCount,
     int? totalCount,
@@ -26,6 +29,7 @@ class TasbeehItem extends Equatable {
     return TasbeehItem(
       id: id ?? this.id,
       arabicText: arabicText ?? this.arabicText,
+      virtueKey: virtueKey ?? this.virtueKey,
       defaultTarget: defaultTarget ?? this.defaultTarget,
       currentCount: currentCount ?? this.currentCount,
       totalCount: totalCount ?? this.totalCount,
@@ -33,5 +37,12 @@ class TasbeehItem extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, arabicText, defaultTarget, currentCount, totalCount];
+  List<Object?> get props => [
+        id,
+        arabicText,
+        virtueKey,
+        defaultTarget,
+        currentCount,
+        totalCount,
+      ];
 }
