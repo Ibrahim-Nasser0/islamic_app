@@ -173,16 +173,9 @@ extension DateTimeExtension on DateTime {
 
 /// List Extensions
 extension ListExtension<T> on List<T> {
-  /// Returns true if list is null or empty
   bool get isNullOrEmpty => isEmpty;
-
-  /// Returns true if list is not null and not empty
   bool get isNotNullOrEmpty => isNotEmpty;
-
-  /// Returns first element or null if list is empty
   T? get firstOrNull => isEmpty ? null : first;
-
-  /// Returns last element or null if list is empty
   T? get lastOrNull => isEmpty ? null : last;
 }
 

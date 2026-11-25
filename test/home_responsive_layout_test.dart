@@ -94,7 +94,10 @@ void main() {
                 theme: AppTheme.lightTheme,
                 locale: locale,
                 supportedLocales: context.supportedLocales,
-                localizationsDelegates: context.localizationDelegates,
+                localizationsDelegates: [
+                  EasyLocalization.of(context)!.delegate,
+                  ...GlobalMaterialLocalizations.delegates,
+                ],
                 builder: (ctx, child) => MediaQuery(
                   data: MediaQuery.of(ctx).copyWith(
                     textScaler: TextScaler.linear(textScale),
