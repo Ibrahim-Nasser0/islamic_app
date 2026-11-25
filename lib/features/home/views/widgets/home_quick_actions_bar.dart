@@ -117,7 +117,7 @@ class HomeQuickActionsBar extends StatelessWidget {
   }
 }
 
-class _QuickActionCard extends StatelessWidget {
+class _QuickActionCard extends StatefulWidget {
   final String title;
   final IconData icon;
   final AppThemeColors appColors;
@@ -133,41 +133,58 @@ class _QuickActionCard extends StatelessWidget {
   });
 
   @override
+  State<_QuickActionCard> createState() => _QuickActionCardState();
+}
+
+class _QuickActionCardState extends State<_QuickActionCard> {
+  bool _pressed = false;
+
+  @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16.r),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 11.h),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(16.r),
-            border: Border.all(color: appColors.cardBorder, width: 0.9),
-            boxShadow: appColors.cardShadow,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              OctagonalIconFrame(
-                size: 38,
-                child: Icon(icon, size: 18.sp, color: appColors.accentGold),
-              ),
-              Gap(7.h),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
+    return AnimatedScale(
+      scale: _pressed ? 0.96 : 1.0,
+      duration: const Duration(milliseconds: 120),
+      curve: Curves.easeOutCubic,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: widget.onTap,
+          onHighlightChanged: (v) => setState(() => _pressed = v),
+          borderRadius: BorderRadius.circular(16.r),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 11.h),
+            decoration: BoxDecoration(
+              color: widget.theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: widget.appColors.cardBorder, width: 0.9),
+              boxShadow: widget.appColors.cardShadow,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                OctagonalIconFrame(
+                  size: 38,
+                  child: Icon(
+                    widget.icon,
+                    size: 18.sp,
+                    color: widget.appColors.accentGold,
                   ),
                 ),
-              ),
-            ],
+                Gap(7.h),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    widget.title,
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: widget.theme.colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

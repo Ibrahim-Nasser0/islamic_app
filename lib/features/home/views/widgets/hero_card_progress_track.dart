@@ -61,58 +61,66 @@ class HeroCardProgressTrack extends StatelessWidget {
         LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;
-            final fillWidth = (width * clamped).clamp(6.0, width);
             final beadSize = 9.r;
-            final rawOffset = (width * clamped) - (beadSize / 2);
-            final beadPos = rawOffset.clamp(0.0, (width - beadSize).clamp(0.0, width));
+            return TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0, end: clamped),
+              duration: const Duration(milliseconds: 420),
+              curve: Curves.easeOutCubic,
+              builder: (context, animVal, _) {
+                final fillWidth = (width * animVal).clamp(6.0, width);
+                final rawOffset = (width * animVal) - (beadSize / 2);
+                final beadPos =
+                    rawOffset.clamp(0.0, (width - beadSize).clamp(0.0, width));
 
-            return SizedBox(
-              height: 12.r,
-              child: Stack(
-                alignment: AlignmentDirectional.centerStart,
-                children: [
-                  Container(
-                    height: 4.h,
-                    width: width,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                  ),
-                  Align(
+                return SizedBox(
+                  height: 12.r,
+                  child: Stack(
                     alignment: AlignmentDirectional.centerStart,
-                    child: Container(
-                      height: 4.h,
-                      width: fillWidth,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            atmosphere.accentColor.withValues(alpha: 0.55),
-                            atmosphere.accentColor,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    left: isRtl ? null : beadPos,
-                    right: isRtl ? beadPos : null,
-                    child: Container(
-                      width: beadSize,
-                      height: beadSize,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white,
-                        border: Border.all(
-                          color: atmosphere.accentColor,
-                          width: 2.0,
+                    children: [
+                      Container(
+                        height: 4.h,
+                        width: width,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(6.r),
                         ),
                       ),
-                    ),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Container(
+                          height: 4.h,
+                          width: fillWidth,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                atmosphere.accentColor.withValues(alpha: 0.55),
+                                atmosphere.accentColor,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(6.r),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        left: isRtl ? null : beadPos,
+                        right: isRtl ? beadPos : null,
+                        child: Container(
+                          width: beadSize,
+                          height: beadSize,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            border: Border.all(
+                              color: atmosphere.accentColor,
+                              width: 2.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             );
           },
         ),

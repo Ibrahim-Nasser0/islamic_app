@@ -1,27 +1,21 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../core/di/injection_container.dart';
 import '../../../../core/responsive/responsive_content_frame.dart';
 import '../../../../core/responsive/window_size_class.dart';
 import '../../../../core/services/native/permission_readiness_cubit.dart';
-import '../../../../core/widgets/custom_skeleton.dart';
 import '../../../azkar/presentation/cubit/timed_azkar_cubit.dart';
 import '../../../quran/presentation/cubit/daily_wird_cubit.dart';
 import '../../presentation/cubit/prayer_times_cubit.dart';
 import '../../presentation/cubit/prayer_times_state.dart';
-import 'home_daily_wird_card.dart';
+import 'compact_pinned_hero_card.dart';
 import 'home_location_handler.dart';
-import 'home_permission_banner.dart';
-import 'home_quick_actions_bar.dart';
-import 'home_timed_azkar_card.dart';
-import 'kaaba_atmospheric_hero_card.dart';
-import 'today_prayers_horizontal_list.dart';
+import 'home_prayer_slivers.dart';
 
-/// Tab 0: Home & Prayer Times with Time-Aware Azkar and Daily Wird.
+/// Tab 0: Home & Prayer Times backed by [CustomScrollView] and pinned mini Hero HUD.
 class HomePrayerView extends StatelessWidget {
   const HomePrayerView({super.key});
 
@@ -39,141 +33,130 @@ class HomePrayerView extends StatelessWidget {
   }
 }
 
-class _HomePrayerContent extends StatelessWidget {
+class _HomePrayerContent extends StatefulWidget {
   const _HomePrayerContent();
+
+  @override
+  State<_HomePrayerContent> createState() => _HomePrayerContentState();
+}
+
+class _HomePrayerContentState extends State<_HomePrayerContent> {
+  final ScrollController _scrollController = ScrollController();
+  final GlobalKey _heroCardKey = GlobalKey();
+  final GlobalKey _viewportKey = GlobalKey();
+  bool _showPinnedHero = false;
+  double? _heroHideOffset;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measureHeroThreshold());
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _measureHeroThreshold() {
+    if (!mounted) return;
+    final heroBox = _heroCardKey.currentContext?.findRenderObject();
+    final viewBox = _viewportKey.currentContext?.findRenderObject();
+    if (heroBox is RenderBox && heroBox.attached && viewBox != null && _scrollController.hasClients) {
+      final bottomY = heroBox
+          .localToGlobal(Offset(0, heroBox.size.height), ancestor: viewBox)
+          .dy;
+      _heroHideOffset = (_scrollController.offset + bottomY - 76.0).clamp(120.0, 900.0);
+      _onScroll();
+    }
+  }
+
+  void _onScroll() {
+    if (!mounted || !_scrollController.hasClients) return;
+    if (_heroHideOffset == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _measureHeroThreshold());
+    }
+    final threshold = _heroHideOffset ?? 210.0;
+    final shouldPin = _scrollController.offset >= threshold;
+    if (shouldPin != _showPinnedHero) {
+      setState(() => _showPinnedHero = shouldPin);
+    }
+  }
+
+  void _scrollToTop() {
+    if (!_scrollController.hasClients) return;
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 380),
+      curve: Curves.easeOutCubic,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final bottomPad = context.bottomNavClearance();
 
     return BlocListener<PrayerTimesCubit, PrayerTimesState>(
+      listenWhen: (prev, curr) =>
+          curr is PrayerTimesLoaded &&
+          (prev is! PrayerTimesLoaded || prev.schedule != curr.schedule),
       listener: (context, state) {
         if (state is PrayerTimesLoaded) {
           context
               .read<TimedAzkarCubit>()
               .loadForCurrentTime(schedule: state.schedule);
+          WidgetsBinding.instance
+              .addPostFrameCallback((_) => _measureHeroThreshold());
         }
       },
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: EdgeInsets.only(top: 14.h, bottom: bottomPad),
-        child: ResponsiveContentFrame(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final twoColumns = constraints.maxWidth >= 720;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  HomePermissionBanner(
-                    onPermissionsUpdated: () =>
-                        context.read<PrayerTimesCubit>().refreshLocation(),
-                  ),
-                  if (twoColumns)
-                    _buildExpandedLayout(context)
-                  else
-                    _buildCompactLayout(context),
-                ],
-              );
-            },
+      child: Stack(
+        key: _viewportKey,
+        children: [
+          CustomScrollView(
+            controller: _scrollController,
+            physics: const BouncingScrollPhysics(),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            slivers: HomePrayerSlivers.build(
+              context,
+              heroKey: _heroCardKey,
+              bottomClearance: bottomPad,
+            ),
           ),
-        ),
+          Positioned(
+            top: 8.h,
+            left: 0,
+            right: 0,
+            child: ResponsiveContentFrame(
+              child: BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
+                builder: (context, state) {
+                  if (state is! PrayerTimesLoaded) {
+                    return const SizedBox.shrink();
+                  }
+                  final schedule = state.schedule;
+                  final lang = context.locale.languageCode;
+                  final isAr = lang == 'ar';
+                  return CompactPinnedHeroCard(
+                    visible: _showPinnedHero,
+                    location: schedule.getLocalizedLocation(lang),
+                    nextPrayerName:
+                        isAr ? schedule.nextPrayer.nameAr : schedule.nextPrayer.nameEn,
+                    nextPrayerTime:
+                        DateFormat('hh:mm a', lang).format(schedule.nextPrayer.time),
+                    remainingTime: state.formattedRemainingTime,
+                    intervalProgress: state.intervalProgress,
+                    isManualLocation: state.isManualLocation,
+                    onLocationTap: () => handleHomeLocationTap(context),
+                    onTapToTop: _scrollToTop,
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildCompactLayout(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _buildHeroCard(context),
-        Gap(20.h),
-        _buildPrayersList(context),
-        Gap(24.h),
-        const HomeQuickActionsBar(),
-        Gap(24.h),
-        const HomeTimedAzkarCard(),
-        Gap(24.h),
-        const HomeDailyWirdCard(),
-      ],
-    );
-  }
-
-  Widget _buildExpandedLayout(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          flex: 6,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildHeroCard(context),
-              Gap(20.h),
-              _buildPrayersList(context),
-            ],
-          ),
-        ),
-        Gap(20.w),
-        Expanded(
-          flex: 5,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const HomeQuickActionsBar(),
-              Gap(20.h),
-              const HomeTimedAzkarCard(),
-              Gap(20.h),
-              const HomeDailyWirdCard(),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeroCard(BuildContext context) {
-    return BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
-      builder: (context, state) {
-        if (state is PrayerTimesLoaded) {
-          final schedule = state.schedule;
-          final next = schedule.nextPrayer;
-          final prev = schedule.currentPrayer;
-          final lang = context.locale.languageCode;
-          final isAr = lang == 'ar';
-          final prevLabel = prev == null
-              ? null
-              : '${isAr ? prev.nameAr : prev.nameEn} ${DateFormat('hh:mm a', lang).format(prev.time)}';
-          return KaabaAtmosphericHeroCard(
-            location: schedule.getLocalizedLocation(lang),
-            hijriDate: schedule.getHijriDate(lang),
-            gregorianDate: DateFormat('d MMMM yyyy', lang).format(schedule.date),
-            nextPrayerName: isAr ? next.nameAr : next.nameEn,
-            nextPrayerTime: DateFormat('hh:mm a', lang).format(next.time),
-            remainingTime: state.formattedRemainingTime,
-            prevPrayerLabel: prevLabel,
-            intervalProgress: state.intervalProgress,
-            isManualLocation: state.isManualLocation,
-            isRefreshingLocation: state.isRefreshingLocation,
-            onLocationTap: () => handleHomeLocationTap(context),
-          );
-        }
-        return CustomSkeleton(height: 220.h, borderRadius: 24);
-      },
-    );
-  }
-
-  Widget _buildPrayersList(BuildContext context) {
-    return BlocBuilder<PrayerTimesCubit, PrayerTimesState>(
-      buildWhen: (prev, curr) =>
-          !(prev is PrayerTimesLoaded && curr is PrayerTimesLoaded) ||
-          prev.schedule != curr.schedule,
-      builder: (context, state) {
-        if (state is PrayerTimesLoaded) {
-          return TodayPrayersHorizontalList(prayers: state.schedule.prayers);
-        }
-        return CustomSkeleton(height: 124.h, borderRadius: 17);
-      },
     );
   }
 }

@@ -9,6 +9,7 @@ import '../../presentation/models/time_of_day_atmosphere.dart';
 import 'hero_card_countdown_badge.dart';
 import 'hero_card_meta_bar.dart';
 import 'hero_card_progress_track.dart';
+import 'home_staggered_entry.dart';
 import 'kaaba_silhouette_art.dart';
 
 /// Atmospheric Sanctuary Hero Card with Mecca skyline, dates, prayer countdown, and interval progress.
@@ -178,14 +179,16 @@ class _NextPrayerRow extends StatelessWidget {
           ),
         ),
         SizedBox(width: 10.w),
-        Container(
-          width: 44.w, height: 44.w,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Colors.black.withValues(alpha: 0.22),
-            border: Border.all(color: atmosphere.accentColor.withValues(alpha: 0.38), width: 1.0),
+        SanctuaryBreathingPulse(
+          child: Container(
+            width: 44.w, height: 44.w,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.black.withValues(alpha: 0.22),
+              border: Border.all(color: atmosphere.accentColor.withValues(alpha: 0.38), width: 1.0),
+            ),
+            child: Icon(atmosphere.skyIcon, size: 22.sp, color: atmosphere.accentColor),
           ),
-          child: Icon(atmosphere.skyIcon, size: 22.sp, color: atmosphere.accentColor),
         ),
       ],
     );

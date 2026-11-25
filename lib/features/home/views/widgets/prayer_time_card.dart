@@ -8,6 +8,7 @@ import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../domain/entities/prayer_time_entry.dart';
+import 'home_staggered_entry.dart';
 import 'prayer_card_status_pill.dart';
 
 /// Celestial Sanctuary prayer card showing icon medallion, prayer name, split time, and status.
@@ -43,15 +44,17 @@ class PrayerTimeCard extends StatelessWidget {
             ? appColors.surfaceSubtle.withValues(alpha: 0.72)
             : theme.colorScheme.surface);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () {
-          AppHaptics.selection();
-          onTap?.call();
-        },
-        borderRadius: BorderRadius.circular(17.r),
-        child: AnimatedContainer(
+    return TactilePressScale(
+      builder: (context, onHighlight) => Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onHighlightChanged: onHighlight,
+          onTap: () {
+            AppHaptics.selection();
+            onTap?.call();
+          },
+          borderRadius: BorderRadius.circular(17.r),
+          child: AnimatedContainer(
           duration: const Duration(milliseconds: 240),
           width: width ?? 94.w,
           constraints: BoxConstraints(minHeight: height ?? 112.h),
@@ -187,6 +190,7 @@ class PrayerTimeCard extends StatelessWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }
