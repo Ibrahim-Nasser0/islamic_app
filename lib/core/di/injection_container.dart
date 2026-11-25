@@ -7,6 +7,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../network/network_info.dart';
 import '../api/api_interceptors.dart';
 import '../config/app_config.dart';
+import '../database/app_database.dart';
+import '../database/daos/azkar_dao.dart';
+import '../database/daos/quran_dao.dart';
+import '../database/daos/tasbeeh_dao.dart';
+import '../database/shared_prefs_migrator.dart';
 import '../theme/theme_cubit.dart';
 import '../services/native/native_alarm_bridge_service.dart';
 import '../services/native/native_sync_coordinator.dart';
@@ -50,6 +55,14 @@ Future<void> init() async {
   //! External Core
   final sharedPreferences = await SharedPreferences.getInstance();
   sl.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
+
+  //! Local Database (Drift) + One-time Migration
+  final appDb = AppDatabase();
+  sl.registerLazySingleton<AppDatabase>(() => appDb);
+  sl.registerLazySingleton<TasbeehDao>(() => appDb.tasbeehDao);
+  sl.registerLazySingleton<QuranDao>(() => appDb.quranDao);
+  sl.registerLazySingleton<AzkarDao>(() => appDb.azkarDao);
+  await SharedPrefsToDriftMigrator.migrateIfNeeded(appDb, sharedPreferences);
 
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
@@ -98,13 +111,15 @@ Future<void> init() async {
   sl.registerFactory(() => QiblaCubit(sl()));
 
   // Quran Feature
-  sl.registerLazySingleton<QuranLocalDataSource>(() => QuranLocalDataSourceImpl());
+  sl.registerLazySingleton<QuranLocalDataSource>(
+      () => QuranLocalDataSourceImpl(quranDao: sl()));
   sl.registerLazySingleton<QuranRepository>(() => QuranRepositoryImpl(localDataSource: sl()));
   sl.registerFactory(() => QuranCubit(repository: sl()));
   sl.registerLazySingleton(() => DailyWirdCubit(settingsDs: sl()));
 
   // Azkar Feature
-  sl.registerLazySingleton<AzkarLocalDataSource>(() => AzkarLocalDataSourceImpl());
+  sl.registerLazySingleton<AzkarLocalDataSource>(
+      () => AzkarLocalDataSourceImpl(azkarDao: sl()));
   sl.registerLazySingleton<AzkarRepository>(() => AzkarRepositoryImpl(localDataSource: sl()));
   sl.registerFactory(() => AzkarCubit(repository: sl(), syncCoordinator: sl()));
   sl.registerFactory(() => TimedAzkarCubit(sl()));
@@ -116,7 +131,7 @@ Future<void> init() async {
 
   // Settings & Native Alarms
   sl.registerLazySingleton<SettingsLocalDataSource>(
-      () => SettingsLocalDataSourceImpl(sl()));
+      () => SettingsLocalDataSourceImpl(sl(), quranDao: sl(), tasbeehDao: sl()));
   sl.registerLazySingleton<NativeAlarmBridgeService>(
       () => NativeAlarmBridgeService());
   sl.registerLazySingleton<NativeSyncCoordinator>(
@@ -148,7 +163,8 @@ Future<void> init() async {
   sl.registerFactory(() => MosquesCubit(repository: sl()));
 
   // Tasbeeh Feature
-  sl.registerLazySingleton<TasbeehLocalDataSource>(
-      () => TasbeehLocalDataSourceImpl(sl()));
+  final tasbeehDs = TasbeehLocalDataSourceImpl(sl(), tasbeehDao: sl());
+  await tasbeehDs.warmUp();
+  sl.registerLazySingleton<TasbeehLocalDataSource>(() => tasbeehDs);
   sl.registerFactory(() => TasbeehCubit(localDs: sl()));
 }

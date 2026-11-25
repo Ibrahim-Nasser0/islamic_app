@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/database/daos/azkar_dao.dart';
 import '../../domain/entities/azkar_category.dart';
 import '../../domain/entities/dhikr_item.dart';
 import 'azkar_evening_data.dart';
@@ -18,9 +19,13 @@ abstract class AzkarLocalDataSource {
 
 class AzkarLocalDataSourceImpl implements AzkarLocalDataSource {
   final SharedPreferences? _prefs;
+  final AzkarDao? _azkarDao;
 
-  AzkarLocalDataSourceImpl({SharedPreferences? sharedPreferences})
-      : _prefs = sharedPreferences;
+  AzkarLocalDataSourceImpl({
+    SharedPreferences? sharedPreferences,
+    AzkarDao? azkarDao,
+  })  : _prefs = sharedPreferences,
+        _azkarDao = azkarDao;
 
   Future<SharedPreferences> _getPrefs() async {
     return _prefs ?? await SharedPreferences.getInstance();
@@ -50,12 +55,26 @@ class AzkarLocalDataSourceImpl implements AzkarLocalDataSource {
 
   @override
   Future<void> updateDhikrCount(String categoryId, String dhikrId, int remaining) async {
+    final dao = _azkarDao;
+    if (dao != null) {
+      await dao.upsertRemaining(
+        categoryId: categoryId,
+        dhikrId: dhikrId,
+        remainingCount: remaining,
+      );
+      return;
+    }
     final prefs = await _getPrefs();
     await prefs.setInt('dhikr_${categoryId}_$dhikrId', remaining);
   }
 
   @override
   Future<void> resetCategory(String categoryId) async {
+    final dao = _azkarDao;
+    if (dao != null) {
+      await dao.clearCategory(categoryId);
+      return;
+    }
     final prefs = await _getPrefs();
     final cat = await getCategoryById(categoryId);
     for (final item in cat.items) {
@@ -64,6 +83,16 @@ class AzkarLocalDataSourceImpl implements AzkarLocalDataSource {
   }
 
   Future<List<DhikrItem>> _hydrateItems(String catId, List<DhikrItem> items) async {
+    final dao = _azkarDao;
+    if (dao != null) {
+      final remainingMap = await dao.getRemainingMap(catId);
+      return items.map((item) {
+        final savedRemaining = remainingMap[item.id];
+        return item.copyWith(
+          remainingCount: savedRemaining ?? item.targetCount,
+        );
+      }).toList();
+    }
     final prefs = await _getPrefs();
     return items.map((item) {
       final savedRemaining = prefs.getInt('dhikr_${catId}_${item.id}');

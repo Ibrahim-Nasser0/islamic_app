@@ -73,10 +73,14 @@ dependencies:
   audioplayers: ^6.1.0
   flutter_local_notifications: ^18.0.1
   timezone: ^0.10.0
+  drift: ^2.26.1
+  drift_flutter: ^0.2.4
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  drift_dev: ^2.26.1
+  build_runner: ^2.4.15
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -1,6 +1,7 @@
 import 'package:quran/quran.dart' as quran;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/database/daos/quran_dao.dart';
 import '../../domain/entities/juz_info.dart';
 import '../../domain/entities/quran_bookmark.dart';
 import '../../domain/entities/surah_info.dart';
@@ -17,9 +18,13 @@ abstract class QuranLocalDataSource {
 }
 
 class QuranLocalDataSourceImpl implements QuranLocalDataSource {
+  final QuranDao? _quranDao;
+
   static const String _lastReadKey = 'quran_last_read';
   static const String _bookmarksKey = 'quran_bookmarks';
   static const String _fontSizeKey = 'quran_font_size';
+
+  QuranLocalDataSourceImpl({QuranDao? quranDao}) : _quranDao = quranDao;
 
   @override
   List<SurahInfo> getSurahs() {
@@ -63,6 +68,16 @@ class QuranLocalDataSourceImpl implements QuranLocalDataSource {
 
   @override
   Future<QuranBookmark?> getLastRead() async {
+    final dao = _quranDao;
+    if (dao != null) {
+      final state = await dao.getOrCreateReadingState();
+      return QuranBookmark(
+        surahNumber: state.lastSurah,
+        surahName: state.lastSurahName,
+        ayahNumber: state.lastAyah,
+        timestamp: state.lastReadAt,
+      );
+    }
     final prefs = await SharedPreferences.getInstance();
     final jsonStr = prefs.getString(_lastReadKey);
     if (jsonStr == null) {
@@ -82,12 +97,36 @@ class QuranLocalDataSourceImpl implements QuranLocalDataSource {
 
   @override
   Future<void> saveLastRead(QuranBookmark bookmark) async {
+    final dao = _quranDao;
+    if (dao != null) {
+      await dao.saveLastRead(
+        surahNumber: bookmark.surahNumber,
+        surahName: bookmark.surahName,
+        ayahNumber: bookmark.ayahNumber,
+        timestamp: bookmark.timestamp,
+      );
+      return;
+    }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_lastReadKey, bookmark.toJson());
   }
 
   @override
   Future<List<QuranBookmark>> getBookmarks() async {
+    final dao = _quranDao;
+    if (dao != null) {
+      final rows = await dao.getBookmarks();
+      return rows
+          .map(
+            (r) => QuranBookmark(
+              surahNumber: r.surahNumber,
+              surahName: r.surahName,
+              ayahNumber: r.ayahNumber,
+              timestamp: r.createdAt,
+            ),
+          )
+          .toList();
+    }
     final prefs = await SharedPreferences.getInstance();
     final list = prefs.getStringList(_bookmarksKey) ?? [];
     return list
@@ -104,6 +143,16 @@ class QuranLocalDataSourceImpl implements QuranLocalDataSource {
 
   @override
   Future<void> toggleBookmark(QuranBookmark bookmark) async {
+    final dao = _quranDao;
+    if (dao != null) {
+      await dao.toggleBookmark(
+        surahNumber: bookmark.surahNumber,
+        surahName: bookmark.surahName,
+        ayahNumber: bookmark.ayahNumber,
+        createdAt: bookmark.timestamp,
+      );
+      return;
+    }
     final prefs = await SharedPreferences.getInstance();
     final list = await getBookmarks();
     final exists = list.any(

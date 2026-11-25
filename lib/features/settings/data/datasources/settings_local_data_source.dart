@@ -1,6 +1,8 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../core/database/daos/quran_dao.dart';
+import '../../../../core/database/daos/tasbeeh_dao.dart';
 import '../../../../core/utils/constants.dart';
-import '../../../home/data/datasources/location_service.dart';
+import 'settings_location_store.dart';
 
 abstract class SettingsLocalDataSource {
   bool getPrayerNotification();
@@ -43,8 +45,15 @@ abstract class SettingsLocalDataSource {
 
 class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   final SharedPreferences _prefs;
+  final QuranDao? _quranDao;
+  final TasbeehDao? _tasbeehDao;
 
-  SettingsLocalDataSourceImpl(this._prefs);
+  SettingsLocalDataSourceImpl(
+    this._prefs, {
+    QuranDao? quranDao,
+    TasbeehDao? tasbeehDao,
+  })  : _quranDao = quranDao,
+        _tasbeehDao = tasbeehDao;
 
   @override
   bool getPrayerNotification() =>
@@ -106,57 +115,68 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
   int getDailyWirdCount() =>
       (_prefs.getInt(AppConstants.dailyWirdCountKey) ?? 5).clamp(1, 50);
   @override
-  Future<void> setDailyWirdCount(int count) =>
-      _prefs.setInt(AppConstants.dailyWirdCountKey, count.clamp(1, 50));
+  Future<void> setDailyWirdCount(int count) async {
+    final c = count.clamp(1, 50);
+    await _prefs.setInt(AppConstants.dailyWirdCountKey, c);
+    await _quranDao?.updateWirdState(dailyCount: c);
+  }
 
   @override
   int getDailyWirdCursor() =>
       (_prefs.getInt(AppConstants.dailyWirdCursorKey) ?? 1).clamp(1, 6236);
   @override
-  Future<void> setDailyWirdCursor(int globalAyah) =>
-      _prefs.setInt(AppConstants.dailyWirdCursorKey, globalAyah.clamp(1, 6236));
+  Future<void> setDailyWirdCursor(int globalAyah) async {
+    final c = globalAyah.clamp(1, 6236);
+    await _prefs.setInt(AppConstants.dailyWirdCursorKey, c);
+    await _quranDao?.updateWirdState(cursorAyah: c);
+  }
 
   @override
   String? getDailyWirdCompletedDate() =>
       _prefs.getString(AppConstants.dailyWirdCompletedDateKey);
   @override
-  Future<void> setDailyWirdCompletedDate(String? dateKey) => dateKey == null
-      ? _prefs.remove(AppConstants.dailyWirdCompletedDateKey)
-      : _prefs.setString(AppConstants.dailyWirdCompletedDateKey, dateKey);
+  Future<void> setDailyWirdCompletedDate(String? dateKey) async {
+    final prev = getDailyWirdCompletedDate();
+    if (dateKey == null) {
+      await _prefs.remove(AppConstants.dailyWirdCompletedDateKey);
+      await _quranDao?.updateWirdState(clearCompletedDate: true);
+      return;
+    }
+    await _prefs.setString(AppConstants.dailyWirdCompletedDateKey, dateKey);
+    await _quranDao?.updateWirdState(completedDate: dateKey);
+    if (prev != dateKey) {
+      await _tasbeehDao?.recordDailyLog(
+        dateKey: dateKey,
+        quranAyahsDelta: getDailyWirdCount(),
+      );
+    }
+  }
 
   @override
   bool isDailyWirdCursorCompleted() =>
       _prefs.getBool(AppConstants.dailyWirdCursorCompletedKey) ?? false;
   @override
-  Future<void> setDailyWirdCursorCompleted(bool value) =>
-      _prefs.setBool(AppConstants.dailyWirdCursorCompletedKey, value);
+  Future<void> setDailyWirdCursorCompleted(bool value) async {
+    await _prefs.setBool(AppConstants.dailyWirdCursorCompletedKey, value);
+    await _quranDao?.updateWirdState(cursorCompleted: value);
+  }
 
   @override
   int getDailyWirdLastBatchEnd() =>
       (_prefs.getInt(AppConstants.dailyWirdLastBatchEndKey) ?? 0).clamp(0, 6236);
   @override
-  Future<void> setDailyWirdLastBatchEnd(int globalAyah) => _prefs.setInt(
-      AppConstants.dailyWirdLastBatchEndKey, globalAyah.clamp(0, 6236));
+  Future<void> setDailyWirdLastBatchEnd(int globalAyah) async {
+    final v = globalAyah.clamp(0, 6236);
+    await _prefs.setInt(AppConstants.dailyWirdLastBatchEndKey, v);
+    await _quranDao?.updateWirdState(lastBatchEnd: v);
+  }
 
   @override
-  bool isManualLocation() =>
-      _prefs.getBool(AppConstants.isManualLocationKey) ?? false;
+  bool isManualLocation() => SettingsLocationStore.isManualLocation(_prefs);
 
   @override
   ({double lat, double lng, String nameAr, String nameEn, bool isManual})
-      getLocation() {
-    return (
-      lat: _prefs.getDouble(AppConstants.customLocationLatKey) ??
-          LocationService.defaultCairoLat,
-      lng: _prefs.getDouble(AppConstants.customLocationLngKey) ??
-          LocationService.defaultCairoLng,
-      nameAr: _prefs.getString(AppConstants.customLocationNameArKey) ??
-          LocationService.defaultCairoAr,
-      nameEn: _prefs.getString(AppConstants.customLocationNameEnKey) ??
-          LocationService.defaultCairoEn,
-      isManual: isManualLocation(),
-    );
-  }
+      getLocation() => SettingsLocationStore.getLocation(_prefs);
 
   @override
   Future<void> setManualLocation({
@@ -164,20 +184,15 @@ class SettingsLocalDataSourceImpl implements SettingsLocalDataSource {
     required double lng,
     required String nameAr,
     required String nameEn,
-  }) async {
-    await _prefs.setBool(AppConstants.isManualLocationKey, true);
-    await _prefs.setDouble(AppConstants.customLocationLatKey, lat);
-    await _prefs.setDouble(AppConstants.customLocationLngKey, lng);
-    await _prefs.setString(AppConstants.customLocationNameArKey, nameAr);
-    await _prefs.setString(AppConstants.customLocationNameEnKey, nameEn);
-  }
+  }) =>
+      SettingsLocationStore.setManualLocation(
+        _prefs,
+        lat: lat,
+        lng: lng,
+        nameAr: nameAr,
+        nameEn: nameEn,
+      );
 
   @override
-  Future<void> resetToGps() async {
-    await _prefs.setBool(AppConstants.isManualLocationKey, false);
-    await _prefs.remove(AppConstants.customLocationLatKey);
-    await _prefs.remove(AppConstants.customLocationLngKey);
-    await _prefs.remove(AppConstants.customLocationNameArKey);
-    await _prefs.remove(AppConstants.customLocationNameEnKey);
-  }
+  Future<void> resetToGps() => SettingsLocationStore.resetToGps(_prefs);
 }
