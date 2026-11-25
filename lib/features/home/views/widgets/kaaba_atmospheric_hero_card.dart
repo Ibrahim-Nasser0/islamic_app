@@ -10,7 +10,7 @@ import 'hero_card_countdown_badge.dart';
 import 'hero_card_meta_bar.dart';
 import 'kaaba_silhouette_art.dart';
 
-/// Cinematic Atmospheric Hero Card with Dynamic Sky, Dates & Kaaba Silhouette
+/// Atmospheric Sanctuary Hero Card with Mecca skyline, dates, prayer countdown, and interval progress.
 class KaabaAtmosphericHeroCard extends StatelessWidget {
   final String location;
   final String hijriDate;
@@ -18,6 +18,9 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
   final String nextPrayerName;
   final String nextPrayerTime;
   final String remainingTime;
+  final double intervalProgress;
+  final bool isManualLocation;
+  final bool isRefreshingLocation;
   final VoidCallback? onLocationTap;
 
   const KaabaAtmosphericHeroCard({
@@ -28,6 +31,9 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
     this.nextPrayerName = 'الظهر',
     this.nextPrayerTime = '11:45 ص',
     this.remainingTime = '01:15:00',
+    this.intervalProgress = 0.0,
+    this.isManualLocation = false,
+    this.isRefreshingLocation = false,
     this.onLocationTap,
   });
 
@@ -45,29 +51,30 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
           colors: atmosphere.gradientColors,
         ),
         border: Border.all(
-          color: atmosphere.accentColor.withValues(alpha: 0.35),
-          width: 1.2,
+          color: atmosphere.accentColor.withValues(alpha: 0.36),
+          width: 1.1,
         ),
         boxShadow: [
           BoxShadow(
-            color: atmosphere.gradientColors.first.withValues(alpha: 0.35),
-            blurRadius: 22,
-            offset: const Offset(0, 10),
+            color: atmosphere.gradientColors.first.withValues(alpha: 0.22),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Stack(
         clipBehavior: Clip.antiAlias,
         children: [
-          ManuscriptCorners(
-            color: atmosphere.accentColor.withValues(alpha: 0.45),
-          ),
-          Positioned(
-            bottom: -10.h,
-            left: -15.w,
+          ManuscriptCorners(color: atmosphere.accentColor.withValues(alpha: 0.45)),
+          PositionedDirectional(
+            bottom: -4.h,
+            end: -8.w,
             child: Opacity(
-              opacity: 0.22,
-              child: KaabaSilhouetteArt(goldColor: atmosphere.accentColor),
+              opacity: 0.28,
+              child: KaabaSilhouetteArt(
+                goldColor: atmosphere.accentColor,
+                phase: atmosphere.phase,
+              ),
             ),
           ),
           Padding(
@@ -76,19 +83,24 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 HeroCardMetaBar(
-                  location: location,
-                  hijriDate: hijriDate,
-                  gregorianDate: gregorianDate,
-                  atmosphere: atmosphere,
-                  onLocationTap: onLocationTap,
+                  location: location, hijriDate: hijriDate, gregorianDate: gregorianDate,
+                  atmosphere: atmosphere, isManualLocation: isManualLocation,
+                  isRefreshingLocation: isRefreshingLocation, onLocationTap: onLocationTap,
                 ),
-                Gap(18.h),
-                _buildNextPrayerHeader(atmosphere),
                 Gap(16.h),
+                _NextPrayerRow(nextPrayerName: nextPrayerName, atmosphere: atmosphere),
+                Gap(14.h),
                 HeroCardCountdownBadge(
-                  nextPrayerTime: nextPrayerTime,
-                  remainingTime: remainingTime,
-                  atmosphere: atmosphere,
+                  nextPrayerTime: nextPrayerTime, remainingTime: remainingTime, atmosphere: atmosphere,
+                ),
+                Gap(14.h),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6.r),
+                  child: LinearProgressIndicator(
+                    value: intervalProgress.clamp(0.0, 1.0), minHeight: 3.5.h,
+                    backgroundColor: Colors.white.withValues(alpha: 0.14),
+                    valueColor: AlwaysStoppedAnimation<Color>(atmosphere.accentColor),
+                  ),
                 ),
               ],
             ),
@@ -97,8 +109,19 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildNextPrayerHeader(DayAtmosphere atmosphere) {
+class _NextPrayerRow extends StatelessWidget {
+  final String nextPrayerName;
+  final DayAtmosphere atmosphere;
+
+  const _NextPrayerRow({
+    required this.nextPrayerName,
+    required this.atmosphere,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -106,27 +129,42 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                decoration: BoxDecoration(
-                  color: atmosphere.accentColor.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    RubElHizbMark(size: 11.w, color: atmosphere.accentColor),
-                    SizedBox(width: 5.w),
-                    Text(
-                      'next_prayer'.tr(),
-                      style: TextStyle(
-                        fontSize: 11.5.sp,
-                        color: atmosphere.accentColor,
-                        fontWeight: FontWeight.bold,
-                      ),
+              Wrap(
+                spacing: 6.w,
+                runSpacing: 4.h,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
+                    decoration: BoxDecoration(
+                      color: atmosphere.accentColor.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(8.r),
                     ),
-                  ],
-                ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RubElHizbMark(size: 10.w, color: atmosphere.accentColor),
+                        SizedBox(width: 5.w),
+                        Text(
+                          'next_prayer'.tr(),
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            color: atmosphere.accentColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    atmosphere.phaseLabelKey.tr(),
+                    style: TextStyle(
+                      fontSize: 10.5.sp,
+                      color: Colors.white.withValues(alpha: 0.72),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
               Gap(6.h),
               FittedBox(
@@ -135,10 +173,7 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
                 child: Text(
                   'prayer_name_format'.tr(namedArgs: {'name': nextPrayerName}),
                   style: AppTypography.quranAyah.copyWith(
-                    fontSize: 25.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    height: 1.25,
+                    fontSize: 25.sp, fontWeight: FontWeight.bold, color: Colors.white, height: 1.25,
                   ),
                 ),
               ),
@@ -147,21 +182,13 @@ class KaabaAtmosphericHeroCard extends StatelessWidget {
         ),
         SizedBox(width: 10.w),
         Container(
-          width: 46.w,
-          height: 46.w,
+          width: 44.w, height: 44.w,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.black.withValues(alpha: 0.2),
-            border: Border.all(
-              color: atmosphere.accentColor.withValues(alpha: 0.35),
-              width: 1.0,
-            ),
+            color: Colors.black.withValues(alpha: 0.22),
+            border: Border.all(color: atmosphere.accentColor.withValues(alpha: 0.38), width: 1.0),
           ),
-          child: Icon(
-            atmosphere.skyIcon,
-            size: 24.sp,
-            color: atmosphere.accentColor,
-          ),
+          child: Icon(atmosphere.skyIcon, size: 22.sp, color: atmosphere.accentColor),
         ),
       ],
     );

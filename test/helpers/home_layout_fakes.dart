@@ -9,6 +9,7 @@ import 'package:islamic_app/core/services/native/permission_readiness_state.dart
 import 'package:islamic_app/features/azkar/data/datasources/azkar_local_data_source.dart';
 import 'package:islamic_app/features/azkar/domain/entities/azkar_category.dart';
 import 'package:islamic_app/features/azkar/domain/entities/dhikr_item.dart';
+import 'package:islamic_app/features/home/data/datasources/location_service.dart';
 import 'package:islamic_app/features/home/domain/entities/daily_prayer_schedule.dart';
 import 'package:islamic_app/features/home/domain/entities/prayer_time_entry.dart';
 import 'package:islamic_app/features/home/domain/repositories/prayer_repository.dart';
@@ -97,13 +98,16 @@ class FakePrayerRepository implements PrayerRepository {
   }
 
   @override
-  Future<({double latitude, double longitude, String nameAr, String nameEn})>
-      detectCurrentLocation() async => (
-            latitude: 30.0444,
-            longitude: 31.2357,
-            nameAr: 'القاهرة، مصر (موقع طويل للاختبار)',
-            nameEn: 'Cairo, Egypt (Long Location Name)',
-          );
+  Future<LocationAcquireResult> detectCurrentLocation({
+    bool requestPermission = true,
+  }) async =>
+      (
+        latitude: 30.0444,
+        longitude: 31.2357,
+        nameAr: 'القاهرة، مصر (موقع طويل للاختبار)',
+        nameEn: 'Cairo, Egypt (Long Location Name)',
+        status: LocationAcquireStatus.gpsSuccess,
+      );
 }
 
 class FakeAzkarLocalDataSource implements AzkarLocalDataSource {

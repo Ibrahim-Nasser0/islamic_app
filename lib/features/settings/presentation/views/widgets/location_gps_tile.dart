@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/core/theme/colors.dart';
 import 'package:islamic_app/core/utils/extensions.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -100,7 +101,7 @@ class LocationGpsTile extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10.sp,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: AppColors.quranPage,
                     ),
                   ),
                 ),

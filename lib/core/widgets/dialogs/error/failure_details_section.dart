@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/core/utils/extensions.dart';
 import 'package:islamic_app/core/utils/haptics.dart';
 
 /// Collapsible technical details panel with copy-to-clipboard functionality
@@ -41,12 +42,11 @@ class _FailureDetailsSectionState extends State<FailureDetailsSection> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final appColors = context.appColors;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Toggle Button
         InkWell(
           borderRadius: BorderRadius.circular(8.r),
           onTap: () {
@@ -63,7 +63,7 @@ class _FailureDetailsSectionState extends State<FailureDetailsSection> {
                       ? Icons.keyboard_arrow_up_rounded
                       : Icons.keyboard_arrow_down_rounded,
                   size: 18.sp,
-                  color: theme.colorScheme.onSurface.withOpacity(0.5),
+                  color: appColors.textMuted,
                 ),
                 Gap(4.w),
                 Text(
@@ -71,7 +71,7 @@ class _FailureDetailsSectionState extends State<FailureDetailsSection> {
                       ? 'hide_technical_details'.tr()
                       : 'view_technical_details'.tr(),
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.55),
+                    color: appColors.textMuted,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -79,8 +79,6 @@ class _FailureDetailsSectionState extends State<FailureDetailsSection> {
             ),
           ),
         ),
-
-        // Collapsible Content
         AnimatedCrossFade(
           firstChild: const SizedBox.shrink(),
           secondChild: Container(
@@ -88,13 +86,9 @@ class _FailureDetailsSectionState extends State<FailureDetailsSection> {
             padding: EdgeInsets.all(12.w),
             constraints: BoxConstraints(maxWidth: 320.w, maxHeight: 120.h),
             decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.black.withOpacity(0.35)
-                  : Colors.grey.withOpacity(0.1),
+              color: appColors.surfaceSubtle,
               borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(
-                color: theme.colorScheme.outline.withOpacity(0.15),
-              ),
+              border: Border.all(color: appColors.cardBorder),
             ),
             child: SingleChildScrollView(
               child: Column(

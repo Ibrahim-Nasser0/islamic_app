@@ -1,7 +1,9 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:islamic_app/core/services/location_preference_service.dart';
+import 'package:islamic_app/core/utils/dialogs.dart';
 import 'package:islamic_app/core/utils/extensions.dart';
 import 'package:islamic_app/core/utils/haptics.dart';
 import 'package:islamic_app/core/widgets/custom_text_field.dart';
@@ -14,7 +16,8 @@ import 'location_gps_tile.dart';
 class LocationSelectorSheet extends StatefulWidget {
   final String currentLocationName;
   final bool isManual;
-  final void Function(String nameAr, String nameEn, bool isManual, double lat, double lng) onLocationSelected;
+  final void Function(String nameAr, String nameEn, bool isManual, double lat, double lng)
+      onLocationSelected;
 
   const LocationSelectorSheet({
     super.key,
@@ -41,15 +44,37 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
   Future<void> _selectGps() async {
     setState(() => _isLoadingGps = true);
     AppHaptics.medium();
-    await LocationPreferenceService.resetToGps();
-    final loc = await LocationService().getCurrentLocation();
+    final res = await LocationService().acquireLocation(requestPermission: true);
     if (!mounted) return;
     setState(() => _isLoadingGps = false);
-    widget.onLocationSelected(loc.nameAr, loc.nameEn, false, loc.latitude, loc.longitude);
+
+    if (res.status == LocationAcquireStatus.gpsDisabled ||
+        res.status == LocationAcquireStatus.permissionDeniedForever) {
+      final isDisabled = res.status == LocationAcquireStatus.gpsDisabled;
+      final open = await AppDialogs.confirm(
+        context,
+        title: 'location_issue_title'.tr(),
+        message: isDisabled
+            ? 'location_gps_disabled_msg'.tr()
+            : 'location_perm_denied_msg'.tr(),
+        icon: Icons.location_off_rounded,
+        iconColor: context.appColors.accentGold,
+        confirmText: 'open_settings',
+        cancelText: 'cancel',
+      );
+      if (open == true) {
+        isDisabled ? await Geolocator.openLocationSettings() : await Geolocator.openAppSettings();
+      }
+      return;
+    }
+
+    await LocationPreferenceService.resetToGps();
+    if (!mounted) return;
+    widget.onLocationSelected(res.nameAr, res.nameEn, false, res.latitude, res.longitude);
     Navigator.pop(context);
   }
 
-  void _selectCity(({String nameAr, String nameEn, double lat, double lng}) city) async {
+  Future<void> _selectCity(({String nameAr, String nameEn, double lat, double lng}) city) async {
     AppHaptics.selection();
     await LocationPreferenceService.setManualLocation(
       latitude: city.lat,
@@ -67,7 +92,6 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
     final theme = Theme.of(context);
     final appColors = context.appColors;
     final isArabic = context.locale.languageCode == 'ar';
-
     final filteredCities = CityResolverHelper.knownLocations.where((loc) {
       if (_searchQuery.isEmpty) return true;
       final q = _searchQuery.toLowerCase();
@@ -89,24 +113,13 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
             ),
           ),
           Gap(4.h),
-          Text(
-            'location_sheet_desc'.tr(),
-            style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
-          ),
+          Text('location_sheet_desc'.tr(), style: TextStyle(fontSize: 12.sp, color: appColors.textMuted)),
           Gap(14.h),
-          LocationGpsTile(
-            isManual: widget.isManual,
-            isLoading: _isLoadingGps,
-            onTap: _selectGps,
-          ),
+          LocationGpsTile(isManual: widget.isManual, isLoading: _isLoadingGps, onTap: _selectGps),
           Gap(12.h),
           Text(
             'or_select_city'.tr(),
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.bold,
-              color: appColors.textMuted,
-            ),
+            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: appColors.textMuted),
           ),
           Gap(8.h),
           CustomTextField(
@@ -121,52 +134,33 @@ class _LocationSelectorSheetState extends State<LocationSelectorSheet> {
             child: ListView.separated(
               physics: const BouncingScrollPhysics(),
               itemCount: filteredCities.length,
-              separatorBuilder: (context, index) => Divider(color: appColors.cardBorder, height: 1),
-              itemBuilder: (context, idx) {
+              separatorBuilder: (_, _) => Divider(color: appColors.cardBorder, height: 1),
+              itemBuilder: (_, idx) {
                 final city = filteredCities[idx];
-                final cityName = isArabic ? city.nameAr : city.nameEn;
-                final isSelected =
-                    widget.isManual &&
+                final isSelected = widget.isManual &&
                     (widget.currentLocationName.contains(city.nameAr) ||
                         widget.currentLocationName.contains(city.nameEn));
-
-                return Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () => _selectCity(city),
-                    borderRadius: BorderRadius.circular(10.r),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? theme.colorScheme.primary.withValues(alpha: 0.12)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(10.r),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            size: 18.sp,
-                            color: isSelected ? appColors.accentGold : appColors.textMuted,
-                          ),
-                          Gap(10.w),
-                          Expanded(
-                            child: Text(
-                              cityName,
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                color: isSelected ? appColors.accentGold : theme.colorScheme.onSurface,
-                              ),
-                            ),
-                          ),
-                          if (isSelected)
-                            Icon(Icons.check_rounded, size: 18.sp, color: appColors.accentGold),
-                        ],
-                      ),
+                return ListTile(
+                  dense: true,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+                  tileColor: isSelected ? theme.colorScheme.primary.withValues(alpha: 0.12) : null,
+                  leading: Icon(
+                    Icons.location_on_outlined,
+                    size: 18.sp,
+                    color: isSelected ? appColors.accentGold : appColors.textMuted,
+                  ),
+                  title: Text(
+                    isArabic ? city.nameAr : city.nameEn,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                      color: isSelected ? appColors.accentGold : theme.colorScheme.onSurface,
                     ),
                   ),
+                  trailing: isSelected
+                      ? Icon(Icons.check_rounded, size: 18.sp, color: appColors.accentGold)
+                      : null,
+                  onTap: () => _selectCity(city),
                 );
               },
             ),

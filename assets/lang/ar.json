@@ -309,5 +309,15 @@
   "tasbeeh_virtue_istighfar": "باب المغفرة وتفريج الكروب",
   "tasbeeh_virtue_hawqalah": "كنز من كنوز الجنة",
   "tasbeeh_virtue_salawat": "من صلى على النبي مرة صلى الله عليه عشراً",
-  "tasbeeh_virtue_baqiyat": "كلمتان خفيفتان على اللسان ثقيلتان في الميزان"
+  "tasbeeh_virtue_baqiyat": "كلمتان خفيفتان على اللسان ثقيلتان في الميزان",
+  "location_issue_title": "تعذّر تحديد موقعك تلقائياً",
+  "location_gps_disabled_msg": "خدمة تحديد الموقع (GPS) مغلقة حالياً. فعّلها لحساب مواقيت صلاتك واتجاه القبلة بدقة، أو اختر مدينتك يدوياً.",
+  "location_perm_denied_msg": "إذن الموقع مرفوض. يمكنك تفعيله من إعدادات التطبيق أو اختيار مدينتك يدوياً.",
+  "open_settings": "فتح الإعدادات",
+  "choose_city_manual": "اختيار المدينة",
+  "atmosphere_dawn": "سكون الفجر",
+  "atmosphere_noon": "نور الضحى والنهار",
+  "atmosphere_afternoon": "سكينة العصر",
+  "atmosphere_sunset": "شفق الغروب",
+  "atmosphere_night": "هدوء الليل"
 }

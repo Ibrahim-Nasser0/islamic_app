@@ -4,7 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/theme/typography.dart';
 import '../../presentation/models/time_of_day_atmosphere.dart';
 
-/// Bottom row in Hero Card showing Next Prayer Time & Pill Countdown
+/// Bottom row in Hero Card displaying Next Prayer Time & Tabular Pill Countdown
 class HeroCardCountdownBadge extends StatelessWidget {
   final String nextPrayerTime;
   final String remainingTime;
@@ -34,6 +34,7 @@ class HeroCardCountdownBadge extends StatelessWidget {
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
                 letterSpacing: 0.5,
+                fontFeatures: const [FontFeature.tabularFigures()],
               ),
             ),
           ),
@@ -46,7 +47,7 @@ class HeroCardCountdownBadge extends StatelessWidget {
             borderRadius: BorderRadius.circular(24.r),
             boxShadow: [
               BoxShadow(
-                color: atmosphere.accentColor.withValues(alpha: 0.3),
+                color: atmosphere.accentColor.withValues(alpha: 0.24),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -68,6 +69,7 @@ class HeroCardCountdownBadge extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF141A16),
                   letterSpacing: 0.3,
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ],

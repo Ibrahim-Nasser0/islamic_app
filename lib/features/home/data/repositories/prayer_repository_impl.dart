@@ -15,17 +15,21 @@ class PrayerRepositoryImpl implements PrayerRepository {
   });
 
   @override
-  Future<({double latitude, double longitude, String nameAr, String nameEn})>
-      detectCurrentLocation() async {
-    final loc = await LocationPreferenceService.getActiveLocation(
-      locationService: locationService,
-    );
-    return (
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-      nameAr: loc.nameAr,
-      nameEn: loc.nameEn,
-    );
+  Future<LocationAcquireResult> detectCurrentLocation({
+    bool requestPermission = true,
+  }) async {
+    final isManual = await LocationPreferenceService.isManual();
+    if (isManual) {
+      final saved = await LocationPreferenceService.getFastCachedActiveLocation();
+      return (
+        latitude: saved.latitude,
+        longitude: saved.longitude,
+        nameAr: saved.nameAr,
+        nameEn: saved.nameEn,
+        status: LocationAcquireStatus.cachedFallback,
+      );
+    }
+    return locationService.acquireLocation(requestPermission: requestPermission);
   }
 
   @override
@@ -36,19 +40,22 @@ class PrayerRepositoryImpl implements PrayerRepository {
     String? nameEn,
     DateTime? date,
   }) async {
-    double lat = latitude ?? LocationService.defaultCairoLat;
-    double lng = longitude ?? LocationService.defaultCairoLng;
-    String locAr = nameAr ?? LocationService.defaultCairoAr;
-    String locEn = nameEn ?? LocationService.defaultCairoEn;
+    double lat;
+    double lng;
+    String locAr;
+    String locEn;
 
-    if (latitude == null || longitude == null) {
-      final loc = await LocationPreferenceService.getActiveLocation(
-        locationService: locationService,
-      );
-      lat = loc.latitude;
-      lng = loc.longitude;
-      locAr = loc.nameAr;
-      locEn = loc.nameEn;
+    if (latitude != null && longitude != null) {
+      lat = latitude;
+      lng = longitude;
+      locAr = nameAr ?? LocationService.defaultCairoAr;
+      locEn = nameEn ?? LocationService.defaultCairoEn;
+    } else {
+      final cached = await LocationPreferenceService.getFastCachedActiveLocation();
+      lat = cached.latitude;
+      lng = cached.longitude;
+      locAr = cached.nameAr;
+      locEn = cached.nameEn;
     }
 
     return calculationService.calculateSchedule(

@@ -5,12 +5,14 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../presentation/models/time_of_day_atmosphere.dart';
 
-/// Top bar in Hero Card displaying Location Pill & Hijri/Gregorian Date Column
+/// Top bar in Hero Card showing live GPS/manual location status & Hijri/Gregorian dates.
 class HeroCardMetaBar extends StatelessWidget {
   final String location;
   final String hijriDate;
   final String gregorianDate;
   final DayAtmosphere atmosphere;
+  final bool isManualLocation;
+  final bool isRefreshingLocation;
   final VoidCallback? onLocationTap;
 
   const HeroCardMetaBar({
@@ -19,6 +21,8 @@ class HeroCardMetaBar extends StatelessWidget {
     required this.hijriDate,
     required this.gregorianDate,
     required this.atmosphere,
+    this.isManualLocation = false,
+    this.isRefreshingLocation = false,
     this.onLocationTap,
   });
 
@@ -28,30 +32,44 @@ class HeroCardMetaBar extends StatelessWidget {
       alignment: AlignmentDirectional.centerStart,
       widthFactor: 1.0,
       child: InkWell(
-        onTap: () {
-          AppHaptics.light();
-          onLocationTap?.call();
-        },
+        onTap: isRefreshingLocation
+            ? null
+            : () {
+                AppHaptics.light();
+                onLocationTap?.call();
+              },
         borderRadius: BorderRadius.circular(20.r),
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
           decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.25),
+            color: Colors.black.withValues(alpha: 0.28),
             borderRadius: BorderRadius.circular(20.r),
             border: Border.all(
-              color: atmosphere.accentColor.withValues(alpha: 0.25),
-              width: 0.8,
+              color: atmosphere.accentColor.withValues(alpha: 0.30),
+              width: 0.85,
             ),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.location_on_rounded,
-                size: 14.sp,
-                color: atmosphere.accentColor,
-              ),
-              SizedBox(width: 4.w),
+              if (isRefreshingLocation)
+                SizedBox(
+                  width: 12.sp,
+                  height: 12.sp,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1.6,
+                    color: atmosphere.accentColor,
+                  ),
+                )
+              else
+                Icon(
+                  isManualLocation
+                      ? Icons.location_city_rounded
+                      : Icons.my_location_rounded,
+                  size: 13.5.sp,
+                  color: atmosphere.accentColor,
+                ),
+              SizedBox(width: 5.w),
               Flexible(
                 child: Text(
                   location,
@@ -64,6 +82,14 @@ class HeroCardMetaBar extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
+              if (!isRefreshingLocation) ...[
+                SizedBox(width: 4.w),
+                Icon(
+                  Icons.sync_rounded,
+                  size: 11.5.sp,
+                  color: Colors.white.withValues(alpha: 0.65),
+                ),
+              ],
             ],
           ),
         ),
@@ -92,7 +118,7 @@ class HeroCardMetaBar extends StatelessWidget {
           style: TextStyle(
             fontSize: 11.sp,
             fontWeight: FontWeight.w500,
-            color: Colors.white.withValues(alpha: 0.75),
+            color: Colors.white.withValues(alpha: 0.78),
           ),
         ),
       ],
@@ -102,10 +128,13 @@ class HeroCardMetaBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(flex: 3, child: Align(
-          alignment: AlignmentDirectional.topStart,
-          child: locationPill,
-        )),
+        Expanded(
+          flex: 3,
+          child: Align(
+            alignment: AlignmentDirectional.topStart,
+            child: locationPill,
+          ),
+        ),
         Gap(8.w),
         Flexible(
           flex: 2,

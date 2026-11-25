@@ -309,5 +309,15 @@
   "tasbeeh_virtue_istighfar": "Door to forgiveness and relief of distress",
   "tasbeeh_virtue_hawqalah": "A treasure from the treasures of Paradise",
   "tasbeeh_virtue_salawat": "Whoever sends blessings once receives ten from Allah",
-  "tasbeeh_virtue_baqiyat": "Two phrases light on the tongue, heavy on the scale"
+  "tasbeeh_virtue_baqiyat": "Two phrases light on the tongue, heavy on the scale",
+  "location_issue_title": "Unable to Detect Location",
+  "location_gps_disabled_msg": "Location services (GPS) are currently turned off. Enable GPS for exact local prayer times, or pick your city manually.",
+  "location_perm_denied_msg": "Location permission was permanently denied. Enable it from App Settings or select your city manually.",
+  "open_settings": "Open Settings",
+  "choose_city_manual": "Choose City",
+  "atmosphere_dawn": "Dawn Stillness",
+  "atmosphere_noon": "Daylight Serenity",
+  "atmosphere_afternoon": "Afternoon Calm",
+  "atmosphere_sunset": "Evening Dusk",
+  "atmosphere_night": "Night Tranquility"
 }

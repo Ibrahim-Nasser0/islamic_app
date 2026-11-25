@@ -1,14 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/core/theme/colors.dart';
+import 'package:islamic_app/core/utils/extensions.dart';
 import 'package:islamic_app/core/utils/haptics.dart';
 import 'package:islamic_app/core/widgets/animations/button_animation.dart';
 import 'package:islamic_app/core/widgets/custom_button.dart';
+import 'package:material_ui/material_ui.dart';
 import '../base/dialog_frosted_vessel.dart';
 import 'success_badge_illustration.dart';
 
-/// Apple-grade frosted glass Success Dialog with cohesive branding and emerald glow
+/// Celestial Sanctuary Success Dialog with emerald bevel CTA and octagonal seal.
 class CustomSuccessDialog extends StatelessWidget {
   final String title;
   final String message;
@@ -35,7 +37,7 @@ class CustomSuccessDialog extends StatelessWidget {
     return showDialog<T>(
       context: context,
       barrierDismissible: barrierDismissible,
-      barrierColor: Colors.black.withOpacity(0.55),
+      barrierColor: Colors.black.withValues(alpha: 0.52),
       builder: (_) => CustomSuccessDialog(
         title: title,
         message: message,
@@ -48,47 +50,50 @@ class CustomSuccessDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    const emeraldColor = Color(0xFF10B981);
+    final appColors = context.appColors;
 
     return DialogFrostedVessel(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // 1. Layered animated hero illustration
           const SuccessBadgeIllustration(),
           Gap(14.h),
-
-          // 2. Localized Title
           Text(
             title,
             textAlign: TextAlign.center,
             style: (theme.textTheme.titleLarge ?? const TextStyle()).copyWith(
               fontSize: 17.sp,
               fontWeight: FontWeight.w800,
-              letterSpacing: -0.3,
+              letterSpacing: -0.2,
             ),
           ),
           Gap(6.h),
-
-          // 3. User-friendly Message
           Text(
             message,
             textAlign: TextAlign.center,
             style: (theme.textTheme.bodyMedium ?? const TextStyle()).copyWith(
               fontSize: 12.5.sp,
-              color: theme.colorScheme.onSurface.withOpacity(0.65),
-              height: 1.4,
+              color: appColors.textMuted,
+              height: 1.45,
             ),
           ),
-          Gap(22.h),
-
-          // 4. Action Button
+          Gap(20.h),
           CustomButton(
             text: buttonText?.tr() ?? 'ok'.tr(),
             height: 46.h,
             borderRadius: 14,
             width: double.infinity,
-            color: emeraldColor,
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                appColors.emeraldBevelTop,
+                appColors.emeraldBevelBottom,
+              ],
+            ),
+            borderColor: appColors.accentGold.withValues(alpha: 0.48),
+            borderWidth: 0.9,
+            textColor: AppColors.quranPage,
             onPressed: () {
               AppHaptics.medium();
               Navigator.of(context).pop(true);

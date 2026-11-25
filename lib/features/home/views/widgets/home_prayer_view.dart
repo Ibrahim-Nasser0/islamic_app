@@ -14,6 +14,7 @@ import '../../../quran/presentation/cubit/daily_wird_cubit.dart';
 import '../../presentation/cubit/prayer_times_cubit.dart';
 import '../../presentation/cubit/prayer_times_state.dart';
 import 'home_daily_wird_card.dart';
+import 'home_location_handler.dart';
 import 'home_permission_banner.dart';
 import 'home_quick_actions_bar.dart';
 import 'home_timed_azkar_card.dart';
@@ -153,8 +154,10 @@ class _HomePrayerContent extends StatelessWidget {
               context.locale.languageCode,
             ).format(next.time),
             remainingTime: state.formattedRemainingTime,
-            onLocationTap: () =>
-                context.read<PrayerTimesCubit>().refreshLocation(),
+            intervalProgress: state.intervalProgress,
+            isManualLocation: state.isManualLocation,
+            isRefreshingLocation: state.isRefreshingLocation,
+            onLocationTap: () => handleHomeLocationTap(context),
           );
         }
         return CustomSkeleton(height: 220.h, borderRadius: 24);

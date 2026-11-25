@@ -1,15 +1,16 @@
 import 'package:easy_localization/easy_localization.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:islamic_app/core/routes/app_router.dart';
 import 'package:islamic_app/core/routes/routes.dart';
+import 'package:islamic_app/core/utils/extensions.dart';
 import 'package:islamic_app/core/utils/haptics.dart';
 import 'package:islamic_app/core/widgets/animations/button_animation.dart';
 import 'package:islamic_app/core/widgets/custom_button.dart';
+import 'package:material_ui/material_ui.dart';
 import 'failure_ui_config.dart';
 
-/// Modal action buttons for Failure Dialog with Apple/Stripe-grade ergonomics
+/// Modal action buttons for Celestial Sanctuary Failure Dialog.
 class FailureDialogActions extends StatelessWidget {
   final FailureUIConfig config;
   final VoidCallback? onRetry;
@@ -25,6 +26,7 @@ class FailureDialogActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final appColors = context.appColors;
 
     if (config.isAuthFailure) {
       return CustomButton(
@@ -46,36 +48,18 @@ class FailureDialogActions extends StatelessWidget {
       return Row(
         children: [
           Expanded(
-            child: InkWell(
-              onTap: () {
+            child: CustomButton(
+              text: 'cancel'.tr(),
+              height: 46.h,
+              borderRadius: 14,
+              color: appColors.surfaceSubtle,
+              borderColor: appColors.cardBorder,
+              borderWidth: 0.9,
+              textColor: theme.colorScheme.onSurface,
+              onPressed: () {
                 AppHaptics.light();
                 Navigator.of(context).pop();
               },
-              borderRadius: BorderRadius.circular(14.r),
-              child: Container(
-                height: 46.h,
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.07),
-                  borderRadius: BorderRadius.circular(14.r),
-                  border: Border.all(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.12),
-                    width: 1.0,
-                  ),
-                ),
-                child: Text(
-                  'cancel'.tr(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 13.5.sp,
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.80),
-                  ),
-                ),
-              ),
             ).buttonAnimation(),
           ),
           Gap(12.w),

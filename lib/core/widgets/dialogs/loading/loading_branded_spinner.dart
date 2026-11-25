@@ -1,10 +1,13 @@
 import 'dart:math' as math;
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:material_ui/material_ui.dart';
+
+import '../../../utils/extensions.dart';
+import '../../islamic/octagonal_icon_frame.dart';
 import 'loading_arc_painter.dart';
 
-/// Kinetic Mot7km Branded Spinner with continuous celestial rotation,
-/// breathing pulse, and luminous ambient glow.
+/// Celestial Sanctuary spinner with rotating brass astrolabe arc and octagonal crest.
 class LoadingBrandedSpinner extends StatefulWidget {
   final double? size;
 
@@ -16,9 +19,9 @@ class LoadingBrandedSpinner extends StatefulWidget {
 
 class _LoadingBrandedSpinnerState extends State<LoadingBrandedSpinner>
     with TickerProviderStateMixin {
-  late AnimationController _rotationController;
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
+  late final AnimationController _rotationController;
+  late final AnimationController _pulseController;
+  late final Animation<double> _pulseAnimation;
 
   @override
   void initState() {
@@ -33,7 +36,7 @@ class _LoadingBrandedSpinnerState extends State<LoadingBrandedSpinner>
       duration: const Duration(milliseconds: 900),
     )..repeat(reverse: true);
 
-    _pulseAnimation = Tween<double>(begin: 0.94, end: 1.06).animate(
+    _pulseAnimation = Tween<double>(begin: 0.96, end: 1.04).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOutSine),
     );
   }
@@ -47,9 +50,8 @@ class _LoadingBrandedSpinnerState extends State<LoadingBrandedSpinner>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
-    final spinnerSize = widget.size ?? 80.r;
+    final appColors = context.appColors;
+    final spinnerSize = widget.size ?? 78.r;
 
     return ScaleTransition(
       scale: _pulseAnimation,
@@ -59,45 +61,24 @@ class _LoadingBrandedSpinnerState extends State<LoadingBrandedSpinner>
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // 1. Ambient pulsating glow
-            Container(
-              width: spinnerSize,
-              height: spinnerSize,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: primary.withValues(alpha: 0.28),
-                    blurRadius: 22.r,
-                    spreadRadius: 2.r,
-                  ),
-                ],
-              ),
-            ),
-
-            // 2. Radiant celestial arc
             AnimatedBuilder(
               animation: _rotationController,
-              builder: (context, _) => CustomPaint(
+              builder: (_, _) => CustomPaint(
                 size: Size(spinnerSize, spinnerSize),
                 painter: LoadingArcPainter(
                   rotationAngle: _rotationController.value * 2 * math.pi,
-                  color: primary,
-                  trackColor:
-                      theme.colorScheme.onSurface.withValues(alpha: 0.08),
+                  color: appColors.accentGold,
+                  trackColor: appColors.cardBorder.withValues(alpha: 0.45),
                 ),
               ),
             ),
-
-            // 3. Central rotating Mot7km Logo
-            Padding(
-              padding: EdgeInsets.all(16.r),
-              child: RotationTransition(
-                turns: _rotationController,
-                child: Image.asset(
-                  'assets/images/Mot7km_Logo.png',
-                  fit: BoxFit.contain,
-                ),
+            OctagonalIconFrame(
+              size: 46,
+              active: true,
+              child: Icon(
+                FlutterIslamicIcons.solidMosque,
+                size: 20.sp,
+                color: appColors.accentGold,
               ),
             ),
           ],

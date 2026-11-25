@@ -8,7 +8,7 @@ import 'package:islamic_app/core/widgets/dialogs/success/custom_success_dialog.d
 import 'package:material_ui/material_ui.dart';
 
 
-/// Central Apple-grade Dialogs dispatcher for the Mot7km application
+/// Central Celestial Sanctuary Dialogs dispatcher for Zad Al-Muslim.
 class AppDialogs {
   const AppDialogs._();
 
@@ -103,7 +103,7 @@ class AppDialogs {
     );
   }
 
-  /// Apple-grade Frosted Glass Loading Dialog with Kinetic Mot7km Logo
+  /// Celestial Sanctuary Frosted Loading Dialog with rotating mosque crest.
   static void loading(
     BuildContext context, {
     String? title,
