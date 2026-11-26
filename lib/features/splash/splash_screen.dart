@@ -64,7 +64,9 @@ class _SplashScreenState extends State<SplashScreen> {
         });
         return;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('SplashScreen: error resolving pending launch route: $e');
+    }
 
     Future.delayed(const Duration(milliseconds: 2200), () {
       if (!mounted) return;

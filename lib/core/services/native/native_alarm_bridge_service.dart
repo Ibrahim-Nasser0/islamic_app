@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 /// Stateless platform-channel bridge communicating with Android/iOS native alarm engines.
@@ -59,14 +60,18 @@ class NativeAlarmBridgeService {
     if (!isSupportedPlatform) return;
     try {
       await _channel.invokeMethod<void>('cancelPrayerAlarms');
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService cancelAllPrayerAlarms error: $e');
+    }
   }
 
   Future<void> cancelAllAzkarAlarms() async {
     if (!isSupportedPlatform) return;
     try {
       await _channel.invokeMethod<void>('cancelAzkarAlarms');
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService cancelAllAzkarAlarms error: $e');
+    }
   }
 
   Future<Map<String, dynamic>?> consumePendingLaunchRoute() async {
@@ -116,7 +121,9 @@ class NativeAlarmBridgeService {
       if (raw is Map) {
         return raw.map((k, v) => MapEntry(k.toString(), v == true));
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService checkReliability error: $e');
+    }
     return const {
       'notifications': false,
       'exactAlarms': false,
@@ -156,20 +163,26 @@ class NativeAlarmBridgeService {
     if (!isSupportedPlatform) return;
     try {
       await _channel.invokeMethod<void>('previewNativeAdhan', payload);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService previewNativeAdhan error: $e');
+    }
   }
 
   Future<void> previewNativeAzkar(Map<String, dynamic> payload) async {
     if (!isSupportedPlatform) return;
     try {
       await _channel.invokeMethod<void>('previewNativeAzkar', payload);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService previewNativeAzkar error: $e');
+    }
   }
 
   Future<void> _invokeVoid(String method) async {
     if (!isSupportedPlatform) return;
     try {
       await _channel.invokeMethod<void>(method);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService _invokeVoid($method) error: $e');
+    }
   }
 }

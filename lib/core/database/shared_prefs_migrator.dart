@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/quran/domain/entities/quran_bookmark.dart';
@@ -60,7 +61,9 @@ class SharedPrefsToDriftMigrator {
         );
       }
       await db.tasbeehDao.upsertTasbeehEntries(rows);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('SharedPrefsMigrator _migrateTasbeehEntries error: $e');
+    }
   }
 
   static Future<void> _migrateWirdEntries(
@@ -89,7 +92,9 @@ class SharedPrefsToDriftMigrator {
         );
       }
       await db.tasbeehDao.replaceWirdEntries(rows);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('SharedPrefsMigrator _migrateWirdEntries error: $e');
+    }
   }
 
   static Future<void> _migrateQuranData(
@@ -106,7 +111,9 @@ class SharedPrefsToDriftMigrator {
           ayahNumber: b.ayahNumber,
           createdAt: b.timestamp,
         );
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('SharedPrefsMigrator bookmark migration error: $e');
+      }
     }
 
     final lastReadRaw = prefs.getString('quran_last_read');
@@ -119,7 +126,9 @@ class SharedPrefsToDriftMigrator {
           ayahNumber: b.ayahNumber,
           timestamp: b.timestamp,
         );
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('SharedPrefsMigrator lastRead migration error: $e');
+      }
     }
 
     final hasWirdKeys = prefs.containsKey(AppConstants.dailyWirdCountKey) ||

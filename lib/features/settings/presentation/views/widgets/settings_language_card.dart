@@ -68,7 +68,9 @@ class SettingsLanguageCard extends StatelessWidget {
             onSelected: (code) {
               try {
                 context.read<SettingsCubit>().setLanguageCode(code);
-              } catch (_) {}
+              } catch (e) {
+                debugPrint('Failed to set language in SettingsCubit: $e');
+              }
               context.setLocale(Locale(code));
             },
           ),

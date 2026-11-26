@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import '../../../features/settings/presentation/models/muadhin_option.dart';
@@ -175,7 +176,9 @@ class NotificationService {
     if (Platform.isIOS) return;
     try {
       await flutterLocalNotificationsPlugin.cancelAll();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('NotificationService cancelAll failed: $e');
+    }
   }
 
   Future<bool> canScheduleExactAlarms() async {

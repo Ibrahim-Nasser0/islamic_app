@@ -1,6 +1,6 @@
 # Project Rules & Development Guidelines (AGENTS.md)
 
-This document defines the mandatory design, architecture, and coding guidelines for the `menu_manager` SaaS ERP project. All developers and AI coding assistants MUST strictly follow these rules.
+This document defines the mandatory design, architecture, and coding guidelines for the project. All developers and AI coding assistants MUST strictly follow these rules.
 
 ---
 
@@ -51,7 +51,7 @@ To maintain 100% UI consistency across the app, **NEVER** build ad-hoc dialogs, 
   - **NEVER** call `showDialog` with raw Flutter `AlertDialog` or directly instantiate inner dialog widgets (`CustomSuccessDialog`, `CustomFailureDialog`, `CustomLoadingDialog`, `CustomConfirmDialog`).
 - **Mandatory Usage (`AppDialogs` as Single Point of Truth)**:
   - ALL dialog interactions across the entire codebase MUST be dispatched through the static helper methods in `AppDialogs` (`lib/core/utils/dialogs.dart`):
-    1. `AppDialogs.loading(context, title: ..., message: ...)`: Shows the frosted glass loading dialog with the kinetic Mot7km spinner. Manages `_isLoadingOpen` state.
+    1. `AppDialogs.loading(context, title: ..., message: ...)`: Shows the frosted glass loading dialog with the kinetic spinner. Manages `_isLoadingOpen` state.
     2. `AppDialogs.hide(context)`: Safely dismisses the currently open loading dialog. ALWAYS call before presenting success or error dialogs.
     3. `AppDialogs.success(context, title: ..., message: ..., popScreen: bool, result: ...)`: Displays the frosted glass success dialog with emerald checkmark, tactile haptics, and non-dismissible barrier (`barrierDismissible: false`). For full-screen forms, set `popScreen: true` (see Rule 1.I).
     4. `AppDialogs.error(context, title: ..., message: ..., failure: ..., onRetry: ...)` / `AppDialogs.failure(...)`: Displays `CustomFailureDialog` with automated `FailureType` resolution (Network, Server, Auth, Validation), technical details, and optional retry action.
@@ -65,25 +65,25 @@ To maintain 100% UI consistency across the app, **NEVER** build ad-hoc dialogs, 
 ### H. Pull-To-Refresh Indicators
 - **Rule**: ALL scrollable views that support pull-to-refresh MUST use `AppRefreshIndicator`, NEVER default Flutter `RefreshIndicator`.
 - **Location**: `lib/core/widgets/app_refresh_indicator.dart`
-- **Features**: Branded Mot7km logo with continuous rotation and pulse animations, dynamic gesture tracking, tactile haptic feedback (`AppHaptics.light()` & `AppHaptics.medium()`), and seamless iOS rubber-band physics integration.
+- **Features**: Branded animated icon with continuous rotation and pulse animations, dynamic gesture tracking, tactile haptic feedback (`AppHaptics.light()` & `AppHaptics.medium()`), and seamless iOS rubber-band physics integration.
 
 ### I. Mandatory Form Submission & Success Lifecycle Rule 🔄
 - **No Auto-Dismissing Forms**: NEVER close a creation or editing view automatically using arbitrary `Future.delayed()`. Every completed form submission MUST present a confirmed success dialog via `AppDialogs.success()`.
 - **Explicit User Acknowledgment**: Success dialogs MUST NEVER auto-dismiss. They remain on screen until the user explicitly taps "تم" (`'ok'.tr()`). The barrier dismissibility (`barrierDismissible`) is strictly disabled (`false`).
-- **Synchronized Screen Dismissal (`popScreen: true`)**: For full-screen forms (e.g. Add Product, Add Category, Add Slider Banner, Profile Setup), ALWAYS pass `popScreen: true` to `AppDialogs.success(context, ..., popScreen: true)`. NEVER call `Navigator.pop(context)` inside an `onPressed` callback synchronously alongside dialog dismissal, as this causes Flutter Navigator race collisions leaving the screen open.
+- **Synchronized Screen Dismissal (`popScreen: true`)**: For full-screen forms (e.g. Add Product, Add Category, Settings, Profile), ALWAYS pass `popScreen: true` to `AppDialogs.success(context, ..., popScreen: true)`. NEVER call `Navigator.pop(context)` inside an `onPressed` callback synchronously alongside dialog dismissal, as this causes Flutter Navigator race collisions leaving the screen open.
 - **Clean Loading-to-Success Transition**: ALWAYS dismiss active loading dialogs via `AppDialogs.hide(context)` BEFORE presenting `AppDialogs.success(...)`. NEVER call `AppDialogs.hide()` in subsequent cubit states that destroy an active success dialog.
 
 ### J. Mandatory Destructive Actions & Deletion Confirmation Rule 🗑️⚠️
-- **Zero Silent Deletions**: NEVER execute a deletion or destructive operation (deleting a category, product, banner, customization, ingredient, or account) directly upon a user tap or without prior user confirmation.
+- **Zero Silent Deletions**: NEVER execute a deletion or destructive operation (deleting an item, prayer alarm reset, custom dhikr, or account data) directly upon a user tap or without prior user confirmation.
 - **Mandatory Warning Dialog**: ALL destructive actions across the application MUST present a warning confirmation dialog dispatched strictly through `AppDialogs.confirm(...)`:
   - `icon`: `Icons.delete_outline_rounded` or `Icons.warning_amber_rounded`.
   - `iconColor`: `AppColors.error` (or `Color(0xFFEF4444)`).
   - `confirmText`: `'delete'` (translated standard key).
   - `cancelText`: `'cancel'` (translated standard key).
   - `confirmButtonColor`: `const Color(0xFFEF4444)` (danger red solid pill).
-  - `message`: Contextual, descriptive warning indicating the specific item name and impact (e.g. indicating whether sub-items like products in a category will be affected).
+  - `message`: Contextual, descriptive warning indicating the specific item name and impact.
 - **Physical Tactile Feedback**: All deletion trigger actions MUST invoke `AppHaptics.heavy()`.
-- **Cancellation Safety**: If the user dismisses the dialog or taps "Cancel", NO state change, deletion cubit method, or API call must be executed.
+- **Cancellation Safety**: If the user dismisses the dialog or taps "Cancel", NO state change, deletion cubit method, or API/Database call must be executed.
 - **Successful Deletion Feedback**: Upon confirmed deletion, the item must be removed from the UI and confirmed with a clear feedback message (`AppDialogs.success` or cubit `successMessage`).
 
 ### K. Filter & Popover Dropdown Menus (Unified `CustomFilterDropdown` Standard) 🔽
@@ -99,7 +99,7 @@ To maintain 100% UI consistency across the app, **NEVER** build ad-hoc dialogs, 
 
 - **NO Hardcoded Strings**: ALL user-facing text strings MUST be localized. Never hardcode Arabic or English strings directly in presentation widgets.
 - **Symmetric Keys**: Any key added to `assets/lang/ar.json` MUST be symmetrically added with proper translation to `assets/lang/en.json`.
-- **Extension Syntax**: Always use the `.tr()` string extension (e.g. `'business_profile'.tr()`).
+- **Extension Syntax**: Always use the `.tr()` string extension (e.g. `'settings'.tr()`).
 - **Sacred Texts Exception (Holy Quran & Prophetic Azkar)**:
   - ALL UI labels, screen titles, navigation bars, buttons, settings, dates, locations, and surrounding metadata MUST be fully localized (Arabic & English via EasyLocalization).
   - **STRICT EXCEPTION**: The sacred text of the **Holy Quran (آيات القرآن الكريم برسم المصحف العثماني)** and **Azkar / Adhkar (نصوص الأذكار والأدعية النبوية الشريفة)** MUST ALWAYS remain in their authentic, revealed Arabic text in BOTH Arabic and English app modes. They MUST NEVER be translated or substituted with Latin text within the recitation, mushaf, or dhikr screens.
@@ -110,9 +110,9 @@ To maintain 100% UI consistency across the app, **NEVER** build ad-hoc dialogs, 
 
 - **Rule**: ALL interactive elements MUST provide physical tactile feedback using the `AppHaptics` helper class (`lib/core/utils/haptics.dart`):
   - `AppHaptics.light()`: Bottom sheet options, action tiles, quick card toggles.
-  - `AppHaptics.selection()`: Tab bar switches, segmented control changes, color palette selections.
+  - `AppHaptics.selection()`: Tab bar switches, segmented control changes, color palette selections, counter increments.
   - `AppHaptics.medium()`: Floating action buttons (FAB), primary form submissions.
-  - `AppHaptics.heavy()`: Destructive actions (deletions, reset).
+  - `AppHaptics.heavy()`: Destructive actions (deletions, reset, milestone completion).
 
 ---
 
@@ -120,13 +120,18 @@ To maintain 100% UI consistency across the app, **NEVER** build ad-hoc dialogs, 
 
 - **Layer Separation**:
   - `domain/`: Entities, Repository Contracts, and UseCases (Pure Dart).
-  - `data/`: Models (JSON), DataSources, and Repository Implementations.
+  - `data/`: Models (JSON/Drift), DataSources (Remote/Local), and Repository Implementations.
   - `presentation/`: Cubit & State (ViewModel), Views, and Modular Widgets.
 - **No Ad-Hoc Controller Classes**:
-  - NEVER create plain Dart controller classes (e.g. `FormController`, `WorkingHoursController`) to hold state or logic.
-  - State management MUST strictly use **Cubit/BLoC** following MVVM principles. If a feature or sub-flow requires state, create a dedicated `Cubit` (e.g., `WorkingHoursCubit`, `BranchesCubit`).
+  - NEVER create plain Dart controller classes to hold state or logic.
+  - State management MUST strictly use **Cubit/BLoC** following MVVM principles. If a feature or sub-flow requires state, create a dedicated `Cubit` (e.g., `TasbeehCubit`, `SettingsCubit`, `AdhanCubit`).
+- **Immutable States**: All States MUST extend `Equatable` to prevent unnecessary UI rebuilds.
+- **Functional Error Handling (`dartz`)**:
+  - Repositories MUST return `Future<Either<Failure, T>>`.
+  - Data sources catch raw exceptions and throw custom typed `Exceptions`.
+  - Repositories catch `Exceptions` and map them to user-friendly domain `Failure` objects (e.g. `ServerFailure`, `CacheFailure`, `LocationFailure`).
 - **Dependency Injection (GetIt)**:
-  - ALL DataSources, Repositories, UseCases, and Cubits MUST be registered in `lib/core/di/injection_container.dart`.
+  - ALL DataSources, Repositories, UseCases, and Cubits MUST be registered in `lib/core/di/injection_container.dart`. Never instantiate dependencies directly inside widgets.
 - **Rebuild Optimization**:
   - ALWAYS use `buildWhen` in `BlocBuilder` and `context.select` to prevent unnecessary widget rebuilds when unrelated states change.
 
@@ -134,15 +139,26 @@ To maintain 100% UI consistency across the app, **NEVER** build ad-hoc dialogs, 
 
 ## 5. Navigation & Screen Routing 🛣️
 
-- **Full-Screen Views**: Large creation or management forms (e.g., Add Product, Add Category, Add Slider Banner, Business Profile) MUST be dedicated full-screen views, NOT bottom sheets.
+- **Full-Screen Views**: Large creation or management flows (e.g., Adhan Screen, Settings, Onboarding, Quran Reader) MUST be dedicated full-screen views, NOT bottom sheets.
 - **Route Registration**: New views MUST define a constant in `Routes` (`lib/core/routes/routes.dart`) and register in `AppRouter` (`lib/core/routes/app_router.dart`) with smooth transition animations.
 - **No Raw Widget Navigation**: ALL screen transitions MUST pass through `Navigator.pushNamed(context, Routes.xxx, arguments: ...)` using `AppRouter`. Never use `MaterialPageRoute(builder: (context) => SomeWidget())`.
 
 ---
 
-## 6. Design System & Theme Rules 🎨
+## 6. Design System, Spacing & Layout Architecture 🎨
 
-- **Responsive Metrics**: Always wrap numeric layout dimensions in `ScreenUtil` extensions (`.w`, `.h`, `.sp`, `.r`).
+- **Spacing Standard (`package:gap`)**: ALWAYS use `Gap` from `package:gap` instead of `SizedBox` for horizontal and vertical spacing between widgets:
+  - Micro: `Gap(4.w)` / `Gap(4.h)`
+  - Small: `Gap(8.w)` / `Gap(8.h)`
+  - Medium: `Gap(12.w)` / `Gap(12.h)`
+  - Large: `Gap(16.w)` / `Gap(16.h)`
+  - Section: `Gap(24.h)`
+- **Responsive Metrics (`ScreenUtil`)**: All dimensions, typography, padding, margins, icon sizes, and border radii MUST use `flutter_screenutil` extensions (`.w`, `.h`, `.sp`, `.r`).
+- **Multi-Breakpoint Responsive Standards (`AppResponsive`)**:
+  - Use `AppResponsive.value<T>()` or switch expressions on breakpoint sizes (`mobile`, `tablet`, `desktop`).
+  - Standardized screen and card padding:
+    - Screen padding: `EdgeInsets.all(12.r)` (mobile), `EdgeInsets.all(16.r)` (tablet).
+    - Inner card padding: `EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h)`.
 - **Theme Color Palette**: Derive colors from `Theme.of(context)` and `AppColors` to support seamless Dark/Light Mode switching.
 
 ---
@@ -161,19 +177,59 @@ To maintain 100% UI consistency across the app, **NEVER** build ad-hoc dialogs, 
 - **Mandatory Approach (Semantic Design Tokens)**:
   - ALL colors, borders, shadows, and backgrounds in presentation widgets MUST be derived purely from:
     1. `Theme.of(context).colorScheme` (Standard Material 3 tokens: `surface`, `onSurface`, `primary`, `outline`, `error`, etc.).
-    2. `context.appColors` / `context.customTheme` (`AppThemeColors` extension for semantic tokens like `cardBorder`, `cardShadow`, `surfaceSubtle`, `badgeBackground`, `statusActiveBg`, etc.).
+    2. `context.appColors` / `context.customTheme` (`AppThemeColors` extension for semantic tokens like `cardBorder`, `cardShadow`, `surfaceSubtle`, `badgeBackground`, `statusActiveBg`, `accentGold`, etc.).
     3. `context.heroTheme` (`HeroCardThemeTokens` extension for hero metric cards and banners).
     4. Theme component defaults configured in `lib/core/theme/` (`cardTheme`, `inputDecorationTheme`, etc.).
-  - **Adding New Tokens**: If a UI component requires adaptive styling not yet represented, developers/AI MUST define the token in `AppThemeColors` or a specialized `ThemeExtension` in `lib/core/theme/` instead of adding inline conditionals in widgets.
+  - **Adding New Tokens**: If a UI component requires adaptive styling not yet represented, define the token in `AppThemeColors` or a specialized `ThemeExtension` in `lib/core/theme/` instead of adding inline conditionals in widgets.
 
 ---
 
 ## 9. Subtle Visual Aesthetics (Strictly NO Harsh or Exaggerated Glow) 🚫✨
 
 - **Rule**: NEVER apply harsh, overly saturated neon glows, intense radial halos, or exaggerated blooming drop shadows to UI components, cards, navigation bars, buttons, or badges.
-- **Why**: `menu_manager` is a business-grade SaaS ERP platform for merchants and enterprise users. Heavy neon blooms, aggressive colored halos, and intense glowing shadows degrade usability, cause eye fatigue, and detract from a refined, premium aesthetic.
+- **Why**: The app maintains a world-class, serene, spiritual, and refined aesthetic. Heavy neon blooms and aggressive colored halos degrade usability, cause eye fatigue, and detract from clarity.
 - **Mandatory Guidelines**:
   - **Restrained Ambient Shadows**: All elevation shadows MUST be soft, diffused, and low-opacity (alpha $\le 10\text{--}15\%$ in Light Mode, $\le 20\text{--}25\%$ in Dark Mode). Avoid high-opacity colored shadows that bleed into adjacent components.
   - **Crisp Structural Depth**: Build visual hierarchy through clean surface contrast, crisp hairline borders (`0.8px` to `1.0px`), and elegant multi-stop gradients rather than radiant glows.
-  - **Professional SaaS Aesthetic**: Maintain a world-class, clean, and understated design language (inspired by Stripe, Linear, and Apple) rather than arcade, sci-fi, or cyberpunk neon styling.
+  - **Serene Islamic Aesthetic**: Maintain an understated, elegant design language inspired by modern Islamic art, geometry, and refined contemporary interfaces.
 
+---
+
+## 10. Zero Silent Exception Swallowing (Strictly NO Empty `catch (_) {}`) 🚫🤐
+
+- **Strict Prohibition**:
+  - **NEVER** write empty catch blocks such as `try { ... } catch (_) {}` or `catch (e) {}` with an empty body that silently swallows exceptions.
+  - Silently swallowing exceptions hides bugs, masks native integration failures (e.g. notifications, audio playback, alarms, permissions, databases), and causes impossible-to-diagnose state desynchronization.
+- **Mandatory Exception Handling Standard by Layer**:
+  1. **Domain & Data Layers (Repositories / DataSources / Migrations)**:
+     - Catch typed or general exceptions (`catch (e, stackTrace)`).
+     - ALWAYS log the error: `debugPrint('[ClassName] Error during operation: $e\n$stackTrace');`.
+     - Map the exception to a typed domain `Failure` (`return Left(Failure(...))`) or throw a custom domain exception.
+  2. **Presentation Layer (BLoC / Cubit / UI)**:
+     - When an unexpected exception occurs during user interactions or state emissions, catch it, log it, and emit an error state: `emit(state.copyWith(status: Status.failure, errorMessage: ...));`.
+     - Present user-facing feedback via `AppDialogs.error(context, failure: ...)` or `AppDialogs.failure(...)`.
+  3. **Low-Level Native & Platform Services (Alarms, Audio, Notifications, Settings)**:
+     - Platform calls can fail (e.g., missing permissions, unsupported OS versions, channel issues).
+     - ALWAYS log the caught error: `debugPrint('[Service] Operation failed: $e');`.
+     - Return a safe typed fallback (e.g., `false`, `null`, `emptyList`) or rethrow when critical.
+  4. **Strict Standard for "Best-Effort" Non-Critical Operations**:
+     - If an operation is genuinely best-effort where failure has zero functional consequence (e.g., triggering optional system click sound on devices lacking a sound chip, or closing a notification that may already be dismissed):
+       - An empty block is STILL STRICTLY FORBIDDEN (`catch (_) {}` is banned).
+       - It MUST contain an explicit explanatory comment AND a debug log:
+         ```dart
+         try {
+           SystemSound.play(SystemSoundType.click);
+         } catch (e) {
+           // Non-critical: System click sound may fail on unsupported hardware
+           debugPrint('Tasbeeh feedback sound failed: $e');
+         }
+         ```
+
+---
+
+## 11. UI Performance, Resource Lifecycle & Package Reuse ⚡
+
+- **Use `const` Constructors**: Always use `const` for widgets and constructors whenever possible to optimize Flutter's render tree.
+- **Mandatory Resource Disposal**: Always dispose `Controllers` and subscriptions (`TextEditingController`, `ScrollController`, `AnimationController`, `StreamSubscription`, `AudioPlayer`) inside `dispose()` when widgets are unmounted.
+- **No Heavy Operations in `build()`**: Never execute data fetching, parsing, or heavy calculations inside widget `build()` methods.
+- **Avoid Reinventing the Wheel**: ALWAYS prioritize using established, well-maintained packages (e.g., `gap`, `shimmer`, `cached_network_image`, `flutter_svg`, `animate_do`, `lottie`) for UI effects, loading states, and media instead of building custom implementations from scratch.

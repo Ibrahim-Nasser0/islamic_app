@@ -47,7 +47,9 @@ class _AdhanScreenState extends State<AdhanScreen> {
         (m) => m.id == savedId,
         orElse: () => MuadhinOption.defaultList.first,
       );
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('AdhanScreen: failed to read saved muadhin voice: $e');
+    }
 
     _initAudioPlayback();
   }
@@ -70,7 +72,9 @@ class _AdhanScreenState extends State<AdhanScreen> {
     if (id == null) return;
     try {
       await di.sl<NotificationService>().cancel(id);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('AdhanScreen: failed to cancel notification #$id: $e');
+    }
   }
 
   Future<void> _initAudioPlayback() async {
