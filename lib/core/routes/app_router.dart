@@ -14,6 +14,7 @@ import '../../features/mosques/presentation/views/mosques_screen.dart';
 import '../../features/tasbeeh/views/tasbeeh_screen.dart';
 import '../../features/adhan/views/adhan_screen.dart';
 import '../../features/adhan/presentation/models/adhan_args.dart';
+import '../../features/settings/views/privacy_policy_screen.dart';
 
 /// Application Router
 class AppRouter {
@@ -85,6 +86,8 @@ class AppRouter {
           AdhanScreen(args: adhanArgs),
           settings,
         );
+      case Routes.privacyPolicy:
+        return _buildRoute(const PrivacyPolicyScreen(), settings);
       default:
         return _buildRoute(
           Scaffold(

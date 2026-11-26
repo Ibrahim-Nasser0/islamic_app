@@ -2,7 +2,9 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/core/routes/routes.dart';
 import 'package:islamic_app/core/utils/extensions.dart';
+import 'package:islamic_app/core/utils/haptics.dart';
 import 'package:islamic_app/features/settings/presentation/views/widgets/settings_icon_badge.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -57,6 +59,56 @@ class SettingsAboutCard extends StatelessWidget {
             ],
           ),
           Gap(12.h),
+          Divider(color: appColors.cardBorder, height: 1),
+          Gap(6.h),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () {
+                AppHaptics.light();
+                Navigator.pushNamed(context, Routes.privacyPolicy);
+              },
+              borderRadius: BorderRadius.circular(12.r),
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 2.w),
+                child: Row(
+                  children: [
+                    const SettingsIconBadge(icon: Icons.privacy_tip_outlined),
+                    Gap(12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'privacy_policy_title'.tr(),
+                            style: TextStyle(
+                              fontSize: 13.5.sp,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
+                          Gap(2.h),
+                          Text(
+                            'privacy_policy_subtitle'.tr(),
+                            style: TextStyle(
+                              fontSize: 11.5.sp,
+                              color: appColors.textMuted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 14.sp,
+                      color: appColors.textMuted,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Gap(6.h),
           Divider(color: appColors.cardBorder, height: 1),
           Gap(12.h),
           Row(

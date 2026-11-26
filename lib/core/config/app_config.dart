@@ -7,12 +7,12 @@ class AppConfig {
   static const String buildNumber = '1';
 
   // Developer Info
-  static const String developerName = 'Abdullah Essam';
-  static const String developerGithub = 'https://github.com/AbdalluhEssam';
-  static const String developerProfile = 'abdalluh-essam.com';
+  static const String developerName = 'Ibrahim Nasser';
+  static const String developerGithub = 'https://github.com/Ibrahim-Nasser0';
+  static const String developerProfile = 'ibrahim-nasser.vercel.app';
   static const String developerLinkedIn =
-      'https://www.linkedin.com/in/abdalluh-essam';
-  static const String developerEmail = 'contact@abdalluh-essam.com';
+      'https://www.linkedin.com/in/ibrahim-nasser0';
+  static const String developerEmail = 'ibrahimnasser.mobile@gmail.com';
 
   // Environment
   static const bool isProduction = false;
