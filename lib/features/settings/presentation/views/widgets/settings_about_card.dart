@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/core/config/app_config.dart';
 import 'package:islamic_app/core/routes/routes.dart';
 import 'package:islamic_app/core/utils/extensions.dart';
 import 'package:islamic_app/core/utils/haptics.dart';
@@ -46,7 +47,9 @@ class SettingsAboutCard extends StatelessWidget {
                     ),
                     Gap(2.h),
                     Text(
-                      'app_version_label'.tr(),
+                      'app_version_label'.tr(
+                        namedArgs: {'version': AppConfig.appVersion},
+                      ),
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: appColors.accentGold,
