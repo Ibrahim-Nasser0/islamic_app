@@ -8,6 +8,9 @@ import '../../../../core/responsive/responsive_content_frame.dart';
 import '../../../../core/responsive/window_size_class.dart';
 import '../../../../core/services/native/permission_readiness_cubit.dart';
 import '../../../azkar/presentation/cubit/timed_azkar_cubit.dart';
+import '../../../hadith/data/datasources/hadith_local_data_source.dart';
+import '../../../hadith/data/repositories/hadith_repository_impl.dart';
+import '../../../hadith/presentation/cubit/daily_hadith_cubit.dart';
 import '../../../quran/presentation/cubit/daily_wird_cubit.dart';
 import '../../presentation/cubit/prayer_times_cubit.dart';
 import '../../presentation/cubit/prayer_times_state.dart';
@@ -27,6 +30,16 @@ class HomePrayerView extends StatelessWidget {
         BlocProvider(create: (_) => sl<PermissionReadinessCubit>()..refresh()),
         BlocProvider(create: (_) => sl<TimedAzkarCubit>()..loadForCurrentTime()),
         BlocProvider.value(value: sl<DailyWirdCubit>()..loadWird()),
+        if (sl.isRegistered<DailyHadithCubit>())
+          BlocProvider.value(value: sl<DailyHadithCubit>()..loadDailyHadith())
+        else
+          BlocProvider(
+            create: (_) => DailyHadithCubit(
+              repository: HadithRepositoryImpl(
+                localDataSource: HadithLocalDataSourceImpl(),
+              ),
+            )..loadDailyHadith(),
+          ),
       ],
       child: const _HomePrayerContent(),
     );

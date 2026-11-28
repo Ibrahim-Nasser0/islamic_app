@@ -352,5 +352,7 @@
   "privacy_contact_btn": "التواصل عبر البريد الإلكتروني",
   "privacy_email_copied": "تم نسخ البريد الإلكتروني: {email}",
   "muadhin_audio_source": "مصدر تسجيلات صوت الأذان: موقع إسلام ويب (islamweb.net)",
-  "audio_source_credit_label": "مصدر صوت الأذان: islamweb.net"
+  "audio_source_credit_label": "مصدر صوت الأذان: islamweb.net",
+  "hadith_read_more": "اقرأ الحديث كاملاً",
+  "hadith_shuffle_tooltip": "حديث عشوائي آخر"
 }

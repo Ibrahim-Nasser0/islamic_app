@@ -38,6 +38,7 @@ import '../../features/azkar/presentation/cubit/timed_azkar_cubit.dart';
 import '../../features/hadith/data/datasources/hadith_local_data_source.dart';
 import '../../features/hadith/data/repositories/hadith_repository_impl.dart';
 import '../../features/hadith/domain/repositories/hadith_repository.dart';
+import '../../features/hadith/presentation/cubit/daily_hadith_cubit.dart';
 import '../../features/hadith/presentation/cubit/hadith_cubit.dart';
 import '../../features/settings/data/datasources/settings_local_data_source.dart';
 import '../../features/settings/presentation/cubit/settings_cubit.dart';
@@ -130,6 +131,7 @@ Future<void> init() async {
   sl.registerLazySingleton<HadithLocalDataSource>(() => HadithLocalDataSourceImpl());
   sl.registerLazySingleton<HadithRepository>(() => HadithRepositoryImpl(localDataSource: sl()));
   sl.registerFactory(() => HadithCubit(repository: sl()));
+  sl.registerLazySingleton(() => DailyHadithCubit(repository: sl(), prefs: sl()));
 
   // Settings & Native Alarms
   sl.registerLazySingleton<SettingsLocalDataSource>(

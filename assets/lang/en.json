@@ -352,5 +352,7 @@
   "privacy_contact_btn": "Contact Developer via Email",
   "privacy_email_copied": "Copied support email: {email}",
   "muadhin_audio_source": "Adhan audio recordings source: islamweb.net",
-  "audio_source_credit_label": "Adhan audio source: islamweb.net"
+  "audio_source_credit_label": "Adhan audio source: islamweb.net",
+  "hadith_read_more": "Read full Hadith",
+  "hadith_shuffle_tooltip": "Another random Hadith"
 }
