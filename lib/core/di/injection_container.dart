@@ -131,7 +131,7 @@ Future<void> init() async {
       () => AzkarLocalDataSourceImpl(azkarDao: sl()));
   sl.registerLazySingleton<AzkarRepository>(() => AzkarRepositoryImpl(localDataSource: sl()));
   sl.registerFactory(() => AzkarCubit(repository: sl(), syncCoordinator: sl()));
-  sl.registerFactory(() => TimedAzkarCubit(sl()));
+  sl.registerLazySingleton(() => TimedAzkarCubit(sl()));
 
   // Hadith Feature
   sl.registerLazySingleton<HadithLocalDataSource>(

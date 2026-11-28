@@ -14,6 +14,7 @@ import 'package:islamic_app/features/hadith/domain/entities/daily_hadith_entry.d
 import 'package:islamic_app/features/hadith/domain/entities/hadith_item.dart';
 import 'package:islamic_app/features/hadith/domain/repositories/hadith_repository.dart';
 import 'package:islamic_app/features/hadith/presentation/cubit/daily_hadith_cubit.dart';
+import 'package:islamic_app/features/hadith/views/widgets/hadith_strength_meter_card.dart';
 import 'package:islamic_app/features/home/views/widgets/daily_hadith_highlight_card.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -228,10 +229,62 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining(firstText), findsOneWidget);
+    expect(find.text('4/4'), findsOneWidget);
     await tester.tap(find.byIcon(Icons.autorenew_rounded));
     await tester.pumpAndSettle();
     expect(cubit.state.entry!.hadith.arabicText, isNot(firstText));
 
     await cubit.close();
+  });
+
+  testWidgets('HadithStrengthMeterCard displays 4 scholarly progression stages cleanly', (tester) async {
+    const item = HadithItem(
+      number: 1,
+      title: 'النية',
+      arabicText: 'إنما الأعمال بالنيات',
+      narrator: 'عمر بن الخطاب',
+      reference: 'الأربعون النووية',
+      gradeTier: HadithItem.tierHasan,
+      gradeLabelAr: 'حديث حسن',
+      gradeLabelEn: 'Good (Hasan)',
+      strengthScore: 3,
+    );
+
+    await tester.pumpWidget(
+      EasyLocalization(
+        supportedLocales: const [Locale('ar'), Locale('en')],
+        path: 'assets/lang',
+        startLocale: const Locale('ar'),
+        fallbackLocale: const Locale('ar'),
+        assetLoader: const FileJsonAssetLoader(),
+        child: Builder(
+          builder: (context) => ScreenUtilInit(
+            designSize: const Size(375, 812),
+            builder: (_, _) => MaterialApp(
+              theme: AppTheme.lightTheme,
+              locale: const Locale('ar'),
+              supportedLocales: context.supportedLocales,
+              localizationsDelegates: [
+                EasyLocalization.of(context)!.delegate,
+                ...GlobalMaterialLocalizations.delegates,
+              ],
+              home: const Scaffold(
+                body: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: HadithStrengthMeterCard(hadith: item),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('3/4'), findsOneWidget);
+    expect(find.text('تخريج'), findsOneWidget);
+    expect(find.text('حسن'), findsOneWidget);
+    expect(find.text('صحيح'), findsOneWidget);
+    expect(find.text('متفق'), findsOneWidget);
   });
 }

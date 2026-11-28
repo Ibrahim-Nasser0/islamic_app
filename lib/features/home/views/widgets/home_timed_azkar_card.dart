@@ -12,7 +12,7 @@ import '../../../azkar/presentation/cubit/timed_azkar_state.dart';
 import 'timed_azkar_dhikr_box.dart';
 import 'timed_azkar_period_bar.dart';
 
-/// Time-aware interactive Azkar card rendered beneath HomeQuickActionsBar.
+/// Time-aware interactive Azkar Sanctuary card shared across Home & Azkar Tab.
 class HomeTimedAzkarCard extends StatelessWidget {
   const HomeTimedAzkarCard({super.key});
 
@@ -24,12 +24,19 @@ class HomeTimedAzkarCard extends StatelessWidget {
     return BlocBuilder<TimedAzkarCubit, TimedAzkarState>(
       builder: (context, state) {
         if (state.isLoading || state.category == null) {
-          return CustomSkeleton(height: 170.h, borderRadius: 18);
+          return CustomSkeleton(height: 190.h, borderRadius: 18);
         }
 
         final cat = state.category!;
         final active = state.activeDhikr;
         final cubit = context.read<TimedAzkarCubit>();
+        final ratio = cat.totalItems == 0
+            ? 0.0
+            : (cat.completedItems / cat.totalItems).clamp(0.0, 1.0);
+        final currentStep = active == null
+            ? cat.totalItems
+            : (cat.items.indexWhere((i) => i.id == active.id) + 1)
+                .clamp(1, cat.totalItems);
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -39,28 +46,54 @@ class HomeTimedAzkarCard extends StatelessWidget {
               badgeText: '${cat.completedItems} / ${cat.totalItems}',
             ),
             Gap(10.h),
-            Container(
-              padding: EdgeInsets.all(14.r),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(18.r),
-                border: Border.all(color: appColors.cardBorder, width: 0.9),
-                boxShadow: appColors.cardShadow,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TimedAzkarPeriodBar(state: state, cubit: cubit),
-                  Gap(10.h),
-                  if (active != null)
-                    TimedAzkarDhikrBox(
-                      active: active,
-                      onTap: cubit.decrementActiveDhikr,
-                    )
-                  else
-                    _buildCompletedBox(context, cubit),
-                ],
-              ),
+            Stack(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(14.r),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface,
+                    borderRadius: BorderRadius.circular(18.r),
+                    border: Border.all(
+                      color: active == null
+                          ? appColors.statusSuccess.withValues(alpha: 0.4)
+                          : appColors.accentGold.withValues(alpha: 0.32),
+                      width: 0.9,
+                    ),
+                    boxShadow: appColors.cardShadow,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(999.r),
+                        child: LinearProgressIndicator(
+                          value: ratio,
+                          minHeight: 3.h,
+                          backgroundColor: appColors.cardBorder.withValues(alpha: 0.35),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            active == null
+                                ? appColors.statusSuccess
+                                : appColors.accentGold,
+                          ),
+                        ),
+                      ),
+                      Gap(12.h),
+                      TimedAzkarPeriodBar(state: state, cubit: cubit),
+                      Gap(12.h),
+                      if (active != null)
+                        TimedAzkarDhikrBox(
+                          active: active,
+                          currentStep: currentStep,
+                          totalItems: cat.totalItems,
+                          onTap: cubit.decrementActiveDhikr,
+                        )
+                      else
+                        _buildCompletedBox(context, cubit),
+                    ],
+                  ),
+                ),
+                const ManuscriptCorners(inset: 7, length: 10),
+              ],
             ),
           ],
         );

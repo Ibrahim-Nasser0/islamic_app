@@ -28,7 +28,7 @@ class HomePrayerView extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => sl<PrayerTimesCubit>()..loadPrayerTimes()),
         BlocProvider(create: (_) => sl<PermissionReadinessCubit>()..refresh()),
-        BlocProvider(create: (_) => sl<TimedAzkarCubit>()..loadForCurrentTime()),
+        BlocProvider.value(value: sl<TimedAzkarCubit>()..ensureLoaded()),
         BlocProvider.value(value: sl<DailyWirdCubit>()..loadWird()),
         if (sl.isRegistered<DailyHadithCubit>())
           BlocProvider.value(value: sl<DailyHadithCubit>()..loadDailyHadith())

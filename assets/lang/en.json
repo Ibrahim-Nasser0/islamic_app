@@ -363,5 +363,17 @@
   "hadith_grade_needs_verification": "Citation In Text",
   "hadith_strength_scale": "Grade {score}/4",
   "hadith_filter_grade_tooltip": "Filter by authenticity",
-  "hadith_load_more_hint": "Loading more Hadiths..."
+  "hadith_load_more_hint": "Loading more Hadiths...",
+  "hadith_strength_meter_title": "Hadith Authenticity Grade",
+  "hadith_grade_muttafaq_desc": "Agreed upon by Al-Bukhari & Muslim — highest authenticity",
+  "hadith_grade_sahih_desc": "Verified authentic chain of narration (Sahih)",
+  "hadith_grade_hasan_desc": "Good reliable chain of narration (Hasan)",
+  "hadith_grade_citation_desc": "See scholarly source citation included in the text",
+  "hadith_stage_citation": "Cited",
+  "hadith_stage_hasan": "Hasan",
+  "hadith_stage_sahih": "Sahih",
+  "hadith_stage_muttafaq": "Agreed",
+  "timed_azkar_current_slot_badge": "Current Slot",
+  "timed_azkar_dhikr_progress": "Dhikr {current} of {total}",
+  "timed_azkar_tap_circle": "Tap"
 }

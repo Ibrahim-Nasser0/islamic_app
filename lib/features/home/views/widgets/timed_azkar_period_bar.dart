@@ -10,7 +10,7 @@ import '../../../../core/widgets/widgets.dart';
 import '../../../azkar/presentation/cubit/timed_azkar_cubit.dart';
 import '../../../azkar/presentation/cubit/timed_azkar_state.dart';
 
-/// Period selector pills and "Open All" link for the time-aware Azkar card.
+/// Unified [CustomSegmentedControl] period picker + active slot badge & Open-All link.
 class TimedAzkarPeriodBar extends StatelessWidget {
   final TimedAzkarState state;
   final TimedAzkarCubit cubit;
@@ -24,89 +24,103 @@ class TimedAzkarPeriodBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appColors = context.appColors;
-    return Row(
+    const periods = AzkarTimePeriod.values;
+    final selectedIdx = periods.indexOf(state.selectedPeriod);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: AzkarTimePeriod.values.map((p) {
-                final selected = p == state.selectedPeriod;
-                final isNow = p == state.recommendedPeriod;
-                return Padding(
-                  padding: EdgeInsetsDirectional.only(end: 6.w),
-                  child: InkWell(
-                    onTap: () {
-                      AppHaptics.selection();
-                      cubit.selectPeriod(p);
-                    },
-                    borderRadius: BorderRadius.circular(12.r),
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
-                      decoration: BoxDecoration(
-                        color: selected
-                            ? appColors.navActivePillBg
-                            : appColors.surfaceSubtle,
-                        borderRadius: BorderRadius.circular(12.r),
-                        border: Border.all(
-                          color: selected
-                              ? appColors.accentGold.withValues(alpha: 0.55)
-                              : appColors.cardBorder,
-                          width: 0.8,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (isNow) ...[
-                            RubElHizbMark(
-                                size: 10.w, color: appColors.accentGold),
-                            Gap(4.w),
-                          ],
-                          Text(
-                            p.titleKey.tr(),
-                            style: TextStyle(
-                              fontSize: 11.sp,
-                              fontWeight:
-                                  selected ? FontWeight.bold : FontWeight.w500,
-                              color: selected
-                                  ? appColors.accentGold
-                                  : appColors.textMuted,
-                            ),
-                          ),
-                        ],
+        Row(
+          children: [
+            if (state.isRecommendedActive)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 9.w, vertical: 3.h),
+                decoration: BoxDecoration(
+                  color: appColors.accentGold.withValues(alpha: 0.13),
+                  borderRadius: BorderRadius.circular(999.r),
+                  border: Border.all(
+                    color: appColors.accentGold.withValues(alpha: 0.35),
+                    width: 0.8,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    RubElHizbMark(size: 11.w, color: appColors.accentGold),
+                    Gap(5.w),
+                    Text(
+                      'timed_azkar_now_badge'.tr(),
+                      style: TextStyle(
+                        fontSize: 10.5.sp,
+                        fontWeight: FontWeight.bold,
+                        color: appColors.accentGold,
                       ),
                     ),
+                  ],
+                ),
+              )
+            else
+              InkWell(
+                onTap: () {
+                  AppHaptics.selection();
+                  cubit.selectPeriod(state.recommendedPeriod);
+                },
+                borderRadius: BorderRadius.circular(999.r),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+                  child: Text(
+                    'timed_azkar_current_slot_badge'.tr(),
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w600,
+                      color: appColors.textMuted,
+                    ),
                   ),
+                ),
+              ),
+            const Spacer(),
+            InkWell(
+              onTap: () async {
+                AppHaptics.light();
+                await Navigator.pushNamed(
+                  context,
+                  Routes.azkarCategory,
+                  arguments: {'categoryId': state.selectedPeriod.categoryId},
                 );
-              }).toList(),
-            ),
-          ),
-        ),
-        Gap(6.w),
-        InkWell(
-          onTap: () async {
-            AppHaptics.light();
-            await Navigator.pushNamed(
-              context,
-              Routes.azkarCategory,
-              arguments: {'categoryId': state.selectedPeriod.categoryId},
-            );
-            if (context.mounted) cubit.reloadCurrent();
-          },
-          borderRadius: BorderRadius.circular(10.r),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
-            child: Text(
-              'timed_azkar_open_all'.tr(),
-              style: TextStyle(
-                fontSize: 11.sp,
-                fontWeight: FontWeight.bold,
-                color: appColors.accentGold,
+                if (context.mounted) cubit.reloadCurrent();
+              },
+              borderRadius: BorderRadius.circular(10.r),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'timed_azkar_open_all'.tr(),
+                      style: TextStyle(
+                        fontSize: 11.5.sp,
+                        fontWeight: FontWeight.bold,
+                        color: appColors.accentGold,
+                      ),
+                    ),
+                    Gap(3.w),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 11.sp,
+                      color: appColors.accentGold,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
+        ),
+        Gap(10.h),
+        CustomSegmentedControl(
+          height: 38.h,
+          options: periods.map((p) => p.titleKey.tr()).toList(),
+          selectedIndex: selectedIdx < 0 ? 0 : selectedIdx,
+          onValueChanged: (idx) => cubit.selectPeriod(periods[idx]),
         ),
       ],
     );

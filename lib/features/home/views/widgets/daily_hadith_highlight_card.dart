@@ -14,19 +14,18 @@ import '../../../hadith/domain/entities/daily_hadith_entry.dart';
 import '../../../hadith/presentation/cubit/daily_hadith_cubit.dart';
 import '../../../hadith/presentation/cubit/daily_hadith_state.dart';
 import '../../../hadith/views/widgets/hadith_grade_badge.dart';
+import 'daily_hadith_card_header.dart';
 
-/// Daily random highlighted Hadith banner card backed by [DailyHadithCubit].
+/// Illuminated Manuscript folio card showcasing one random Sahih Hadith daily.
 class DailyHadithHighlightCard extends StatelessWidget {
   const DailyHadithHighlightCard({super.key});
 
-  String _bookTitleKey(String bookId) {
-    return switch (bookId) {
-      'bukhari' || 'sahih_bukhari' => 'sahih_bukhari',
-      'muslim' || 'sahih_muslim' => 'sahih_muslim',
-      'riyad' || 'riyad_assalihin' => 'riyad_assalihin',
-      _ => 'nawawi_forty',
-    };
-  }
+  String _bookTitleKey(String bookId) => switch (bookId) {
+        'bukhari' || 'sahih_bukhari' => 'sahih_bukhari',
+        'muslim' || 'sahih_muslim' => 'sahih_muslim',
+        'riyad' || 'riyad_assalihin' => 'riyad_assalihin',
+        _ => 'nawawi_forty',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +35,9 @@ class DailyHadithHighlightCard extends StatelessWidget {
     return BlocBuilder<DailyHadithCubit, DailyHadithState>(
       builder: (context, state) {
         if (state.isLoading && state.entry == null) {
-          return CustomSkeleton(height: 168.h, borderRadius: 18);
+          return CustomSkeleton(height: 196.h, borderRadius: 18);
         }
-        final entry = state.entry;
-        return _buildCard(context, theme, appColors, entry);
+        return _buildCard(context, theme, appColors, state.entry);
       },
     );
   }
@@ -52,25 +50,23 @@ class DailyHadithHighlightCard extends StatelessWidget {
   ) {
     final hadithText =
         entry != null ? '« ${entry.hadith.arabicText} »' : 'daily_hadith_text'.tr();
-    final referenceText =
-        entry != null ? entry.hadith.reference : 'narrated_by_bukhari_muslim'.tr();
-    final bookLabel = entry != null ? _bookTitleKey(entry.bookId).tr() : null;
+    final narratorText =
+        entry != null ? entry.hadith.narrator : 'narrated_by_bukhari_muslim'.tr();
+    final bookStamp = entry != null
+        ? '${_bookTitleKey(entry.bookId).tr()} • ${entry.hadith.number}'
+        : null;
 
     return Stack(
       children: [
         Container(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                appColors.accentGold.withValues(alpha: 0.14),
-                appColors.navActivePillBg,
-              ],
-            ),
+            color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(18.r),
             border: Border.all(
-              color: appColors.accentGold.withValues(alpha: 0.4),
-              width: 1.0,
+              color: appColors.accentGold.withValues(alpha: 0.42),
+              width: 0.9,
             ),
+            boxShadow: appColors.cardShadow,
           ),
           child: Material(
             color: Colors.transparent,
@@ -86,103 +82,109 @@ class DailyHadithHighlightCard extends StatelessWidget {
                         arguments: {'hadith': entry.hadith},
                       );
                     },
-              child: Padding(
-                padding: EdgeInsets.all(18.r),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  DailyHadithCardHeader(
+                    bookStamp: bookStamp,
+                    onShuffle: () => context.read<DailyHadithCubit>().shuffleHadith(),
+                  ),
+                  const GoldHairlineDivider(),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 14.h, 16.w, 14.h),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        RubElHizbMark(size: 14.w, color: appColors.accentGold),
-                        Gap(8.w),
-                        Expanded(
-                          child: Text(
-                            'hadith_of_the_day'.tr(),
-                            style: TextStyle(
-                              fontSize: 13.sp,
-                              fontWeight: FontWeight.bold,
-                              color: appColors.accentGold,
-                            ),
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Container(
+                                width: 3.w,
+                                decoration: BoxDecoration(
+                                  color: appColors.accentGold.withValues(alpha: 0.72),
+                                  borderRadius: BorderRadius.circular(999.r),
+                                ),
+                              ),
+                              Gap(10.w),
+                              Expanded(
+                                child: Text(
+                                  hadithText,
+                                  maxLines: 5,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: AppTypography.quranAyah.copyWith(
+                                    fontSize: 17.sp,
+                                    height: 1.72,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        if (bookLabel != null)
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 3.h),
-                            decoration: BoxDecoration(
-                              color: appColors.accentGold.withValues(alpha: 0.14),
-                              borderRadius: BorderRadius.circular(999.r),
+                        Gap(10.h),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.record_voice_over_rounded,
+                              size: 13.sp,
+                              color: appColors.accentGold,
                             ),
-                            child: Text(
-                              bookLabel,
-                              style: TextStyle(
-                                fontSize: 10.5.sp,
-                                fontWeight: FontWeight.w600,
-                                color: appColors.accentGold,
+                            Gap(6.w),
+                            Expanded(
+                              child: Text(
+                                narratorText,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 11.5.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: appColors.textMuted,
+                                ),
                               ),
                             ),
-                          ),
-                        Gap(6.w),
-                        IconButton(
-                          visualDensity: VisualDensity.compact,
-                          constraints: BoxConstraints(minWidth: 32.w, minHeight: 32.w),
-                          padding: EdgeInsets.zero,
-                          tooltip: 'hadith_shuffle_tooltip'.tr(),
-                          icon: Icon(Icons.autorenew_rounded, size: 18.sp, color: appColors.accentGold),
-                          onPressed: () {
-                            AppHaptics.selection();
-                            context.read<DailyHadithCubit>().shuffleHadith();
-                          },
+                          ],
+                        ),
+                        Gap(10.h),
+                        Row(
+                          children: [
+                            if (entry != null) ...[
+                              Expanded(
+                                child: Align(
+                                  alignment: AlignmentDirectional.centerStart,
+                                  child: HadithGradeBadge(
+                                    hadith: entry.hadith,
+                                    compact: true,
+                                  ),
+                                ),
+                              ),
+                              Gap(8.w),
+                              Text(
+                                'hadith_read_more'.tr(),
+                                style: TextStyle(
+                                  fontSize: 11.5.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: appColors.accentGold,
+                                ),
+                              ),
+                              Gap(3.w),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                size: 11.sp,
+                                color: appColors.accentGold,
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),
-                    Gap(10.h),
-                    Text(
-                      hadithText,
-                      maxLines: 5,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.quranAyah.copyWith(
-                        fontSize: 17.sp,
-                        height: 1.65,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                    ),
-                    Gap(10.h),
-                    if (entry != null) ...[
-                      HadithGradeBadge(hadith: entry.hadith, compact: true),
-                      Gap(8.h),
-                    ],
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            referenceText,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 12.sp, color: appColors.textMuted),
-                          ),
-                        ),
-                        if (entry != null) ...[
-                          Gap(8.w),
-                          Text(
-                            'hadith_read_more'.tr(),
-                            style: TextStyle(
-                              fontSize: 11.5.sp,
-                              fontWeight: FontWeight.w600,
-                              color: appColors.accentGold,
-                            ),
-                          ),
-                          Gap(3.w),
-                          Icon(Icons.arrow_forward_ios_rounded, size: 11.sp, color: appColors.accentGold),
-                        ],
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
         ),
-        const ManuscriptCorners(inset: 8, length: 11),
+        const ManuscriptCorners(inset: 7, length: 10),
       ],
     );
   }

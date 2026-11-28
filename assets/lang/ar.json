@@ -363,5 +363,17 @@
   "hadith_grade_needs_verification": "تخريج في المتن",
   "hadith_strength_scale": "القوة {score}/4",
   "hadith_filter_grade_tooltip": "تصفية حسب الدرجة",
-  "hadith_load_more_hint": "جارٍ تحميل المزيد من الأحاديث..."
+  "hadith_load_more_hint": "جارٍ تحميل المزيد من الأحاديث...",
+  "hadith_strength_meter_title": "درجة الحديث ومرتبة القبول",
+  "hadith_grade_muttafaq_desc": "أخرجه الشيخان البخاري ومسلم معاً — أعلى مراتب الصحة",
+  "hadith_grade_sahih_desc": "حديث صحيح الإسناد ثابت الحجية عند أئمة الحديث",
+  "hadith_grade_hasan_desc": "حديث حسن الإسناد مقبول ومحتج به",
+  "hadith_grade_citation_desc": "راجع تخريج الأئمة المذكور في متن الحديث",
+  "hadith_stage_citation": "تخريج",
+  "hadith_stage_hasan": "حسن",
+  "hadith_stage_sahih": "صحيح",
+  "hadith_stage_muttafaq": "متفق",
+  "timed_azkar_current_slot_badge": "ورد الوقت الحالي",
+  "timed_azkar_dhikr_progress": "الذكر {current} من {total}",
+  "timed_azkar_tap_circle": "عد"
 }
