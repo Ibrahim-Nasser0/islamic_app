@@ -15,10 +15,10 @@ done
 1. افتح `ios/Runner.xcworkspace` في Xcode.
 2. في **Signing & Capabilities** أضف:
    - **Time Sensitive Notifications**
-   - **App Groups** وأضف المعرّف: `group.com.example.islamicApp.shared`
+   - **App Groups** وأضف المعرّف: `group.com.ibrahimnasser.zadalmuslim.shared`
 
 ## 3. ربط واجهة شاشة القفل التفاعلية (`ZadNotificationUI`)
 1. من Xcode: **File → New → Target → Notification Content Extension** باسم `ZadNotificationUI`.
-2. فعّل فيه نفس **App Groups** (`group.com.example.islamicApp.shared`).
+2. فعّل فيه نفس **App Groups** (`group.com.ibrahimnasser.zadalmuslim.shared`).
 3. استبدل ملفات `NotificationViewController.swift` و `Info.plist` بالملفات الجاهزة في `ios/ZadNotificationUI/`.
 4. في قائمة Actions يظهر الإشعار مرفقاً بالتصميم الذهبي والزمردي وعدّاد الأذكار مباشرة فوق شاشة القفل دون الحاجة لفتح التطبيق!

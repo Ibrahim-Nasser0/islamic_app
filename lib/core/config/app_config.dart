@@ -14,6 +14,10 @@ class AppConfig {
       'https://www.linkedin.com/in/ibrahim-nasser0';
   static const String developerEmail = 'ibrahimnasser.mobile@gmail.com';
 
+  // Content & Audio Attribution
+  static const String adhanAudioSourceName = 'islamweb.net';
+  static const String adhanAudioSourceUrl = 'https://www.islamweb.net';
+
   // Environment
   static const bool isProduction = false;
   static const bool enableLogging = true;

@@ -8,7 +8,7 @@ import UserNotifications
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate, UNUserNotificationCenterDelegate {
   private var nativeChannel: FlutterMethodChannel?
   private var audioPlayer: AVAudioPlayer?
-  private let suiteName = "group.com.example.islamicApp.shared"
+  private let suiteName = "group.com.ibrahimnasser.zadalmuslim.shared"
 
   private var sharedDefaults: UserDefaults {
     UserDefaults(suiteName: suiteName) ?? .standard

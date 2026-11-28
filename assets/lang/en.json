@@ -344,11 +344,13 @@
   "privacy_sec3_title": "3. Alarms, Notifications & Sensors",
   "privacy_sec3_body": "• Notifications & Exact Alarms: Used solely to fire Prayer, Pre-Prayer, and Azkar alerts on time.\n• Lockscreen Full-Screen Intent (Android 14+): Displays the Adhan or Azkar screen when the device is locked.\n• Battery Exemption & Media Playback Service: Ensures Adhan audio completes reliably in the background. The microphone is never accessed.\n• Compass Sensor: Used locally in real time for Qibla direction only.",
   "privacy_sec4_title": "4. Third-Party Services & Transparency",
-  "privacy_sec4_body": "• Zero advertising networks, crash-tracking, or behavioral analytics SDKs are embedded in this app.\n• Tapping Directions on a mosque launches an external map app (such as Google Maps), which is governed by that service's own privacy policy.\n• You can revoke any system permission at any time without losing offline Quran, Tasbeeh, or Azkar features.",
+  "privacy_sec4_body": "• Zero advertising networks, crash-tracking, or behavioral analytics SDKs are embedded in this app.\n• Bundled Adhan audio recordings are sourced from islamweb.net and play locally offline.\n• Tapping Directions on a mosque launches an external map app (such as Google Maps), which is governed by that service's own privacy policy.\n• You can revoke any system permission at any time without losing offline Quran, Tasbeeh, or Azkar features.",
   "privacy_sec5_title": "5. Your Control & Contact",
   "privacy_sec5_body": "You retain full control over permissions and local app storage. For any privacy questions or Google Play data inquiries, contact the developer directly:",
   "privacy_review_permissions": "Review App Permissions",
   "privacy_review_permissions_desc": "Inspect or adjust notification, location & alarm permissions",
   "privacy_contact_btn": "Contact Developer via Email",
-  "privacy_email_copied": "Copied support email: {email}"
+  "privacy_email_copied": "Copied support email: {email}",
+  "muadhin_audio_source": "Adhan audio recordings source: islamweb.net",
+  "audio_source_credit_label": "Adhan audio source: islamweb.net"
 }

@@ -18,7 +18,7 @@ class MosquesRemoteDataSourceImpl implements MosquesRemoteDataSource {
 
   static const Map<String, String> _customHeaders = {
     'User-Agent':
-        'ZadAlMuslim/1.0 (Android; com.zad.almuslim; contact: support@zad.app)',
+        'ZadAlMuslim/1.0 (Android; com.ibrahimnasser.zadalmuslim; contact: ibrahimnasser.mobile@gmail.com)',
     'Accept': '*/*',
   };
 

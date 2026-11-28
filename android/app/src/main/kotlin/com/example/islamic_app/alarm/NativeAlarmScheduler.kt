@@ -250,14 +250,6 @@ object NativeAlarmScheduler {
     }
 
     fun openBatterySettings(context: Context) {
-        val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        if (!pm.isIgnoringBatteryOptimizations(context.packageName)) {
-            val directIntent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                data = Uri.parse("package:${context.packageName}")
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-            }
-            if (runCatching { context.startActivity(directIntent) }.isSuccess) return
-        }
         val listIntent = Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }

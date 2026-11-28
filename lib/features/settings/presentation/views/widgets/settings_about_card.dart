@@ -115,6 +115,29 @@ class SettingsAboutCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
+                Icons.graphic_eq_rounded,
+                size: 13.sp,
+                color: appColors.accentGold,
+              ),
+              Gap(6.w),
+              Flexible(
+                child: Text(
+                  'audio_source_credit_label'.tr(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    color: appColors.textMuted,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Gap(8.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
                 Icons.favorite_rounded,
                 size: 13.sp,
                 color: appColors.accentGold,

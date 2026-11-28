@@ -132,6 +132,20 @@ class _MuadhinSelectorSheetState extends State<MuadhinSelectorSheet> {
                 onToggleAudio: _toggleAudio,
               );
             }),
+            Gap(4.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.graphic_eq_rounded, size: 13.sp, color: appColors.accentGold),
+                Gap(6.w),
+                Flexible(
+                  child: Text(
+                    'muadhin_audio_source'.tr(),
+                    style: TextStyle(fontSize: 11.sp, color: appColors.textMuted),
+                  ),
+                ),
+              ],
+            ),
             Gap(12.h),
             CustomButton(
               text: 'confirm_selection'.tr(),
