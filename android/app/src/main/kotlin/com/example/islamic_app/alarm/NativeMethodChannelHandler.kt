@@ -131,6 +131,10 @@ class NativeMethodChannelHandler(
         val muezzinAr = payload.optString("muezzinNameAr", "أذان الحرم المكي")
         val muezzinEn = payload.optString("muezzinNameEn", "Makkah Sanctuary")
         val muezzinLoc = payload.optString("muezzinLocation", "مكة المكرمة")
+        val hijriDateAr = payload.optString("hijriDateAr", "")
+        val hijriDateEn = payload.optString("hijriDateEn", "")
+        val cityAr = payload.optString("cityAr", "")
+        val cityEn = payload.optString("cityEn", "")
 
         val serviceIntent = Intent(context, AdhanForegroundService::class.java).apply {
             action = AdhanForegroundService.ACTION_START
@@ -144,6 +148,10 @@ class NativeMethodChannelHandler(
             putExtra("muezzinNameAr", muezzinAr)
             putExtra("muezzinNameEn", muezzinEn)
             putExtra("muezzinLocation", muezzinLoc)
+            putExtra("hijriDateAr", hijriDateAr)
+            putExtra("hijriDateEn", hijriDateEn)
+            putExtra("cityAr", cityAr)
+            putExtra("cityEn", cityEn)
         }
         ContextCompat.startForegroundService(context, serviceIntent)
 
@@ -158,6 +166,11 @@ class NativeMethodChannelHandler(
             putExtra("muezzinNameAr", muezzinAr)
             putExtra("muezzinNameEn", muezzinEn)
             putExtra("muezzinLocation", muezzinLoc)
+            putExtra("hijriDateAr", hijriDateAr)
+            putExtra("hijriDateEn", hijriDateEn)
+            putExtra("cityAr", cityAr)
+            putExtra("cityEn", cityEn)
+            putExtra("expectPlaying", true)
         }
         context.startActivity(lockIntent)
     }

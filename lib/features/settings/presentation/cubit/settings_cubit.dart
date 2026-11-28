@@ -69,6 +69,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> previewNativeAdhan() => _alarmScheduler?.triggerPreviewAdhan(
         muadhin: state.selectedMuadhin,
         languageCode: state.languageCode,
+        cityAr: state.locationNameAr,
+        cityEn: state.locationNameEn,
       ) ??
       Future.value();
 
@@ -156,6 +158,8 @@ class SettingsCubit extends Cubit<SettingsState> {
       lockscreenEnabled: state.adhanLockscreen,
       languageCode: state.languageCode,
       muadhin: state.selectedMuadhin,
+      cityAr: state.locationNameAr,
+      cityEn: state.locationNameEn,
     );
   }
 }

@@ -41,7 +41,8 @@ class NativeAlarmBridgeService {
     try {
       final ok = await _channel.invokeMethod<bool>('syncPrayerSchedule', payload);
       return ok ?? false;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService syncPrayerSchedule error: $e');
       return false;
     }
   }
@@ -51,7 +52,8 @@ class NativeAlarmBridgeService {
     try {
       final ok = await _channel.invokeMethod<bool>('syncAzkarSchedule', payload);
       return ok ?? false;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService syncAzkarSchedule error: $e');
       return false;
     }
   }
@@ -86,7 +88,8 @@ class NativeAlarmBridgeService {
         };
       }
       return null;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService consumePendingLaunchRoute error: $e');
       return null;
     }
   }
@@ -102,7 +105,8 @@ class NativeAlarmBridgeService {
             .toList();
       }
       return const [];
-    } catch (_) {
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService consumeNativeDhikrUpdates error: $e');
       return const [];
     }
   }
@@ -142,7 +146,8 @@ class NativeAlarmBridgeService {
       final method =
           Platform.isIOS ? 'requestPermissions' : 'requestNotificationPermission';
       return await _channel.invokeMethod<bool>(method) ?? false;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService requestNotificationPermission error: $e');
       return false;
     }
   }
@@ -154,7 +159,8 @@ class NativeAlarmBridgeService {
     if (!Platform.isIOS) return true;
     try {
       return await _channel.invokeMethod<bool>('requestPermissions') ?? false;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('NativeAlarmBridgeService requestIosPermissions error: $e');
       return false;
     }
   }

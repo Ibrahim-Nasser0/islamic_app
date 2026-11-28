@@ -27,6 +27,8 @@ object NativeAlarmScheduler {
         val muezzinNameAr = payload.optString("muezzinNameAr", "أذان الحرم المكي")
         val muezzinNameEn = payload.optString("muezzinNameEn", "Makkah Sanctuary")
         val muezzinLocation = payload.optString("muezzinLocation", "")
+        val cityAr = payload.optString("cityAr", "")
+        val cityEn = payload.optString("cityEn", "")
         val entries = payload.optJSONArray("entries") ?: return
         val now = System.currentTimeMillis()
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -37,6 +39,8 @@ object NativeAlarmScheduler {
             val titleAr = item.optString("titleAr")
             val titleEn = item.optString("titleEn")
             val rawSound = item.optString("rawSound", "al_harram_regular")
+            val hijriDateAr = item.optString("hijriDateAr", "")
+            val hijriDateEn = item.optString("hijriDateEn", "")
 
             if (preEnabled) {
                 val preId = item.optInt("preId")
@@ -71,6 +75,10 @@ object NativeAlarmScheduler {
                         putExtra("muezzinNameAr", muezzinNameAr)
                         putExtra("muezzinNameEn", muezzinNameEn)
                         putExtra("muezzinLocation", muezzinLocation)
+                        putExtra("hijriDateAr", hijriDateAr)
+                        putExtra("hijriDateEn", hijriDateEn)
+                        putExtra("cityAr", cityAr)
+                        putExtra("cityEn", cityEn)
                     }
                     scheduleExactOrFallback(context, alarmManager, adhanId, adhanAt, intent, useAlarmClock = true)
                 }

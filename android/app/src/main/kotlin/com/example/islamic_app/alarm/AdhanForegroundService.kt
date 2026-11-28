@@ -60,6 +60,10 @@ class AdhanForegroundService : Service() {
         val muezzinNameAr = intent?.getStringExtra("muezzinNameAr") ?: ""
         val muezzinNameEn = intent?.getStringExtra("muezzinNameEn") ?: ""
         val muezzinLocation = intent?.getStringExtra("muezzinLocation") ?: ""
+        val hijriDateAr = intent?.getStringExtra("hijriDateAr") ?: ""
+        val hijriDateEn = intent?.getStringExtra("hijriDateEn") ?: ""
+        val cityAr = intent?.getStringExtra("cityAr") ?: ""
+        val cityEn = intent?.getStringExtra("cityEn") ?: ""
 
         activePrayerKey = prayerKey
         ensureChannel()
@@ -75,6 +79,11 @@ class AdhanForegroundService : Service() {
             putExtra("muezzinNameAr", muezzinNameAr)
             putExtra("muezzinNameEn", muezzinNameEn)
             putExtra("muezzinLocation", muezzinLocation)
+            putExtra("hijriDateAr", hijriDateAr)
+            putExtra("hijriDateEn", hijriDateEn)
+            putExtra("cityAr", cityAr)
+            putExtra("cityEn", cityEn)
+            putExtra("expectPlaying", true)
         }
 
         val contentPending = PendingIntent.getActivity(
@@ -208,6 +217,7 @@ class AdhanForegroundService : Service() {
 
         val player = MediaPlayer()
         mediaPlayer = player
+        isPlaying = true
         runCatching {
             player.setAudioAttributes(attributes)
             val resId = resolveRawResId(rawSound)

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import '../../../../core/services/location_preference_service.dart';
 import '../../../../core/services/notification/prayer_alarm_scheduler.dart';
 import '../../../settings/data/datasources/settings_local_data_source.dart';
@@ -100,7 +101,8 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
         ));
       }
       return loc.status;
-    } catch (_) {
+    } catch (e, stackTrace) {
+      debugPrint('[PrayerTimesCubit] refreshLocation failed: $e\n$stackTrace');
       if (!isClosed && state is PrayerTimesLoaded) {
         emit((state as PrayerTimesLoaded).copyWith(isRefreshingLocation: false));
       }
@@ -123,7 +125,9 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
         _currentNameEn = loc.nameEn;
         loadPrayerTimes();
       }
-    }).catchError((_) {});
+    }).catchError((Object e) {
+      debugPrint('[PrayerTimesCubit] bg location failed: $e');
+    });
   }
 
   void _startTimer() {
@@ -171,7 +175,11 @@ class PrayerTimesCubit extends Cubit<PrayerTimesState> {
         longitude: lng,
         adhanEnabled: ds.getPrayerNotification() && ds.getAthanSound(),
         preAlertEnabled: ds.getPrayerNotification() && ds.getPrePrayerNotification(),
-      ).catchError((_) {}),
+        cityAr: _currentNameAr,
+        cityEn: _currentNameEn,
+      ).catchError((Object e) {
+        debugPrint('[PrayerTimesCubit] Alarm reschedule failed: $e');
+      }),
     );
   }
 

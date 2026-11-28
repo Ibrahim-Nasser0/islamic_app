@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+
+import '../../../features/home/data/datasources/hijri_date_helper.dart';
 import '../../../features/home/data/datasources/prayer_calculation_service.dart';
 import '../../../features/home/domain/entities/prayer_time_entry.dart';
 import '../../../features/settings/data/datasources/settings_local_data_source.dart';
@@ -25,6 +28,8 @@ class PrayerAlarmScheduler {
     bool? lockscreenEnabled,
     String? languageCode,
     MuadhinOption? muadhin,
+    String? cityAr,
+    String? cityEn,
   }) async {
     await _cancelLegacyPrayerNotifications();
     if (!_nativeBridge.isSupportedPlatform) return;
@@ -35,6 +40,9 @@ class PrayerAlarmScheduler {
     }
 
     final ds = _trySettingsDs();
+    final savedLoc = ds?.getLocation();
+    final resolvedCityAr = (cityAr ?? savedLoc?.nameAr ?? '').trim();
+    final resolvedCityEn = (cityEn ?? savedLoc?.nameEn ?? '').trim();
     final chosenMuadhin = muadhin ?? _resolveMuadhin(ds);
     final useLockscreen = lockscreenEnabled ?? (ds?.getAdhanLockscreen() ?? true);
     final lang = languageCode ?? (ds?.getLanguageCode() ?? 'ar');
@@ -46,14 +54,13 @@ class PrayerAlarmScheduler {
       final schedule = _calculationService.calculateSchedule(
         latitude: latitude,
         longitude: longitude,
-        locationNameAr: 'القاهرة',
-        locationNameEn: 'Cairo',
+        locationNameAr: resolvedCityAr.isNotEmpty ? resolvedCityAr : 'القاهرة',
+        locationNameEn: resolvedCityEn.isNotEmpty ? resolvedCityEn : 'Cairo',
         targetDate: targetDate,
       );
 
-      final adhanPrayers = schedule.prayers
-          .where((p) => p.type != PrayerType.sunrise)
-          .toList();
+      final adhanPrayers =
+          schedule.prayers.where((p) => p.type != PrayerType.sunrise).toList();
 
       for (int i = 0; i < adhanPrayers.length; i++) {
         final prayer = adhanPrayers[i];
@@ -71,6 +78,8 @@ class PrayerAlarmScheduler {
           'rawSound': chosenMuadhin.getRawSound(isFajr: isFajr),
           'iosSound': chosenMuadhin.getIosCafSound(isFajr: isFajr),
           'channelId': chosenMuadhin.getChannelId(isFajr: isFajr),
+          'hijriDateAr': schedule.hijriDateAr,
+          'hijriDateEn': schedule.hijriDateEn,
         });
       }
     }
@@ -84,6 +93,8 @@ class PrayerAlarmScheduler {
       'muezzinNameAr': chosenMuadhin.nameAr,
       'muezzinNameEn': chosenMuadhin.nameEn,
       'muezzinLocation': chosenMuadhin.location,
+      'cityAr': resolvedCityAr,
+      'cityEn': resolvedCityEn,
       'entries': entries,
     });
   }
@@ -91,10 +102,16 @@ class PrayerAlarmScheduler {
   Future<void> triggerPreviewAdhan({
     MuadhinOption? muadhin,
     String? languageCode,
+    String? cityAr,
+    String? cityEn,
   }) async {
     final ds = _trySettingsDs();
+    final savedLoc = ds?.getLocation();
+    final resolvedCityAr = (cityAr ?? savedLoc?.nameAr ?? '').trim();
+    final resolvedCityEn = (cityEn ?? savedLoc?.nameEn ?? '').trim();
     final chosen = muadhin ?? _resolveMuadhin(ds);
     final lang = languageCode ?? (ds?.getLanguageCode() ?? 'ar');
+    final hijri = HijriDateHelper.getHijriDate(DateTime.now());
     await _nativeBridge.previewNativeAdhan({
       'prayerKey': 'fajr',
       'titleAr': 'الفجر',
@@ -105,6 +122,10 @@ class PrayerAlarmScheduler {
       'muezzinNameAr': chosen.nameAr,
       'muezzinNameEn': chosen.nameEn,
       'muezzinLocation': chosen.location,
+      'hijriDateAr': hijri.formattedAr,
+      'hijriDateEn': hijri.formattedEn,
+      'cityAr': resolvedCityAr,
+      'cityEn': resolvedCityEn,
       'languageCode': lang,
     });
   }
@@ -121,7 +142,8 @@ class PrayerAlarmScheduler {
   SettingsLocalDataSource? _trySettingsDs() {
     try {
       return di.sl<SettingsLocalDataSource>();
-    } catch (_) {
+    } catch (e) {
+      debugPrint('[PrayerAlarmScheduler] SettingsLocalDataSource unavailable: $e');
       return null;
     }
   }
