@@ -49,11 +49,12 @@ void main() {
     await EasyLocalization.ensureInitialized();
   });
 
-  test('Bundled JSON books contain expanded Hadith collections (42 + 3x500)', () {
+  test('Bundled compressed JSON books contain expanded Hadith collections (42 + 3x500)', () {
     final counts = <String, int>{};
     for (final name in ['nawawi', 'bukhari', 'muslim', 'riyad']) {
-      final raw = File('assets/hadith/$name.json').readAsStringSync();
-      final decoded = jsonDecode(raw) as List<dynamic>;
+      final rawBytes = File('assets/hadith/$name.json.gz').readAsBytesSync();
+      final jsonStr = utf8.decode(gzip.decode(rawBytes));
+      final decoded = jsonDecode(jsonStr) as List<dynamic>;
       counts[name] = decoded.length;
     }
     expect(counts['nawawi'], 42);

@@ -163,15 +163,8 @@ class AdhanForegroundService : Service() {
         wakeLock = null
     }
 
-    private fun resolveRawResId(rawSound: String): Int = when (rawSound) {
-        "abdulbasit_fajr" -> R.raw.abdulbasit_fajr
-        "abdulbasit_regular" -> R.raw.abdulbasit_regular
-        "alafasy_fajr" -> R.raw.alafasy_fajr
-        "alafasy_regular" -> R.raw.alafasy_regular
-        "al_harram_fajr" -> R.raw.al_harram_fajr
-        "al_harram_regular" -> R.raw.al_harram_regular
-        else -> R.raw.al_harram_regular
-    }
+    private fun resolveRawResId(rawSound: String): Int =
+        resources.getIdentifier(rawSound, "raw", packageName)
 
     private fun resolveFlutterAssetPath(rawSound: String): String = when (rawSound) {
         "abdulbasit_fajr" -> "flutter_assets/assets/audio/abdulbasit/abd-elbaset-fajr.mp3"
@@ -218,7 +211,7 @@ class AdhanForegroundService : Service() {
         runCatching {
             player.setAudioAttributes(attributes)
             val resId = resolveRawResId(rawSound)
-            val rawAfd = runCatching { resources.openRawResourceFd(resId) }.getOrNull()
+            val rawAfd = if (resId != 0) runCatching { resources.openRawResourceFd(resId) }.getOrNull() else null
             if (rawAfd != null) {
                 player.setDataSource(rawAfd.fileDescriptor, rawAfd.startOffset, rawAfd.length)
                 rawAfd.close()

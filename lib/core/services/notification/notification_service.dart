@@ -113,8 +113,6 @@ class NotificationService {
       for (final muezzin in MuadhinOption.defaultList) {
         for (final isFajr in [false, true]) {
           final channelId = muezzin.getChannelId(isFajr: isFajr);
-          final rawSound = muezzin.getRawSound(isFajr: isFajr);
-          final sound = RawResourceAndroidNotificationSound(rawSound);
 
           final adhanChannel = AndroidNotificationChannel(
             channelId,
@@ -122,7 +120,6 @@ class NotificationService {
             description: 'تشغيل أذان ${muezzin.location} تلقائياً',
             importance: Importance.max,
             playSound: true,
-            sound: sound,
             enableVibration: true,
             audioAttributesUsage: AudioAttributesUsage.alarm,
           );

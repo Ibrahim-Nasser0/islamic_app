@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -29,8 +31,7 @@ class HadithLocalDataSourceImpl implements HadithLocalDataSource {
     }
 
     try {
-      final jsonStr =
-          await rootBundle.loadString('assets/hadith/$normalizedId.json');
+      final jsonStr = await _loadBookJsonString(normalizedId);
       final List<dynamic> list = json.decode(jsonStr) as List<dynamic>;
       final hadiths = list
           .map((item) => HadithItem.fromJson(item as Map<String, dynamic>))
@@ -39,9 +40,25 @@ class HadithLocalDataSourceImpl implements HadithLocalDataSource {
       return hadiths;
     } catch (e, stackTrace) {
       debugPrint(
-        '[HadithLocalDataSource] Failed loading $normalizedId.json: $e\n$stackTrace',
+        '[HadithLocalDataSource] Failed loading $normalizedId: $e\n$stackTrace',
       );
       return [];
+    }
+  }
+
+  Future<String> _loadBookJsonString(String normalizedId) async {
+    try {
+      final bytes = await rootBundle.load('assets/hadith/$normalizedId.json.gz');
+      final rawBytes = bytes.buffer.asUint8List(
+        bytes.offsetInBytes,
+        bytes.lengthInBytes,
+      );
+      return utf8.decode(gzip.decode(rawBytes));
+    } catch (e) {
+      debugPrint(
+        '[HadithLocalDataSource] Falling back to plain JSON for $normalizedId: $e',
+      );
+      return rootBundle.loadString('assets/hadith/$normalizedId.json');
     }
   }
 
