@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import '../../../features/settings/presentation/models/muadhin_option.dart';
@@ -112,8 +113,6 @@ class NotificationService {
       for (final muezzin in MuadhinOption.defaultList) {
         for (final isFajr in [false, true]) {
           final channelId = muezzin.getChannelId(isFajr: isFajr);
-          final rawSound = muezzin.getRawSound(isFajr: isFajr);
-          final sound = RawResourceAndroidNotificationSound(rawSound);
 
           final adhanChannel = AndroidNotificationChannel(
             channelId,
@@ -121,7 +120,6 @@ class NotificationService {
             description: 'تشغيل أذان ${muezzin.location} تلقائياً',
             importance: Importance.max,
             playSound: true,
-            sound: sound,
             enableVibration: true,
             audioAttributesUsage: AudioAttributesUsage.alarm,
           );
@@ -175,7 +173,9 @@ class NotificationService {
     if (Platform.isIOS) return;
     try {
       await flutterLocalNotificationsPlugin.cancelAll();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('NotificationService cancelAll failed: $e');
+    }
   }
 
   Future<bool> canScheduleExactAlarms() async {

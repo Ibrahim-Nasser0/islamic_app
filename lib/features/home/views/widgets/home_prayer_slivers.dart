@@ -8,6 +8,7 @@ import '../../../../core/responsive/responsive_content_frame.dart';
 import '../../../../core/widgets/custom_skeleton.dart';
 import '../../presentation/cubit/prayer_times_cubit.dart';
 import '../../presentation/cubit/prayer_times_state.dart';
+import 'daily_hadith_highlight_card.dart';
 import 'home_daily_wird_card.dart';
 import 'home_location_handler.dart';
 import 'home_permission_banner.dart';
@@ -54,16 +55,12 @@ class HomePrayerSlivers {
                         children: [
                           HomeStaggeredEntry(
                             index: 0,
-                            child: KeyedSubtree(
-                              key: heroKey,
-                              child: const _HeroCardSlot(),
-                            ),
+                            child: KeyedSubtree(key: heroKey, child: const _HeroCardSlot()),
                           ),
                           Gap(20.h),
-                          const HomeStaggeredEntry(
-                            index: 1,
-                            child: _PrayersListSlot(),
-                          ),
+                          const HomeStaggeredEntry(index: 1, child: _PrayersListSlot()),
+                          Gap(20.h),
+                          const HomeStaggeredEntry(index: 5, child: DailyHadithHighlightCard()),
                         ],
                       ),
                     ),
@@ -73,20 +70,11 @@ class HomePrayerSlivers {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const HomeStaggeredEntry(
-                            index: 2,
-                            child: HomeQuickActionsBar(),
-                          ),
+                          const HomeStaggeredEntry(index: 2, child: HomeQuickActionsBar()),
                           Gap(20.h),
-                          const HomeStaggeredEntry(
-                            index: 3,
-                            child: HomeTimedAzkarCard(),
-                          ),
+                          const HomeStaggeredEntry(index: 3, child: HomeTimedAzkarCard()),
                           Gap(20.h),
-                          const HomeStaggeredEntry(
-                            index: 4,
-                            child: HomeDailyWirdCard(),
-                          ),
+                          const HomeStaggeredEntry(index: 4, child: HomeDailyWirdCard()),
                         ],
                       ),
                     ),
@@ -104,31 +92,18 @@ class HomePrayerSlivers {
                   children: [
                     HomeStaggeredEntry(
                       index: 0,
-                      child: KeyedSubtree(
-                        key: heroKey,
-                        child: const _HeroCardSlot(),
-                      ),
+                      child: KeyedSubtree(key: heroKey, child: const _HeroCardSlot()),
                     ),
                     Gap(20.h),
-                    const HomeStaggeredEntry(
-                      index: 1,
-                      child: _PrayersListSlot(),
-                    ),
+                    const HomeStaggeredEntry(index: 1, child: _PrayersListSlot()),
                     Gap(24.h),
-                    const HomeStaggeredEntry(
-                      index: 2,
-                      child: HomeQuickActionsBar(),
-                    ),
+                    const HomeStaggeredEntry(index: 2, child: HomeQuickActionsBar()),
                     Gap(24.h),
-                    const HomeStaggeredEntry(
-                      index: 3,
-                      child: HomeTimedAzkarCard(),
-                    ),
+                    const HomeStaggeredEntry(index: 3, child: HomeTimedAzkarCard()),
                     Gap(24.h),
-                    const HomeStaggeredEntry(
-                      index: 4,
-                      child: HomeDailyWirdCard(),
-                    ),
+                    const HomeStaggeredEntry(index: 4, child: HomeDailyWirdCard()),
+                    Gap(24.h),
+                    const HomeStaggeredEntry(index: 5, child: DailyHadithHighlightCard()),
                   ],
                 ),
               ),

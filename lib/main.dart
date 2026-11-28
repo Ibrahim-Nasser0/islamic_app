@@ -107,13 +107,17 @@ Future<void> _bootstrapPostFrameServices({
 }) async {
   try {
     await syncCoordinator.syncPendingDhikrUpdates();
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('NativeSyncCoordinator bootstrap error: $e');
+  }
 
   final settingsDs = di.sl<SettingsLocalDataSource>();
   if (settingsDs.hasCompletedOnboarding()) {
     try {
       await notificationService.requestPermissions();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('NotificationService requestPermissions error: $e');
+    }
   }
 
   try {
@@ -131,7 +135,9 @@ Future<void> _bootstrapPostFrameServices({
     await azkarScheduler.scheduleDailyAzkar(
       enabled: settingsDs.getAzkarNotification(),
     );
-  } catch (_) {}
+  } catch (e) {
+    debugPrint('Scheduler bootstrap error: $e');
+  }
 }
 
 class MyApp extends StatelessWidget {

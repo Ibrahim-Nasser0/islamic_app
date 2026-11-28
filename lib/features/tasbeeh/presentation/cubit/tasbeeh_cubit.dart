@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/utils/haptics.dart';
@@ -39,7 +40,10 @@ class TasbeehCubit extends Cubit<TasbeehState> {
     if (state.feedbackMode == TasbeehFeedbackMode.soundAndHaptic) {
       try {
         SystemSound.play(SystemSoundType.click);
-      } catch (_) {}
+      } catch (e) {
+        // Non-critical: System click sound may fail on unsupported hardware
+        debugPrint('Tasbeeh click sound failed: $e');
+      }
     }
   }
 
@@ -60,10 +64,8 @@ class TasbeehCubit extends Cubit<TasbeehState> {
     final milestone = state.target > 0 && (newCount % state.target == 0);
     _playFeedback(milestone: milestone);
     final updated = List<TasbeehItem>.from(state.items);
-    updated[state.selectedIndex] = current.copyWith(
-      currentCount: newCount,
-      totalCount: current.totalCount + 1,
-    );
+    updated[state.selectedIndex] =
+        current.copyWith(currentCount: newCount, totalCount: current.totalCount + 1);
     _emitAndSave(state.copyWith(
       items: updated,
       sessionTotal: state.sessionTotal + 1,
@@ -78,16 +80,10 @@ class TasbeehCubit extends Cubit<TasbeehState> {
     if (current.currentCount <= 0) return;
     _playFeedback();
     final updated = List<TasbeehItem>.from(state.items);
-    updated[state.selectedIndex] = current.copyWith(
-      currentCount: current.currentCount - 1,
-      totalCount: (current.totalCount - 1).clamp(0, 1 << 30),
-    );
-    _emitAndSave(state.copyWith(
-      items: updated,
-      sessionTotal: (state.sessionTotal - 1).clamp(0, 1 << 30),
-      lifetimeTotal: (state.lifetimeTotal - 1).clamp(0, 1 << 30),
-      isTargetReached: false,
-    ));
+    final count = (current.currentCount - 1).clamp(0, 1 << 30);
+    updated[state.selectedIndex] = current.copyWith(currentCount: count, totalCount: (current.totalCount - 1).clamp(0, 1 << 30));
+    final prevSession = (state.sessionTotal - 1).clamp(0, 1 << 30);
+    _emitAndSave(state.copyWith(items: updated, sessionTotal: prevSession, lifetimeTotal: (state.lifetimeTotal - 1).clamp(0, 1 << 30), isTargetReached: false));
   }
 
   void resetCurrent() {

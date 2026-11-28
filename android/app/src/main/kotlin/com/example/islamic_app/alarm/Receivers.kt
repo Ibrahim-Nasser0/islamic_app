@@ -46,7 +46,13 @@ class PrayerAlarmReceiver : BroadcastReceiver() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             nm.getNotificationChannel(channelId) == null
         ) {
-            val soundUri = Uri.parse("android.resource://${context.packageName}/raw/$rawSound")
+            val resId = context.resources.getIdentifier(rawSound, "raw", context.packageName)
+            val soundUri = if (resId != 0) {
+                Uri.parse("android.resource://${context.packageName}/raw/$rawSound")
+            } else {
+                android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_ALARM)
+                    ?: android.media.RingtoneManager.getDefaultUri(android.media.RingtoneManager.TYPE_NOTIFICATION)
+            }
             val attrs = AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_ALARM)
                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)

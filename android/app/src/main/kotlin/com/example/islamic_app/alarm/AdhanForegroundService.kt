@@ -60,6 +60,10 @@ class AdhanForegroundService : Service() {
         val muezzinNameAr = intent?.getStringExtra("muezzinNameAr") ?: ""
         val muezzinNameEn = intent?.getStringExtra("muezzinNameEn") ?: ""
         val muezzinLocation = intent?.getStringExtra("muezzinLocation") ?: ""
+        val hijriDateAr = intent?.getStringExtra("hijriDateAr") ?: ""
+        val hijriDateEn = intent?.getStringExtra("hijriDateEn") ?: ""
+        val cityAr = intent?.getStringExtra("cityAr") ?: ""
+        val cityEn = intent?.getStringExtra("cityEn") ?: ""
 
         activePrayerKey = prayerKey
         ensureChannel()
@@ -75,6 +79,11 @@ class AdhanForegroundService : Service() {
             putExtra("muezzinNameAr", muezzinNameAr)
             putExtra("muezzinNameEn", muezzinNameEn)
             putExtra("muezzinLocation", muezzinLocation)
+            putExtra("hijriDateAr", hijriDateAr)
+            putExtra("hijriDateEn", hijriDateEn)
+            putExtra("cityAr", cityAr)
+            putExtra("cityEn", cityEn)
+            putExtra("expectPlaying", true)
         }
 
         val contentPending = PendingIntent.getActivity(
@@ -163,15 +172,8 @@ class AdhanForegroundService : Service() {
         wakeLock = null
     }
 
-    private fun resolveRawResId(rawSound: String): Int = when (rawSound) {
-        "abdulbasit_fajr" -> R.raw.abdulbasit_fajr
-        "abdulbasit_regular" -> R.raw.abdulbasit_regular
-        "alafasy_fajr" -> R.raw.alafasy_fajr
-        "alafasy_regular" -> R.raw.alafasy_regular
-        "al_harram_fajr" -> R.raw.al_harram_fajr
-        "al_harram_regular" -> R.raw.al_harram_regular
-        else -> R.raw.al_harram_regular
-    }
+    private fun resolveRawResId(rawSound: String): Int =
+        resources.getIdentifier(rawSound, "raw", packageName)
 
     private fun resolveFlutterAssetPath(rawSound: String): String = when (rawSound) {
         "abdulbasit_fajr" -> "flutter_assets/assets/audio/abdulbasit/abd-elbaset-fajr.mp3"
@@ -215,10 +217,11 @@ class AdhanForegroundService : Service() {
 
         val player = MediaPlayer()
         mediaPlayer = player
+        isPlaying = true
         runCatching {
             player.setAudioAttributes(attributes)
             val resId = resolveRawResId(rawSound)
-            val rawAfd = runCatching { resources.openRawResourceFd(resId) }.getOrNull()
+            val rawAfd = if (resId != 0) runCatching { resources.openRawResourceFd(resId) }.getOrNull() else null
             if (rawAfd != null) {
                 player.setDataSource(rawAfd.fileDescriptor, rawAfd.startOffset, rawAfd.length)
                 rawAfd.close()

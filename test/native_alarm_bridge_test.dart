@@ -112,6 +112,8 @@ void main() {
       lockscreenEnabled: true,
       languageCode: 'ar',
       muadhin: MuadhinOption.defaultList.first,
+      cityAr: 'القاهرة',
+      cityEn: 'Cairo',
     );
 
     final syncCall = calls.singleWhere((c) => c.method == 'syncPrayerSchedule');
@@ -120,8 +122,24 @@ void main() {
     expect(args['adhanEnabled'], true);
     expect(args['preAlertEnabled'], true);
     expect(args['lockscreenEnabled'], true);
+    expect(args['cityAr'], 'القاهرة');
+    expect(args['cityEn'], 'Cairo');
     expect(entries.length, 35);
+    expect((entries.first as Map)['hijriDateAr'], isA<String>().having((s) => s.isNotEmpty, 'non-empty', true));
     expect(entries.any((e) => (e as Map)['prayerKey'] == 'sunrise'), false);
+
+    await scheduler.triggerPreviewAdhan(
+      muadhin: MuadhinOption.defaultList.first,
+      languageCode: 'ar',
+      cityAr: 'مكة',
+      cityEn: 'Makkah',
+    );
+    final previewCall = calls.singleWhere((c) => c.method == 'previewNativeAdhan');
+    final previewArgs = previewCall.arguments as Map;
+    expect(previewArgs['cityAr'], 'مكة');
+    expect(previewArgs['cityEn'], 'Makkah');
+    expect(previewArgs['hijriDateAr'], isNotEmpty);
+    expect(previewArgs['hijriDateEn'], isNotEmpty);
   });
 
   test('AzkarAlarmScheduler sends morning and evening items cleanly', () async {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -75,7 +76,9 @@ class PermissionReadinessCubit extends Cubit<PermissionReadinessState> {
       if (perm == LocationPermission.deniedForever) {
         await Geolocator.openAppSettings();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('PermissionReadinessCubit fixLocation error: $e');
+    }
     await _rescheduleAlarms();
     await refresh();
     if (!isClosed) emit(state.copyWith(isBusy: false));
@@ -109,7 +112,9 @@ class PermissionReadinessCubit extends Cubit<PermissionReadinessState> {
         await Geolocator.requestPermission();
       }
       await _rescheduleAlarms();
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('PermissionReadinessCubit requestEssentialBatch error: $e');
+    }
     await refresh();
     if (!isClosed) emit(state.copyWith(isBusy: false));
   }
@@ -128,6 +133,8 @@ class PermissionReadinessCubit extends Cubit<PermissionReadinessState> {
       await _azkarScheduler.scheduleDailyAzkar(
         enabled: _settingsDs.getAzkarNotification(),
       );
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('PermissionReadinessCubit _rescheduleAlarms error: $e');
+    }
   }
 }

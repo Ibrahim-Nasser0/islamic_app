@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/haptics.dart';
 import '../../domain/entities/hadith_item.dart';
+import 'hadith_grade_badge.dart';
 
 class HadithCardItem extends StatelessWidget {
   final HadithItem hadith;
@@ -60,18 +61,22 @@ class HadithCardItem extends StatelessWidget {
                             ),
                           ),
                           if (hadith.chapter != null)
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
-                              decoration: BoxDecoration(
-                                color: appColors.badgeBackground,
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                              child: Text(
-                                hadith.chapter!,
-                                style: TextStyle(
-                                  fontSize: 10.sp,
-                                  color: appColors.accentGold,
-                                  fontWeight: FontWeight.w600,
+                            Flexible(
+                              child: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 2.h),
+                                decoration: BoxDecoration(
+                                  color: appColors.badgeBackground,
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                                child: Text(
+                                  hadith.chapter!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 10.sp,
+                                    color: appColors.accentGold,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                               ),
                             ),
@@ -80,6 +85,8 @@ class HadithCardItem extends StatelessWidget {
                       Gap(4.h),
                       Text(
                         hadith.narrator,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12.sp,
                           color: appColors.accentGold,
@@ -98,13 +105,23 @@ class HadithCardItem extends StatelessWidget {
                         ),
                       ),
                       Gap(8.h),
-                      Text(
-                        hadith.reference,
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          color: appColors.textMuted,
-                          fontWeight: FontWeight.w400,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              hadith.reference,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                color: appColors.textMuted,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ),
+                          Gap(8.w),
+                          HadithGradeBadge(hadith: hadith, compact: true),
+                        ],
                       ),
                     ],
                   ),

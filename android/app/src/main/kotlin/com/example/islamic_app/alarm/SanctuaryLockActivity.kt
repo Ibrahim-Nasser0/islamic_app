@@ -32,7 +32,6 @@ class SanctuaryLockActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         configureLockscreenWindow()
-        renderIntent(intent)
 
         val filter = IntentFilter().apply {
             addAction(AdhanForegroundService.ACTION_STARTED_BROADCAST)
@@ -44,6 +43,8 @@ class SanctuaryLockActivity : Activity() {
             @Suppress("UnspecifiedRegisterReceiverFlag")
             registerReceiver(finishReceiver, filter)
         }
+
+        renderIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent?) {

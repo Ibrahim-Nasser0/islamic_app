@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_islamic_icons/flutter_islamic_icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/core/config/app_config.dart';
 import 'package:islamic_app/features/settings/presentation/views/widgets/settings_icon_badge.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -29,8 +30,11 @@ class SettingsShareCard extends StatelessWidget {
         child: InkWell(
           onTap: () async {
             AppHaptics.medium();
+            final shareMessage = 'share_message_content'.tr(
+              namedArgs: {'url': AppConfig.webSite},
+            );
             await Clipboard.setData(
-              ClipboardData(text: 'share_message_content'.tr()),
+              ClipboardData(text: shareMessage),
             );
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(

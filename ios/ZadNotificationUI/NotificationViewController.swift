@@ -6,7 +6,7 @@ import UserNotificationsUI
 /// Ready-to-wire Notification Content Extension controller for Lockscreen expanded UI.
 /// Displays Adhan post-prayer duaa or interactive Azkar counter directly on the iOS Lock Screen.
 class NotificationViewController: UIViewController, UNNotificationContentExtension {
-  private let suiteName = "group.com.example.islamicApp.shared"
+  private let suiteName = "group.com.ibrahimnasser.zadalmuslim.shared"
   private var hostingController: UIHostingController<LockExtensionSanctuaryView>?
 
   func didReceive(_ notification: UNNotification) {

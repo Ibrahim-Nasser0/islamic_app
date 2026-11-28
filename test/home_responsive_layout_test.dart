@@ -44,7 +44,7 @@ void main() {
     di.sl.registerLazySingleton<AzkarLocalDataSource>(
       () => FakeAzkarLocalDataSource(),
     );
-    di.sl.registerFactory(() => TimedAzkarCubit(di.sl()));
+    di.sl.registerLazySingleton(() => TimedAzkarCubit(di.sl()));
     di.sl.registerLazySingleton(() => DailyWirdCubit(settingsDs: di.sl()));
     di.sl.registerLazySingleton<QuranLocalDataSource>(
       () => QuranLocalDataSourceImpl(),

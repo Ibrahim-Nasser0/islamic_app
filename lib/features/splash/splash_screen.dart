@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:islamic_app/core/config/app_config.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/di/injection_container.dart' as di;
@@ -64,7 +65,9 @@ class _SplashScreenState extends State<SplashScreen> {
         });
         return;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('SplashScreen: error resolving pending launch route: $e');
+    }
 
     Future.delayed(const Duration(milliseconds: 2200), () {
       if (!mounted) return;
@@ -128,7 +131,9 @@ class _SplashScreenState extends State<SplashScreen> {
                   _buildDotsIndicator(gold),
                   Gap(18.h),
                   Text(
-                    'app_version'.tr(),
+                    'app_version'.tr(
+                      namedArgs: {'version': AppConfig.appVersion},
+                    ),
                     style: TextStyle(fontSize: 12.sp, color: AppColors.textDarkPrimary.withValues(alpha: 0.45)),
                   ),
                   Gap(16.h),

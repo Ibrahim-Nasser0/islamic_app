@@ -177,6 +177,9 @@ void main() {
 
       await cubit.resetCurrentPeriod();
       expect(cubit.state.activeDhikr!.id, 'm1');
+
+      await cubit.ensureLoaded();
+      expect(cubit.state.category, isNotNull);
       await cubit.close();
     });
   });

@@ -35,6 +35,12 @@ class TimedAzkarCubit extends Cubit<TimedAzkarState> {
     return AzkarTimePeriod.evening;
   }
 
+  Future<void> ensureLoaded() async {
+    if (state.category == null) {
+      await loadForCurrentTime();
+    }
+  }
+
   Future<void> loadForCurrentTime({
     DailyPrayerSchedule? schedule,
     DateTime? now,
