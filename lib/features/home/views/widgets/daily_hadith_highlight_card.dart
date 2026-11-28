@@ -178,7 +178,7 @@ class DailyHadithHighlightCard extends StatelessWidget {
             ),
           ),
         ),
-        const IgnorePointer(child: ManuscriptCorners(inset: 8, length: 11)),
+        const ManuscriptCorners(inset: 8, length: 11),
       ],
     );
   }
