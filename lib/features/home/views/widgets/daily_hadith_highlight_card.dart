@@ -9,11 +9,11 @@ import '../../../../core/routes/routes.dart';
 import '../../../../core/theme/typography.dart';
 import '../../../../core/utils/extensions.dart';
 import '../../../../core/utils/haptics.dart';
-import '../../../../core/widgets/custom_skeleton.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../hadith/domain/entities/daily_hadith_entry.dart';
 import '../../../hadith/presentation/cubit/daily_hadith_cubit.dart';
 import '../../../hadith/presentation/cubit/daily_hadith_state.dart';
+import '../../../hadith/views/widgets/hadith_grade_badge.dart';
 
 /// Daily random highlighted Hadith banner card backed by [DailyHadithCubit].
 class DailyHadithHighlightCard extends StatelessWidget {
@@ -21,9 +21,9 @@ class DailyHadithHighlightCard extends StatelessWidget {
 
   String _bookTitleKey(String bookId) {
     return switch (bookId) {
-      'bukhari' => 'sahih_bukhari',
-      'muslim' => 'sahih_muslim',
-      'riyad' => 'riyad_assalihin',
+      'bukhari' || 'sahih_bukhari' => 'sahih_bukhari',
+      'muslim' || 'sahih_muslim' => 'sahih_muslim',
+      'riyad' || 'riyad_assalihin' => 'riyad_assalihin',
       _ => 'nawawi_forty',
     };
   }
@@ -147,6 +147,10 @@ class DailyHadithHighlightCard extends StatelessWidget {
                       ),
                     ),
                     Gap(10.h),
+                    if (entry != null) ...[
+                      HadithGradeBadge(hadith: entry.hadith, compact: true),
+                      Gap(8.h),
+                    ],
                     Row(
                       children: [
                         Expanded(

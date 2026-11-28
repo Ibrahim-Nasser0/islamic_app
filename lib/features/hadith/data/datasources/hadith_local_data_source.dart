@@ -1,105 +1,130 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-
+import '../../../../core/database/daos/hadith_dao.dart';
+import '../../../../core/database/daos/hadith_search_helper.dart';
+import '../../../../core/database/hadith_catalog_database.dart';
+import '../../../../core/errors/exceptions.dart';
 import '../../domain/entities/daily_hadith_entry.dart';
 import '../../domain/entities/hadith_item.dart';
 
 abstract class HadithLocalDataSource {
-  Future<List<HadithItem>> getHadithsByBook(String bookId);
-  Future<HadithItem?> getHadithByNumber(String bookId, int number);
-  Future<List<DailyHadithEntry>> getAllHadithsPool();
+  Future<List<HadithItem>> getHadithsPage(
+    String bookId, {
+    required int limit,
+    required int offset,
+    String? gradeTier,
+    String? searchQuery,
+  });
+
+  Future<int> countHadiths(String bookId, {String? gradeTier});
+
+  Future<HadithItem> getHadithByNumber(String bookId, int number);
+
+  Future<DailyHadithEntry> pickDailySahihHadith({
+    int? seedOffset,
+    String? excludeBook,
+    int? excludeNumber,
+  });
+
+  Future<Map<String, int>> getBookCounts();
 }
 
 class HadithLocalDataSourceImpl implements HadithLocalDataSource {
-  static const List<String> _bookIds = [
-    'nawawi',
-    'bukhari',
-    'muslim',
-    'riyad',
-  ];
+  static HadithCatalogDatabase? _fallbackDb;
+  final HadithDao? hadithDao;
 
-  final Map<String, List<HadithItem>> _cache = {};
+  HadithLocalDataSourceImpl({this.hadithDao});
 
-  @override
-  Future<List<HadithItem>> getHadithsByBook(String bookId) async {
-    final normalizedId = _normalizeBookId(bookId);
-    if (_cache.containsKey(normalizedId)) {
-      return _cache[normalizedId]!;
-    }
-
-    try {
-      final jsonStr = await _loadBookJsonString(normalizedId);
-      final List<dynamic> list = json.decode(jsonStr) as List<dynamic>;
-      final hadiths = list
-          .map((item) => HadithItem.fromJson(item as Map<String, dynamic>))
-          .toList();
-      _cache[normalizedId] = hadiths;
-      return hadiths;
-    } catch (e, stackTrace) {
-      debugPrint(
-        '[HadithLocalDataSource] Failed loading $normalizedId: $e\n$stackTrace',
-      );
-      return [];
-    }
+  HadithDao get _dao {
+    if (hadithDao != null) return hadithDao!;
+    _fallbackDb ??= HadithCatalogDatabase();
+    return _fallbackDb!.hadithDao;
   }
 
-  Future<String> _loadBookJsonString(String normalizedId) async {
-    try {
-      final bytes = await rootBundle.load('assets/hadith/$normalizedId.json.gz');
-      final rawBytes = bytes.buffer.asUint8List(
-        bytes.offsetInBytes,
-        bytes.lengthInBytes,
-      );
-      return utf8.decode(gzip.decode(rawBytes));
-    } catch (e) {
-      debugPrint(
-        '[HadithLocalDataSource] Falling back to plain JSON for $normalizedId: $e',
-      );
-      return rootBundle.loadString('assets/hadith/$normalizedId.json');
-    }
+  HadithItem _toEntity(HadithCatalogRow row) {
+    return HadithItem(
+      number: row.number,
+      title: row.titleAr,
+      arabicText: row.arabicText,
+      narrator: row.narrator,
+      reference: row.reference,
+      benefit: row.benefit,
+      chapter: row.chapterAr,
+      gradeTier: row.gradeTier,
+      gradeLabelAr: row.gradeLabelAr,
+      gradeLabelEn: row.gradeLabelEn,
+      strengthScore: row.strengthScore,
+    );
   }
 
   @override
-  Future<HadithItem?> getHadithByNumber(String bookId, int number) async {
-    final list = await getHadithsByBook(bookId);
-    for (final item in list) {
-      if (item.number == number) return item;
-    }
-    return null;
+  Future<List<HadithItem>> getHadithsPage(
+    String bookId, {
+    required int limit,
+    required int offset,
+    String? gradeTier,
+    String? searchQuery,
+  }) async {
+    final trimmed = searchQuery?.trim() ?? '';
+    final rows = trimmed.isNotEmpty
+        ? await _dao.searchHadithsFts(
+            bookId,
+            trimmed,
+            limit: limit,
+            offset: offset,
+            gradeTier: gradeTier,
+          )
+        : await _dao.getHadithsPage(
+            bookId,
+            limit: limit,
+            offset: offset,
+            gradeTier: gradeTier,
+          );
+    return rows.map(_toEntity).toList();
   }
 
   @override
-  Future<List<DailyHadithEntry>> getAllHadithsPool() async {
-    final pool = <DailyHadithEntry>[];
-    for (final bookId in _bookIds) {
-      final list = await getHadithsByBook(bookId);
-      for (final item in list) {
-        if (item.arabicText.trim().isNotEmpty) {
-          pool.add(DailyHadithEntry(bookId: bookId, hadith: item));
-        }
-      }
-    }
-    return pool;
+  Future<int> countHadiths(String bookId, {String? gradeTier}) {
+    return _dao.countHadiths(bookId, gradeTier: gradeTier);
   }
 
-  String _normalizeBookId(String bookId) {
-    switch (bookId.toLowerCase()) {
-      case 'bukhari':
-      case 'sahih_bukhari':
-        return 'bukhari';
-      case 'muslim':
-      case 'sahih_muslim':
-        return 'muslim';
-      case 'riyad':
-      case 'riyad_assalihin':
-        return 'riyad';
-      case 'nawawi':
-      case 'nawawi_forty':
-      default:
-        return 'nawawi';
+  @override
+  Future<HadithItem> getHadithByNumber(String bookId, int number) async {
+    final row = await _dao.getHadithByNumber(bookId, number);
+    if (row == null) {
+      throw CacheException(
+        message: 'Hadith #$number not found in catalog ($bookId)',
+      );
     }
+    return _toEntity(row);
+  }
+
+  @override
+  Future<DailyHadithEntry> pickDailySahihHadith({
+    int? seedOffset,
+    String? excludeBook,
+    int? excludeNumber,
+  }) async {
+    final row = await _dao.pickRandomDailySahihHadith(
+      seedOffset: seedOffset,
+      excludeBook: excludeBook,
+      excludeNumber: excludeNumber,
+    );
+    if (row == null) {
+      throw CacheException(
+        message: 'No verified Sahih daily Hadith found in catalog.',
+      );
+    }
+    return DailyHadithEntry(
+      bookId: HadithSearchHelper.translationKeyForBook(row.bookId),
+      hadith: _toEntity(row),
+    );
+  }
+
+  @override
+  Future<Map<String, int>> getBookCounts() async {
+    final books = await _dao.getBooks();
+    return {
+      for (final b in books)
+        HadithSearchHelper.translationKeyForBook(b.id): b.totalCount,
+    };
   }
 }

@@ -354,5 +354,14 @@
   "muadhin_audio_source": "مصدر تسجيلات صوت الأذان: موقع إسلام ويب (islamweb.net)",
   "audio_source_credit_label": "مصدر صوت الأذان: islamweb.net",
   "hadith_read_more": "اقرأ الحديث كاملاً",
-  "hadith_shuffle_tooltip": "حديث عشوائي آخر"
+  "hadith_shuffle_tooltip": "حديث عشوائي آخر",
+  "hadith_grade_all": "كل الدرجات",
+  "hadith_grade_muttafaq": "متفق عليه",
+  "hadith_grade_sahih": "صحيح ثابت",
+  "hadith_grade_hasan_sahih": "حسن صحيح",
+  "hadith_grade_hasan": "حديث حسن",
+  "hadith_grade_needs_verification": "تخريج في المتن",
+  "hadith_strength_scale": "القوة {score}/4",
+  "hadith_filter_grade_tooltip": "تصفية حسب الدرجة",
+  "hadith_load_more_hint": "جارٍ تحميل المزيد من الأحاديث..."
 }

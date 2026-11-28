@@ -9,8 +9,10 @@ import '../api/api_interceptors.dart';
 import '../config/app_config.dart';
 import '../database/app_database.dart';
 import '../database/daos/azkar_dao.dart';
+import '../database/daos/hadith_dao.dart';
 import '../database/daos/quran_dao.dart';
 import '../database/daos/tasbeeh_dao.dart';
+import '../database/hadith_catalog_database.dart';
 import '../database/shared_prefs_migrator.dart';
 import '../theme/theme_cubit.dart';
 import '../services/native/native_alarm_bridge_service.dart';
@@ -64,6 +66,10 @@ Future<void> init() async {
   sl.registerLazySingleton<QuranDao>(() => appDb.quranDao);
   sl.registerLazySingleton<AzkarDao>(() => appDb.azkarDao);
   await SharedPrefsToDriftMigrator.migrateIfNeeded(appDb, sharedPreferences);
+
+  final hadithCatalogDb = HadithCatalogDatabase();
+  sl.registerLazySingleton<HadithCatalogDatabase>(() => hadithCatalogDb);
+  sl.registerLazySingleton<HadithDao>(() => hadithCatalogDb.hadithDao);
 
   //! Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
@@ -128,7 +134,8 @@ Future<void> init() async {
   sl.registerFactory(() => TimedAzkarCubit(sl()));
 
   // Hadith Feature
-  sl.registerLazySingleton<HadithLocalDataSource>(() => HadithLocalDataSourceImpl());
+  sl.registerLazySingleton<HadithLocalDataSource>(
+      () => HadithLocalDataSourceImpl(hadithDao: sl()));
   sl.registerLazySingleton<HadithRepository>(() => HadithRepositoryImpl(localDataSource: sl()));
   sl.registerFactory(() => HadithCubit(repository: sl()));
   sl.registerLazySingleton(() => DailyHadithCubit(repository: sl(), prefs: sl()));

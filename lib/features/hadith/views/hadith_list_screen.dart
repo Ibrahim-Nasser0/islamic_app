@@ -10,10 +10,10 @@ import '../../../core/routes/routes.dart';
 import '../../../core/utils/extensions.dart';
 import '../../../core/utils/haptics.dart';
 import '../../../core/widgets/custom_skeleton.dart';
-import '../../../core/widgets/custom_text_field.dart';
 import '../presentation/cubit/hadith_cubit.dart';
 import '../presentation/cubit/hadith_state.dart';
 import 'widgets/hadith_card_item.dart';
+import 'widgets/hadith_filter_bar.dart';
 
 class HadithListScreen extends StatelessWidget {
   final String bookId;
@@ -29,15 +29,16 @@ class HadithListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => sl<HadithCubit>()..loadHadiths(bookId),
-      child: _HadithListView(bookTitle: bookTitle),
+      child: _HadithListView(bookId: bookId, bookTitle: bookTitle),
     );
   }
 }
 
 class _HadithListView extends StatefulWidget {
+  final String bookId;
   final String bookTitle;
 
-  const _HadithListView({required this.bookTitle});
+  const _HadithListView({required this.bookId, required this.bookTitle});
 
   @override
   State<_HadithListView> createState() => _HadithListViewState();
@@ -45,9 +46,27 @@ class _HadithListView extends StatefulWidget {
 
 class _HadithListViewState extends State<_HadithListView> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final pos = _scrollController.position;
+    if (pos.pixels >= pos.maxScrollExtent - 320) {
+      context.read<HadithCubit>().loadMoreHadiths();
+    }
+  }
 
   @override
   void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -56,6 +75,11 @@ class _HadithListViewState extends State<_HadithListView> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final appColors = context.appColors;
+    final showGradeFilter =
+        widget.bookId == 'riyad' ||
+        widget.bookId == 'riyad_assalihin' ||
+        widget.bookId == 'nawawi' ||
+        widget.bookId == 'nawawi_forty';
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -85,31 +109,21 @@ class _HadithListViewState extends State<_HadithListView> {
       ),
       body: BlocBuilder<HadithCubit, HadithState>(
         builder: (context, state) {
-          if (state.isLoading) {
-            return _buildLoadingSkeleton();
-          }
-
-          final hadiths = state.filteredHadiths;
-
+          final cubit = context.read<HadithCubit>();
           return Column(
             children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
-                child: CustomTextField(
-                  controller: _searchController,
-                  hint: 'ابحث برقم الحديث أو الكلمة...',
-                  prefixIcon: Icon(
-                    Icons.search_rounded,
-                    color: appColors.textMuted,
-                    size: 20.sp,
-                  ),
-                  onChanged: (val) {
-                    context.read<HadithCubit>().searchHadiths(val);
-                  },
-                ),
+              HadithFilterBar(
+                controller: _searchController,
+                selectedGrade: state.gradeFilter,
+                totalCount: state.totalCount,
+                showGradeFilter: showGradeFilter,
+                onSearchChanged: cubit.searchHadiths,
+                onGradeSelected: cubit.setGradeFilter,
               ),
               Expanded(
-                child: hadiths.isEmpty
+                child: state.isLoading
+                    ? _buildLoadingSkeleton()
+                    : state.hadiths.isEmpty
                     ? Center(
                         child: Text(
                           'no_search_results'.tr(),
@@ -120,12 +134,23 @@ class _HadithListViewState extends State<_HadithListView> {
                         ),
                       )
                     : ListView.separated(
+                        controller: _scrollController,
                         physics: const BouncingScrollPhysics(),
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
                         padding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 32.h),
-                        itemCount: hadiths.length,
-                        separatorBuilder: (_, index) => Gap(12.h),
+                        itemCount:
+                            state.hadiths.length +
+                            (state.isLoadingMore ? 1 : 0),
+                        separatorBuilder: (_, _) => Gap(12.h),
                         itemBuilder: (context, index) {
-                          final hadith = hadiths[index];
+                          if (index >= state.hadiths.length) {
+                            return CustomSkeleton(
+                              height: 84.h,
+                              borderRadius: 16.r,
+                            );
+                          }
+                          final hadith = state.hadiths[index];
                           return HadithCardItem(
                             hadith: hadith,
                             onTap: () {
@@ -151,11 +176,8 @@ class _HadithListViewState extends State<_HadithListView> {
       padding: EdgeInsets.all(16.r),
       child: ListView.separated(
         itemCount: 5,
-        separatorBuilder: (_, index) => Gap(12.h),
-        itemBuilder: (_, index) => CustomSkeleton(
-          height: 110.h,
-          borderRadius: 16.r,
-        ),
+        separatorBuilder: (_, _) => Gap(12.h),
+        itemBuilder: (_, _) => CustomSkeleton(height: 110.h, borderRadius: 16.r),
       ),
     );
   }

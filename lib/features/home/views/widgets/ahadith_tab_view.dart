@@ -28,9 +28,9 @@ class AhadithTabView extends StatelessWidget {
 
     final books = [
       ('nawawi_forty', 'nawawi_forty'.tr(), 'nawawi_forty_subtitle'.tr(), '42'),
-      ('sahih_bukhari', 'sahih_bukhari'.tr(), 'sahih_bukhari_subtitle'.tr(), '500'),
-      ('sahih_muslim', 'sahih_muslim'.tr(), 'sahih_muslim_subtitle'.tr(), '500'),
-      ('riyad_assalihin', 'riyad_assalihin'.tr(), 'riyad_assalihin_subtitle'.tr(), '500'),
+      ('sahih_bukhari', 'sahih_bukhari'.tr(), 'sahih_bukhari_subtitle'.tr(), '7,277'),
+      ('sahih_muslim', 'sahih_muslim'.tr(), 'sahih_muslim_subtitle'.tr(), '7,459'),
+      ('riyad_assalihin', 'riyad_assalihin'.tr(), 'riyad_assalihin_subtitle'.tr(), '1,896'),
     ];
 
     final content = SingleChildScrollView(

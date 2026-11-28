@@ -9,6 +9,7 @@ import '../../../core/utils/haptics.dart';
 import '../domain/entities/hadith_item.dart';
 import 'widgets/hadith_benefit_card.dart';
 import 'widgets/hadith_content_card.dart';
+import 'widgets/hadith_grade_badge.dart';
 
 class HadithDetailScreen extends StatelessWidget {
   final HadithItem hadith;
@@ -129,13 +130,11 @@ class HadithDetailScreen extends StatelessWidget {
                   Gap(4.h),
                   Text(
                     hadith.chapter!,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: appColors.accentGold,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: TextStyle(fontSize: 12.sp, color: appColors.accentGold, fontWeight: FontWeight.w500),
                   ),
                 ],
+                Gap(10.h),
+                HadithGradeBadge(hadith: hadith, compact: false),
               ],
             ),
           ),

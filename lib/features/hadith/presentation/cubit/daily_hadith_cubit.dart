@@ -5,161 +5,125 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/entities/daily_hadith_entry.dart';
+import '../../domain/entities/hadith_item.dart';
 import '../../domain/repositories/hadith_repository.dart';
 import 'daily_hadith_state.dart';
 
-/// Manages the daily random Prophetic Hadith across all 4 bundled books.
+/// Persists one random authentic (`muttafaq`/`sahih`) Hadith per calendar day
+/// directly via indexed SQLite queries, avoiding loading the full library into RAM.
 class DailyHadithCubit extends Cubit<DailyHadithState> {
-  static const String _datePrefKey = 'daily_hadith_date';
-  static const String _bookPrefKey = 'daily_hadith_book';
-  static const String _numberPrefKey = 'daily_hadith_number';
-  static const int _maxDailyHighlightLength = 420;
+  static const String _dateKey = 'daily_hadith_date';
+  static const String _bookKey = 'daily_hadith_book';
+  static const String _numberKey = 'daily_hadith_number';
+  static const Set<String> _dailyAllowedTiers = {
+    HadithItem.tierMuttafaq,
+    HadithItem.tierSahih,
+  };
 
-  final HadithRepository _repository;
-  final SharedPreferences? _prefs;
+  final HadithRepository repository;
+  SharedPreferences? prefs;
   final Random _random;
-  List<DailyHadithEntry>? _cachedPool;
 
   DailyHadithCubit({
-    required HadithRepository repository,
-    SharedPreferences? prefs,
+    required this.repository,
+    this.prefs,
     Random? random,
-  })  : _repository = repository,
-        _prefs = prefs,
-        _random = random ?? Random(),
+  })  : _random = random ?? Random(),
         super(const DailyHadithState());
 
+  Future<SharedPreferences?> _ensurePrefs() async {
+    if (prefs != null) return prefs;
+    try {
+      prefs = await SharedPreferences.getInstance();
+    } catch (e, stackTrace) {
+      debugPrint('[DailyHadithCubit] SharedPreferences init failed: $e\n$stackTrace');
+    }
+    return prefs;
+  }
+
   Future<void> loadDailyHadith({DateTime? now}) async {
-    final todayKey = _formatDateKey(now ?? DateTime.now());
-    if (state.entry != null && state.activeDateKey == todayKey && !state.isLoading) {
-      return;
-    }
-
-    if (state.entry == null) {
-      emit(state.copyWith(isLoading: true));
-    }
-
-    final pool = await _ensurePool();
-    if (isClosed) return;
-    if (pool.isEmpty) {
-      emit(state.copyWith(isLoading: false, errorMessage: 'No hadiths available'));
-      return;
-    }
-
-    final savedDate = _prefs?.getString(_datePrefKey);
-    final savedBook = _prefs?.getString(_bookPrefKey);
-    final savedNumber = _prefs?.getInt(_numberPrefKey);
+    final todayKey = _formatDate(now ?? DateTime.now());
+    final sp = await _ensurePrefs();
+    final savedDate = sp?.getString(_dateKey);
+    final savedBook = sp?.getString(_bookKey);
+    final savedNumber = sp?.getInt(_numberKey);
 
     if (savedDate == todayKey && savedBook != null && savedNumber != null) {
-      final restored = _findEntry(pool, savedBook, savedNumber);
-      if (restored != null) {
-        emit(state.copyWith(
-          isLoading: false,
-          entry: restored,
-          activeDateKey: todayKey,
-        ));
+      if (state.entry != null && state.activeDateKey == todayKey) return;
+      final restored = await repository.getHadithByNumber(savedBook, savedNumber);
+      final cached = restored.fold((_) => null, (item) {
+        if (!_dailyAllowedTiers.contains(item.gradeTier)) return null;
+        return DailyHadithEntry(bookId: savedBook, hadith: item);
+      });
+      if (cached != null) {
+        emit(DailyHadithState(isLoading: false, entry: cached, activeDateKey: todayKey));
         return;
       }
     }
 
-    final pick = _pickRandomEntry(
-      pool,
+    await _pickAndPersist(
+      dateKey: todayKey,
       excludeBook: savedBook,
       excludeNumber: savedNumber,
     );
-    await _persistPick(todayKey, pick);
-    if (!isClosed) {
-      emit(state.copyWith(
-        isLoading: false,
-        entry: pick,
-        activeDateKey: todayKey,
-      ));
-    }
   }
 
   Future<void> shuffleHadith({DateTime? now}) async {
-    final todayKey = _formatDateKey(now ?? DateTime.now());
-    final pool = await _ensurePool();
-    if (isClosed || pool.isEmpty) return;
-
-    final current = state.entry;
-    final pick = _pickRandomEntry(
-      pool,
-      excludeBook: current?.bookId,
-      excludeNumber: current?.hadith.number,
-    );
-    await _persistPick(todayKey, pick);
-    if (!isClosed) {
-      emit(state.copyWith(
-        isLoading: false,
-        entry: pick,
-        activeDateKey: todayKey,
-      ));
-    }
-  }
-
-  Future<List<DailyHadithEntry>> _ensurePool() async {
-    if (_cachedPool != null && _cachedPool!.isNotEmpty) {
-      return _cachedPool!;
-    }
-    final result = await _repository.getAllHadithsPool();
-    return result.fold(
-      (failure) {
-        debugPrint('[DailyHadithCubit] Pool load failed: ${failure.message}');
-        return const [];
-      },
-      (list) {
-        _cachedPool = list;
-        return list;
-      },
+    final todayKey = _formatDate(now ?? DateTime.now());
+    final sp = await _ensurePrefs();
+    await _pickAndPersist(
+      dateKey: todayKey,
+      excludeBook: state.entry?.bookId ?? sp?.getString(_bookKey),
+      excludeNumber: state.entry?.hadith.number ?? sp?.getInt(_numberKey),
     );
   }
 
-  DailyHadithEntry _pickRandomEntry(
-    List<DailyHadithEntry> pool, {
+  Future<void> _pickAndPersist({
+    required String dateKey,
     String? excludeBook,
     int? excludeNumber,
-  }) {
-    final concise = pool
-        .where((e) => e.hadith.arabicText.length <= _maxDailyHighlightLength)
-        .toList();
-    final basePool = concise.isNotEmpty ? concise : pool;
-    final filtered = basePool.where((e) {
-      if (excludeBook == null || excludeNumber == null) return true;
-      return e.bookId != excludeBook || e.hadith.number != excludeNumber;
-    }).toList();
-    final candidates = filtered.isNotEmpty ? filtered : basePool;
-    return candidates[_random.nextInt(candidates.length)];
+  }) async {
+    emit(state.copyWith(isLoading: true, errorMessage: null));
+    final result = await repository.pickDailySahihHadith(
+      seedOffset: _random.nextInt(1 << 20),
+      excludeBook: excludeBook,
+      excludeNumber: excludeNumber,
+    );
+
+    await result.fold(
+      (failure) async {
+        debugPrint('[DailyHadithCubit] Pick failed: ${failure.message}');
+        emit(
+          DailyHadithState(
+            isLoading: false,
+            entry: state.entry,
+            activeDateKey: dateKey,
+            errorMessage: failure.message,
+          ),
+        );
+      },
+      (picked) async {
+        try {
+          final sp = await _ensurePrefs();
+          await sp?.setString(_dateKey, dateKey);
+          await sp?.setString(_bookKey, picked.bookId);
+          await sp?.setInt(_numberKey, picked.hadith.number);
+        } catch (e, stackTrace) {
+          debugPrint('[DailyHadithCubit] Persist failed: $e\n$stackTrace');
+        }
+        emit(
+          DailyHadithState(
+            isLoading: false,
+            entry: picked,
+            activeDateKey: dateKey,
+          ),
+        );
+      },
+    );
   }
 
-  DailyHadithEntry? _findEntry(
-    List<DailyHadithEntry> pool,
-    String bookId,
-    int number,
-  ) {
-    for (final item in pool) {
-      if (item.bookId == bookId && item.hadith.number == number) {
-        return item;
-      }
-    }
-    return null;
-  }
-
-  Future<void> _persistPick(String dateKey, DailyHadithEntry pick) async {
-    final prefs = _prefs;
-    if (prefs == null) return;
-    try {
-      await prefs.setString(_datePrefKey, dateKey);
-      await prefs.setString(_bookPrefKey, pick.bookId);
-      await prefs.setInt(_numberPrefKey, pick.hadith.number);
-    } catch (e, stackTrace) {
-      debugPrint('[DailyHadithCubit] Persist failed: $e\n$stackTrace');
-    }
-  }
-
-  String _formatDateKey(DateTime dt) {
-    final m = dt.month.toString().padLeft(2, '0');
-    final d = dt.day.toString().padLeft(2, '0');
-    return '${dt.year}-$m-$d';
-  }
+  String _formatDate(DateTime dt) =>
+      '${dt.year.toString().padLeft(4, '0')}-'
+      '${dt.month.toString().padLeft(2, '0')}-'
+      '${dt.day.toString().padLeft(2, '0')}';
 }
